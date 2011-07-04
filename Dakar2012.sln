@@ -1,0 +1,38 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual C++ Express 2010
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Dakar2012", "Dakar2012.vcxproj", "{5030B9AA-F819-4011-A0F6-70ECF9EFCC27}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "converter", "converter\converter.vcxproj", "{81AC3E70-A61F-4A9C-BFD5-7D0AC42F6967}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "map_creator", "map_creator\map_creator.vcxproj", "{A5A6F838-6CED-4928-9B19-0A7F570274DF}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "map_converter", "map_converter\map_converter.vcxproj", "{69BB1434-44BC-469A-81F2-CCD8CDB79E6C}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{5030B9AA-F819-4011-A0F6-70ECF9EFCC27}.Debug|Win32.ActiveCfg = Debug|Win32
+		{5030B9AA-F819-4011-A0F6-70ECF9EFCC27}.Debug|Win32.Build.0 = Debug|Win32
+		{5030B9AA-F819-4011-A0F6-70ECF9EFCC27}.Release|Win32.ActiveCfg = Release|Win32
+		{5030B9AA-F819-4011-A0F6-70ECF9EFCC27}.Release|Win32.Build.0 = Release|Win32
+		{81AC3E70-A61F-4A9C-BFD5-7D0AC42F6967}.Debug|Win32.ActiveCfg = Debug|Win32
+		{81AC3E70-A61F-4A9C-BFD5-7D0AC42F6967}.Debug|Win32.Build.0 = Debug|Win32
+		{81AC3E70-A61F-4A9C-BFD5-7D0AC42F6967}.Release|Win32.ActiveCfg = Release|Win32
+		{81AC3E70-A61F-4A9C-BFD5-7D0AC42F6967}.Release|Win32.Build.0 = Release|Win32
+		{A5A6F838-6CED-4928-9B19-0A7F570274DF}.Debug|Win32.ActiveCfg = Debug|Win32
+		{A5A6F838-6CED-4928-9B19-0A7F570274DF}.Debug|Win32.Build.0 = Debug|Win32
+		{A5A6F838-6CED-4928-9B19-0A7F570274DF}.Release|Win32.ActiveCfg = Release|Win32
+		{A5A6F838-6CED-4928-9B19-0A7F570274DF}.Release|Win32.Build.0 = Release|Win32
+		{69BB1434-44BC-469A-81F2-CCD8CDB79E6C}.Debug|Win32.ActiveCfg = Debug|Win32
+		{69BB1434-44BC-469A-81F2-CCD8CDB79E6C}.Debug|Win32.Build.0 = Debug|Win32
+		{69BB1434-44BC-469A-81F2-CCD8CDB79E6C}.Release|Win32.ActiveCfg = Release|Win32
+		{69BB1434-44BC-469A-81F2-CCD8CDB79E6C}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

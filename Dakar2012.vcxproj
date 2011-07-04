@@ -1,0 +1,250 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{5030B9AA-F819-4011-A0F6-70ECF9EFCC27}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>Dakar2012</RootNamespace>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+    <OutDir>$(SolutionDir)\$(ProjectName)\</OutDir>
+    <TargetName>rr2012</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+    <OutDir>$(SolutionDir)\$(ProjectName)\</OutDir>
+    <TargetName>rr2012</TargetName>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>MY_DEBUG;WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\hk2010_1_0_r1\Source;..\dx_stuff\include;..\freealut-1.1.0-bin\include;..\openal11sdk\include;..\ogre\Dependencies\include\OIS;..\irrlicht-svn-dakar2012-p1\source\Irrlicht;..\irrlicht-svn-dakar2012-p1\include;..\Cg30\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>..\ogre\Dependencies\lib\$(Configuration);..\hk2010_1_0_r1\Lib\win32_net_9-0\release_multithreaded_dll;..\openal11sdk\libs\Win32;..\freealut-1.1.0-bin\lib;..\irrlicht-svn-dakar2012-p1\lib\Win32-visualstudio;..\Cg30\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>Irrlicht.lib;cg.lib;cgD3D9.lib;cgGL.lib;opengl32.lib;OIS_d.lib;alut.lib;OpenAl32.lib;hkBase.lib;hkSerialize.lib;hkSceneData.lib;hkInternal.lib;hkGeometryUtilities.lib;hkVisualize.lib;hkCompat.lib;hkpCollide.lib;hkpConstraintSolver.lib;hkpDynamics.lib;hkpInternal.lib;hkpUtilities.lib;hkpVehicle.lib;hkaAnimation.lib;hkaInternal.lib;hkaRagdoll.lib;hkgBridge.lib;hkgCommon.lib;hkgDx9.lib;hkgDx9s.lib;hkgDx10.lib;hkgOgl.lib;hkgOgls.lib;hksCommon.lib;hksXAudio2.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\hk2010_1_0_r1\Source;..\dx_stuff\include;..\freealut-1.1.0-bin\include;..\openal11sdk\include;..\ogre\Dependencies\include\OIS;..\irrlicht-svn-dakar2012-p1\source\Irrlicht;..\irrlicht-svn-dakar2012-p1\include;..\Cg30\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalLibraryDirectories>..\ogre\Dependencies\lib\$(Configuration);..\hk2010_1_0_r1\Lib\win32_net_9-0\release_multithreaded_dll;..\openal11sdk\libs\Win32;..\freealut-1.1.0-bin\lib;..\irrlicht-svn-dakar2012-p1\lib\Win32-visualstudio;..\Cg30\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>Irrlicht.lib;cg.lib;cgD3D9.lib;cgGL.lib;opengl32.lib;alut.lib;OpenAl32.lib;OIS.lib;hkBase.lib;hkSerialize.lib;hkSceneData.lib;hkInternal.lib;hkGeometryUtilities.lib;hkVisualize.lib;hkCompat.lib;hkpCollide.lib;hkpConstraintSolver.lib;hkpDynamics.lib;hkpInternal.lib;hkpUtilities.lib;hkpVehicle.lib;hkaAnimation.lib;hkaInternal.lib;hkaRagdoll.lib;hkgBridge.lib;hkgCommon.lib;hkgDx9.lib;hkgDx9s.lib;hkgDx10.lib;hkgOgl.lib;hkgOgls.lib;hksCommon.lib;hksXAudio2.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <None Include="ReadMe.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="AIPoint.h" />
+    <ClInclude Include="CBillboardGroupSceneNode.h" />
+    <ClInclude Include="Competitor.h" />
+    <ClInclude Include="ConfigDirectory.h" />
+    <ClInclude Include="ConfigFile.h" />
+    <ClInclude Include="CTreeGenerator.h" />
+    <ClInclude Include="CTreeSceneNode.h" />
+    <ClInclude Include="Day.h" />
+    <ClInclude Include="error.h" />
+    <ClInclude Include="EventReceiver.h" />
+    <ClInclude Include="FontManager.h" />
+    <ClInclude Include="GamePlay.h" />
+    <ClInclude Include="GamePlay_defs.h" />
+    <ClInclude Include="hk.h" />
+    <ClInclude Include="Hud.h" />
+    <ClInclude Include="IrrCg.h" />
+    <ClInclude Include="IrrCgExtensionHandler.h" />
+    <ClInclude Include="IrrCgMaterial.h" />
+    <ClInclude Include="IrrCgSceneNode.h" />
+    <ClInclude Include="IteratorWrapper.h" />
+    <ClInclude Include="ItinerManager.h" />
+    <ClInclude Include="ItinerPoint.h" />
+    <ClInclude Include="KeyConfig.h" />
+    <ClInclude Include="MenuManager.h" />
+    <ClInclude Include="MenuPageBase.h" />
+    <ClInclude Include="MenuPageEditor.h" />
+    <ClInclude Include="MenuPageEditorDay.h" />
+    <ClInclude Include="MenuPageEditorRace.h" />
+    <ClInclude Include="MenuPageEditorRoad.h" />
+    <ClInclude Include="MenuPageEditorStage.h" />
+    <ClInclude Include="MenuPageInGame.h" />
+    <ClInclude Include="MenuPageMain.h" />
+    <ClInclude Include="MenuPageOptions.h" />
+    <ClInclude Include="MenuPageOptionsKB.h" />
+    <ClInclude Include="MenuPageStage.h" />
+    <ClInclude Include="MessageManager.h" />
+    <ClInclude Include="MyLock.h" />
+    <ClInclude Include="MySound.h" />
+    <ClInclude Include="MyThread.h" />
+    <ClInclude Include="ObjectPool.h" />
+    <ClInclude Include="ObjectPoolManager.h" />
+    <ClInclude Include="ObjectWire.h" />
+    <ClInclude Include="ObjectWireGlobalObject.h" />
+    <ClInclude Include="OffsetManager.h" />
+    <ClInclude Include="OffsetObject.h" />
+    <ClInclude Include="Player.h" />
+    <ClInclude Include="Player_defs.h" />
+    <ClInclude Include="Race.h" />
+    <ClInclude Include="RaceEngine.h" />
+    <ClInclude Include="RaceManager.h" />
+    <ClInclude Include="Road.h" />
+    <ClInclude Include="RoadManager.h" />
+    <ClInclude Include="RoadType.h" />
+    <ClInclude Include="RoadTypeManager.h" />
+    <ClInclude Include="ScreenQuad.h" />
+    <ClInclude Include="Settings.h" />
+    <ClInclude Include="Shaders.h" />
+    <ClInclude Include="ShadersSM20.h" />
+    <ClInclude Include="Stage.h" />
+    <ClInclude Include="stdafx.h" />
+    <ClInclude Include="STreeMesh.h" />
+    <ClInclude Include="StringConverter.h" />
+    <ClInclude Include="targetver.h" />
+    <ClInclude Include="Terrain.h" />
+    <ClInclude Include="TerrainCircle.h" />
+    <ClInclude Include="TerrainDetail.h" />
+    <ClInclude Include="TerrainLarge.h" />
+    <ClInclude Include="TerrainSceneNode.h" />
+    <ClInclude Include="Terrain_defs.h" />
+    <ClInclude Include="TheEarth.h" />
+    <ClInclude Include="TheGame.h" />
+    <ClInclude Include="Tick.h" />
+    <ClInclude Include="Tile.h" />
+    <ClInclude Include="Vehicle.h" />
+    <ClInclude Include="VehicleManager.h" />
+    <ClInclude Include="VehicleType.h" />
+    <ClInclude Include="VehicleTypeManager.h" />
+    <ClInclude Include="VisualRoad.h" />
+    <ClInclude Include="WayPoint.h" />
+    <ClInclude Include="WayPointManager.h" />
+    <ClInclude Include="WStringConverter.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="AIPoint.cpp" />
+    <ClCompile Include="CBillboardGroupSceneNode.cpp" />
+    <ClCompile Include="Competitor.cpp" />
+    <ClCompile Include="ConfigDirectory.cpp" />
+    <ClCompile Include="ConfigFile.cpp" />
+    <ClCompile Include="CTreeGenerator.cpp" />
+    <ClCompile Include="CTreeSceneNode.cpp" />
+    <ClCompile Include="Dakar2012.cpp" />
+    <ClCompile Include="Day.cpp" />
+    <ClCompile Include="error.cpp" />
+    <ClCompile Include="EventReceiver.cpp" />
+    <ClCompile Include="FontManager.cpp" />
+    <ClCompile Include="GamePlay.cpp" />
+    <ClCompile Include="hk.cpp" />
+    <ClCompile Include="Hud.cpp" />
+    <ClCompile Include="IrrCg.cpp" />
+    <ClCompile Include="IrrCgMaterial.cpp" />
+    <ClCompile Include="IrrCgSceneNode.cpp" />
+    <ClCompile Include="ItinerManager.cpp" />
+    <ClCompile Include="ItinerPoint.cpp" />
+    <ClCompile Include="KeyConfig.cpp" />
+    <ClCompile Include="MenuManager.cpp" />
+    <ClCompile Include="MenuPageBase.cpp" />
+    <ClCompile Include="MenuPageEditor.cpp" />
+    <ClCompile Include="MenuPageEditorDay.cpp" />
+    <ClCompile Include="MenuPageEditorRace.cpp" />
+    <ClCompile Include="MenuPageEditorRoad.cpp" />
+    <ClCompile Include="MenuPageEditorStage.cpp" />
+    <ClCompile Include="MenuPageInGame.cpp" />
+    <ClCompile Include="MenuPageMain.cpp" />
+    <ClCompile Include="MenuPageOptions.cpp" />
+    <ClCompile Include="MenuPageOptionsKB.cpp" />
+    <ClCompile Include="MenuPageStage.cpp" />
+    <ClCompile Include="MessageManager.cpp" />
+    <ClCompile Include="MySound.cpp" />
+    <ClCompile Include="MyThread.cpp" />
+    <ClCompile Include="ObjectPool.cpp" />
+    <ClCompile Include="ObjectPoolManager.cpp" />
+    <ClCompile Include="ObjectWire.cpp" />
+    <ClCompile Include="ObjectWireGlobalObject.cpp" />
+    <ClCompile Include="OffsetManager.cpp" />
+    <ClCompile Include="OffsetObject.cpp" />
+    <ClCompile Include="Player.cpp" />
+    <ClCompile Include="Race.cpp" />
+    <ClCompile Include="RaceEngine.cpp" />
+    <ClCompile Include="RaceManager.cpp" />
+    <ClCompile Include="Road.cpp" />
+    <ClCompile Include="RoadManager.cpp" />
+    <ClCompile Include="RoadType.cpp" />
+    <ClCompile Include="RoadTypeManager.cpp" />
+    <ClCompile Include="Settings.cpp" />
+    <ClCompile Include="Shaders.cpp" />
+    <ClCompile Include="ShadersSM20.cpp" />
+    <ClCompile Include="Stage.cpp" />
+    <ClCompile Include="stdafx.cpp" />
+    <ClCompile Include="Terrain.cpp" />
+    <ClCompile Include="TerrainCircle.cpp" />
+    <ClCompile Include="TerrainDetail.cpp" />
+    <ClCompile Include="TerrainLarge.cpp" />
+    <ClCompile Include="TerrainSceneNode.cpp" />
+    <ClCompile Include="TheEarth.cpp" />
+    <ClCompile Include="TheGame.cpp" />
+    <ClCompile Include="Tile.cpp" />
+    <ClCompile Include="Vehicle.cpp" />
+    <ClCompile Include="VehicleManager.cpp" />
+    <ClCompile Include="VehicleType.cpp" />
+    <ClCompile Include="VehicleTypeManager.cpp" />
+    <ClCompile Include="VisualRoad.cpp" />
+    <ClCompile Include="WayPoint.cpp" />
+    <ClCompile Include="WayPointManager.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Dakar2012.rc" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

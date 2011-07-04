@@ -1,0 +1,17 @@
+/////////////////////////////////////////////////////////////////////////////
+
+//
+
+// Icon
+
+//
+
+
+
+// Icon with lowest ID value placed first to ensure application icon
+
+// remains consistent on all systems.
+
+IDI_APPLICATION     ICON          "Dakar2012.ico"
+IDR_MAINFRAME       ICON    DISCARDABLE     "Dakar2012.ico"
+IDR_DEVICETYPE      ICON    DISCARDABLE     "Dakar2012.ico"
