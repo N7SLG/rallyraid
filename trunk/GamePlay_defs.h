@@ -1,0 +1,7 @@
+
+#ifndef GAMEPLAY_DEFS_H
+#define GAMEPLAY_DEFS_H
+
+#define RESET_PENALITY 120
+
+#endif // GAMEPLAY_DEFS_H
