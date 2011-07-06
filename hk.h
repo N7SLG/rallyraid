@@ -8,6 +8,7 @@
 #include <Physics/Collide/Shape/Convex/Box/hkpBoxShape.h>
 #include <Physics/Collide/Shape/Convex/Cylinder/hkpCylinderShape.h>
 #include <Physics/Collide/Shape/Convex/ConvexVertices/hkpConvexVerticesShape.h>
+#include <Physics/Collide/Shape/Compound/Collection/ExtendedMeshShape/hkpExtendedMeshShape.h>
 #include <Common/Internal/ConvexHull/hkGeometryUtility.h>
 #include <Physics/Vehicle/hkpVehicleInstance.h>
 #include <Physics/Vehicle/hkpVehicle.h>
@@ -23,6 +24,7 @@ public:
         const static unsigned int wheelId       = 2;
         const static unsigned int treeId        = 3;
         const static unsigned int terrainId     = 4;
+        const static unsigned int roadId        = 5;
     };
 public:
     static void initialize();

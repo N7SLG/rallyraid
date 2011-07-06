@@ -16,6 +16,7 @@ public:
     {
         MI_WINDOW = MAX_MENU_ITEMS * MenuManager::MP_MAIN,
         MI_BUTTONSTART,
+        MI_BUTTONLOAD,
         MI_BUTTONOPTIONS,
 
         MI_TABLERACES,

@@ -38,6 +38,8 @@ public:
     void render();
 
     void updateRoadBook();
+    
+    irr::gui::IGUIStaticText* getEditorText(); // inline
 
 private:
     bool            visible;
@@ -51,6 +53,7 @@ private:
     irr::gui::IGUIStaticText*   tmPartText;
     irr::gui::IGUIStaticText*   tmTotalText;
     irr::gui::IGUIStaticText*   speedText;
+    irr::gui::IGUIStaticText*   editorText;
 
     RoadBookEntry roadBookEntries[4];
 };
@@ -58,6 +61,11 @@ private:
 inline bool Hud::getVisible()
 {
     return visible;
+}
+
+inline irr::gui::IGUIStaticText* Hud::getEditorText()
+{
+    return editorText;
 }
 
 #endif // HUD_H

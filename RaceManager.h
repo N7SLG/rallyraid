@@ -83,6 +83,7 @@ public:
     Race* getCurrentRace(); // inline
     Day* getCurrentDay(); // inline
     Stage* getCurrentStage(); // inline
+    Stage* getNextStage(); // inline
 
     void activateStage(Stage* stage);
     const heightModifierList_t& getCurrentHeightModifierList();
@@ -99,6 +100,8 @@ public:
 
     static void readHeightModifierList(const std::string& fileName, heightModifierList_t& heightModifierList);
     static bool writeHeightModifierList(const std::string& fileName, const heightModifierList_t& heightModifierList);
+
+    static Stage* getNextStage(Race* race, Stage* stage);
 
 private:
     static void editorRenderObjects(const globalObjectList_t& globalObjectList);
@@ -170,6 +173,11 @@ inline Day* RaceManager::getCurrentDay()
 inline Stage* RaceManager::getCurrentStage()
 {
     return currentStage;
+}
+
+inline Stage* RaceManager::getNextStage()
+{
+    return getNextStage(currentRace, currentStage);
 }
 
 #endif // RACEMANAGER_H

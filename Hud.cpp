@@ -103,7 +103,8 @@ Hud::Hud()
       compassText(0),
       tmPartText(0),
       tmTotalText(0),
-      speedText(0)
+      speedText(0),
+      editorText(0)
 {
     miniMapQuad = new ScreenQuad(TheGame::getInstance()->getDriver(),
         irr::core::position2di(HUD_PADDING, TheGame::getInstance()->getDriver()->getScreenSize().Height - MINIMAP_SIZE - 2*HUD_PADDING - 30),
@@ -259,6 +260,7 @@ Hud::Hud()
     speedText->setOverrideFont(FontManager::getInstance()->getFont(FontManager::FONT_EXTRALARGEBOLD));
     speedText->setOverrideColor(irr::video::SColor(255, 255, 255, 255));
 
+    editorText = TheGame::getInstance()->getEnv()->addStaticText(L"", irr::core::recti(10, 10, 790, 30), false, true, 0, -1, true);
 }
 
 Hud::~Hud()
@@ -324,6 +326,7 @@ void Hud::setVisible(bool newVisible)
     tmPartText->setVisible(visible);
     tmTotalText->setVisible(visible);
     speedText->setVisible(visible);
+    editorText->setVisible(TheGame::getInstance()->getEditorMode() && visible);
 
     updateRoadBook();
 }

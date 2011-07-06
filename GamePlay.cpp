@@ -16,6 +16,7 @@
 #include "stdafx.h"
 #include "ConfigDirectory.h"
 #include "Hud.h"
+#include "error.h"
 #include <assert.h>
 
 
@@ -43,8 +44,10 @@ GamePlay::GamePlay()
     : currentRace(0),
       currentStage(0),
       raceState(),
-      raceEngine(0)
+      raceEngine(0),
+      loadableGames()
 {
+    refreshLoadableGames();
 }
 
 GamePlay::~GamePlay()
@@ -123,6 +126,65 @@ void GamePlay::startNewGame(Race* race, VehicleType* vehicleType)
     }
 }
 
+bool GamePlay::goToNextStage()
+{
+    if (Player::getInstance()->getStarter() != 0 && Player::getInstance()->getStarter()->finishTime == 0)
+    {
+        return false;
+    }
+
+    VehicleType* vehicleType = VehicleTypeManager::getInstance()->getVehicleType(Player::getInstance()->getCompetitor()->getVehicleTypeName());
+    if (vehicleType)
+    {
+        Stage* stage = RaceManager::getInstance()->getNextStage();
+        
+        if (stage == 0)
+        {
+            return false;
+        }
+
+        // release old resources
+        if (raceEngine)
+        {
+            while (raceEngine && raceEngine->update(0, irr::core::vector3df(), RaceEngine::AtTheEnd));
+            delete raceEngine;
+            raceEngine = 0;
+        }
+        
+        assert(!raceState.empty());
+
+        // reinitalize new resources
+        StageState* stageState = new StageState;
+
+        stageState->stage = stage;
+        const competitorResultList_t& competitorResultList = raceState.back()->competitorResultListStage;
+        for (competitorResultList_t::const_iterator it = competitorResultList.begin();
+             it != competitorResultList.end();
+             it++)
+        {
+            CompetitorResult* competitorResult = new CompetitorResult(
+                (*it)->competitor, 0, 0, (*it)->globalTime, (*it)->globalPenalityTime);
+            stageState->competitorResultListStage.push_back(competitorResult);
+        }
+
+        raceState.push_back(stageState);
+
+        if (TheGame::getInstance()->getEditorMode()==false)
+        {
+            raceEngine = new RaceEngine(stageState, raceState.size());
+            clearCompetitorResultList(stageState->competitorResultListStage);
+            while (raceEngine && raceEngine->update(0, irr::core::vector3df(), RaceEngine::AtStart));
+        }
+        else
+        {
+            clearCompetitorResultList(stageState->competitorResultListStage);
+        }
+        startStage(stage, vehicleType);
+        return true;
+    }
+    return false;
+}
+
 bool GamePlay::loadGame(const std::string& saveName)
 {
     assert(TheGame::getInstance()->getEditorMode()==false);
@@ -181,22 +243,30 @@ bool GamePlay::saveGame(const std::string& saveName)
 
     bool ret = ((raceEngine != 0) && (currentRace != 0) && (!raceState.empty()));
 
-
     if (ret)
     {
-        ret = writeStageStateList(SAVE_STATE(saveName), raceState);
+        ret = ConfigDirectory::mkdir(SAVE_DIR);
         if (ret)
         {
-            ret = raceEngine->save(SAVE_ENGINE(saveName));
+            ret = ConfigDirectory::mkdir(SAVE_DIR_DIR(saveName));
             if (ret)
             {
-                ret = Player::getInstance()->save(SAVE_PLAYER(saveName));
+                ret = writeStageStateList(SAVE_STATE(saveName), raceState);
+                if (ret)
+                {
+                    ret = raceEngine->save(SAVE_ENGINE(saveName));
+                    if (ret)
+                    {
+                        ret = Player::getInstance()->save(SAVE_PLAYER(saveName));
+                    }
+                }
             }
         }
     }
     if (!ret)
     {
         dprintf(MY_DEBUG_ERROR, "GamePlay::saveGame(): unable to write save game: %s\n", saveName.c_str());
+        //PrintMessage(1, "Unable to save game: [%s]", saveName.c_str());
     }
     return ret;
 }
@@ -257,10 +327,13 @@ void GamePlay::update(unsigned int tick, const irr::core::vector3df& apos)
 {
     if (raceEngine)
     {
-        assert(Player::getInstance()->getStarter()!=0);
-        if (Player::getInstance()->getStarter()->startTime==0 ||
+        //assert(Player::getInstance()->getStarter()!=0);
+        if (Player::getInstance()->getStarter() == 0 ||
+            Player::getInstance()->getStarter()->startTime==0 ||
             (Player::getInstance()->getStarter()->startTime!=0 && Player::getInstance()->getFirstPressed()))
-        raceEngine->update(tick, apos, RaceEngine::InTheMiddle);
+        {
+            raceEngine->update(tick, apos, RaceEngine::InTheMiddle);
+        }
     }
 }
 
@@ -323,6 +396,56 @@ unsigned int GamePlay::competitorFinished(CompetitorResult* competitorResult)
     }
 
     return insertPos;
+}
+
+void GamePlay::refreshLoadableGames()
+{
+    loadableGames.clear();
+
+    ConfigDirectory::fileList_t fileList;
+    
+    dprintf(MY_DEBUG_NOTE, "Read [%s] directory:\n", SAVE_DIR.c_str());
+
+    bool ret = ConfigDirectory::load(SAVE_DIR.c_str(), "racestate", fileList);
+    
+    if (!ret)
+    {
+        dprintf(MY_DEBUG_WARNING, "unable to read [%s] directory\n", SAVE_DIR.c_str());
+        return;
+    }
+    
+    for (ConfigDirectory::fileList_t::const_iterator it = fileList.begin();
+         it != fileList.end();
+         it++)
+    {
+        std::string saveName = it->c_str();
+        char raceName[256];
+        FILE* f;
+        int rc;
+        
+        errno_t error = fopen_s(&f, SAVE_STATE(saveName).c_str(), "r");
+        if (error)
+        {
+            printf("stage state file unable to open: %s\n", SAVE_STATE(saveName).c_str());
+            continue;
+        }
+        rc = fscanf_s(f, "%s\n", raceName);
+        if (rc < 1)
+        {
+            printf("stage state unable to read race name: %s\n", SAVE_STATE(saveName).c_str());
+            fclose(f);
+            continue;
+        }
+        Race* race = RaceManager::getInstance()->getRace(raceName);
+        if (race == 0)
+        {
+            printf("unable to find race: %s\n", raceName);
+            fclose(f);
+            continue;
+        }
+        loadableGames[saveName] = race->getLongName();
+        fclose(f);
+    }
 }
 
 /* static */ bool GamePlay::readStageStateList(const std::string& filename, stageStateList_t& stageStateList)

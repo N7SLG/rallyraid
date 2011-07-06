@@ -363,3 +363,46 @@ const heightModifierList_t& RaceManager::getCurrentHeightModifierList()
     fclose(f);
     return true;
 }
+
+/* static */ Stage* RaceManager::getNextStage(Race* race, Stage* stage)
+{
+    if (stage==0 || race == 0) return 0;
+    
+    bool found = false;
+    Race::dayMap_t::const_iterator dit = race->getDayMap().begin();
+    Day::stageMap_t::const_iterator sit;
+    for (; dit != race->getDayMap().end(); dit++)
+    {
+        for (sit = dit->second->getStageMap().begin(); sit != dit->second->getStageMap().end(); sit++)
+        {
+            if (sit->second == stage)
+            {
+                found = true;
+                break;
+            }
+        }
+        if (found)
+        {
+            break;
+        }
+    }
+    
+    if (found)
+    {
+        sit++;
+        if (sit != dit->second->getStageMap().end())
+        {
+            return sit->second;
+        }
+        // stage end check the next day
+        dit++;
+        if (dit != race->getDayMap().end())
+        {
+            if (!dit->second->getStageMap().empty())
+            {
+                return dit->second->getStageMap().begin()->second;
+            }
+        }
+    }
+    return 0;
+}

@@ -41,6 +41,7 @@ public:
     std::string             driverType;
     bool                    fullScreen;
     bool                    vsync;
+    bool                    scanForJoystick;
 };
 
 #endif // SETTINGS_H

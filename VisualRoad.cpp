@@ -9,11 +9,12 @@
 #include "RoadType.h"
 #include "OffsetObject.h"
 #include "OffsetManager.h"
+#include "ObjectPool.h"
 #include "stdafx.h"
 #include "Shaders.h"
 
-#include <Physics/Collide/Shape/Compound/Collection/ExtendedMeshShape/hkpExtendedMeshShape.h>
-#include <Physics/Collide/Shape/Compound/Collection/Mesh/hkpMeshMaterial.h>
+//#include <Physics/Collide/Shape/Compound/Collection/ExtendedMeshShape/hkpExtendedMeshShape.h>
+//#include <Physics/Collide/Shape/Compound/Collection/Mesh/hkpMeshMaterial.h>
 //#include <Physics/Collide/Shape/Compound/Collection/ExtendedMeshShape/hkpExtendedMeshShape.inl>
 
 
@@ -246,141 +247,27 @@ void VisualRoad::switchToVisible()
         roadNode->setMaterialType(Shaders::getInstance()->materialMap["normal_no_light_t"]);
     }
 //////////////////
+    // turned off the physics because it is extremelly slow
 #if 0
     if (roadType->frictionMulti > 0.01f)
     {
-        hkVector4* hkVertexArray = 0;
-        dprintf(MY_DEBUG_NOTE, "road build begin %d\n", animatedMesh->getMeshBufferCount());
+
+        hkShape = ObjectPool::calculateNonConvexCollisionMeshMeshes(animatedMesh);
+        if (hkShape) 
         {
-            int j;
-            int v1i, v2i, v3i;
-            //IMeshBuffer *mb;
-            float vArray[9]; // vertex array (3*3 floats)
-            float maxes[3] = {0.f,0.f,0.f};
-            float mines[3] = {100000.f,100000.f,100000.f};
-            int pols = 0;
-            int step = 1;
+            hk::lock();
+            hkpRigidBodyCinfo rbCi;
+            rbCi.m_shape = hkShape;
+            rbCi.m_motionType = hkpMotion::MOTION_FIXED;
+            rbCi.m_collisionFilterInfo = hkpGroupFilter::calcFilterInfo(hk::materialType::roadId);
+            hkBody = new hkpRigidBody(rbCi);
             
-            irr::scene::IMeshBuffer* mb = animatedMesh->getMeshBuffer(0);
-            //assert(mb->getIndexType()==EIT_32BIT);
-    
-            irr::video::S3DVertex/*2TCoords*/* mb_vertices = (irr::video::S3DVertex2TCoords*)mb->getVertices();
-
-            unsigned short* mb_indices  = mb->getIndices();
+            hkpPropertyValue val(1);
+            hkBody->addProperty(hk::materialType::roadId, val);
             
-            //float* my_vertices = new float[3*mb->getIndexCount()];
-            hkVertexArray = (hkVector4*)(new char[sizeof(hkVector4)*mb->getVertexCount()]);
-            for (j=0; j<mb->getVertexCount(); j++)
-            {
-                hkVertexArray[j] = hkVector4(mb_vertices[j].Pos.X, mb_vertices[j].Pos.Y, mb_vertices[j].Pos.Z);
-            }
-            dprintf(MY_DEBUG_NOTE, "index count: %d vertex count %d\n", mb->getIndexCount(), mb->getVertexCount());
-            if (mb->getIndexType()==irr::video::EIT_32BIT/*mb->getVertexCount()>= 256*256*/)
-            {
-                step = 2;
-            }
-            dprintf(MY_DEBUG_NOTE, "using step = %u index type %u\n", step, mb->getIndexType());
-            // add each triangle from the mesh
-            for (j=0; j<mb->getIndexCount()*step; j+=3*step)
-            {
-                //printf("pol: %d\n", j);
-                pols++;
-                if (step == 1)
-                {
-                    v1i = mb_indices[j];
-                    v2i = mb_indices[j+1];
-                    v3i = mb_indices[j+2];
-                }
-                else
-                {
-                    v1i = *((int*)&mb_indices[j]);
-                    v2i = *((int*)&mb_indices[j+2]);
-                    v3i = *((int*)&mb_indices[j+4]);
-                }
-
-                vArray[0] = mb_vertices[v1i].Pos.X;
-                vArray[1] = mb_vertices[v1i].Pos.Y;
-                vArray[2] = mb_vertices[v1i].Pos.Z;
-                vArray[3] = mb_vertices[v2i].Pos.X;
-                vArray[4] = mb_vertices[v2i].Pos.Y;
-                vArray[5] = mb_vertices[v2i].Pos.Z;
-                vArray[6] = mb_vertices[v3i].Pos.X;
-                vArray[7] = mb_vertices[v3i].Pos.Y;
-                vArray[8] = mb_vertices[v3i].Pos.Z;
-                if (vArray[0]>maxes[0]) maxes[0] = vArray[0];
-                if (vArray[1]>maxes[1]) maxes[1] = vArray[1];
-                if (vArray[2]>maxes[2]) maxes[2] = vArray[2];
-                if (vArray[3]>maxes[0]) maxes[0] = vArray[3];
-                if (vArray[4]>maxes[1]) maxes[1] = vArray[4];
-                if (vArray[5]>maxes[2]) maxes[2] = vArray[5];
-                if (vArray[6]>maxes[0]) maxes[0] = vArray[6];
-                if (vArray[7]>maxes[1]) maxes[1] = vArray[7];
-                if (vArray[8]>maxes[2]) maxes[2] = vArray[8];
-    
-                if (vArray[0]<mines[0]) mines[0] = vArray[0];
-                if (vArray[1]<mines[1]) mines[1] = vArray[1];
-                if (vArray[2]<mines[2]) mines[2] = vArray[2];
-                if (vArray[3]<mines[0]) mines[0] = vArray[3];
-                if (vArray[4]<mines[1]) mines[1] = vArray[4];
-                if (vArray[5]<mines[2]) mines[2] = vArray[5];
-                if (vArray[6]<mines[0]) mines[0] = vArray[6];
-                if (vArray[7]<mines[1]) mines[1] = vArray[7];
-                if (vArray[8]<mines[2]) mines[2] = vArray[8];
-                //dprintf(printf("v1i %d: %f %f %f\n", v1i, vArray[0], vArray[1], vArray[2]);)
-                //dprintf(printf("v2i %d: %f %f %f\n", v2i, vArray[3], vArray[4], vArray[5]);)
-                //dprintf(printf("v3i %d: %f %f %f\n", v3i, vArray[6], vArray[7], vArray[8]);)
-            }
-            dprintf(MY_DEBUG_NOTE, "road pols: %d mines: %f %f %f\n", pols, mines[0], mines[1], mines[2]);
-            dprintf(MY_DEBUG_NOTE, "road pols: %d maxes: %f %f %f\n", pols, maxes[0], maxes[1], maxes[2]);
-            //mb->drop();
+            hk::hkWorld->addEntity(hkBody);
+            hk::unlock();
         }
-        dprintf(MY_DEBUG_NOTE, "collisionendbuild\n");
-        dprintf(MY_DEBUG_NOTE, "road build end\n");
-    
-        /*
-        dprintf(MY_DEBUG_NOTE, "1 - %u\n", animatedMesh->getMeshBuffer(0)->getVertexCount());
-        hkShape = new hkpExtendedMeshShape();
-        hkpExtendedMeshShape::TrianglesSubpart part;
-        //animatedMesh->getMeshBuffer(0)->getVertices()
-        part.m_vertexBase = reinterpret_cast<hkReal*>(hkVertexArray);
-        part.m_vertexStriding = sizeof(hkVector4);
-        part.m_numVertices = animatedMesh->getMeshBuffer(0)->getVertexCount();
-
-        part.m_indexBase = animatedMesh->getMeshBuffer(0)->getIndices();
-        part.m_stridingType = animatedMesh->getMeshBuffer(0)->getIndexType()==EIT_32BIT ?
-            hkpExtendedMeshShape::INDICES_INT32 : hkpExtendedMeshShape::INDICES_INT16;
-        part.m_indexStriding = animatedMesh->getMeshBuffer(0)->getIndexType()==EIT_32BIT ?
-            3*sizeof(hkInt32) : 3*sizeof(hkInt16);
-        part.m_numTriangleShapes = animatedMesh->getMeshBuffer(0)->getIndexCount();
-
-        part.m_materialIndexStridingType = hkpExtendedMeshShape::MATERIAL_INDICES_INT8;
-        void* tmpv = (void*)new hkUint8[part.m_numTriangleShapes];
-        memset(tmpv, 0, sizeof(hkUint8) * part.m_numTriangleShapes);
-        part.m_materialIndexBase = tmpv;
-        part.m_materialIndexStriding = sizeof(hkUint8);
-
-        part.m_materialBase = new hkpMeshMaterial();
-        part.m_materialStriding = sizeof(hkpMeshMaterial);
-        part.m_numMaterials = 1;
-
-        dprintf(MY_DEBUG_NOTE, "2\n");
-
-        ((hkpExtendedMeshShape*)hkShape)->addTrianglesSubpart(part);
-
-        dprintf(MY_DEBUG_NOTE, "3\n");
-
-        hkpRigidBodyCinfo rbCi;
-        rbCi.m_shape = hkShape;
-        rbCi.m_motionType = hkpMotion::MOTION_FIXED;
-        hkBody = new hkpRigidBody(rbCi);
-        hkpPropertyValue val(1);
-        hkBody->addProperty(roadID, val);
-        hkWorld->addEntity(hkBody);
-
-        delete [] (char*)hkVertexArray;
-        delete [] tmpv;
-        delete part.m_materialBase;
-        */
     }
 #endif // 0 or 1
 ////////////////////////

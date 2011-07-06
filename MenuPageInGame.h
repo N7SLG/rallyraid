@@ -15,6 +15,8 @@ public:
     {
         MI_WINDOW = MAX_MENU_ITEMS * MenuManager::MP_INGAME,
         MI_BUTTONBACK,
+        MI_BUTTONLOAD,
+        MI_BUTTONSAVE,
         MI_BUTTONOPTIONS,
 
         MI_TABLESTAGES,
@@ -46,6 +48,8 @@ private:
     irr::gui::IGUITable*    tableStages;
     irr::gui::IGUITable*    tableCompetitors;
     irr::gui::IGUITable*    tableCompetitorsG;
+
+    bool                    willOpenOtherWindow;
 };
 
 #endif // MENUPAGEINGAME_H
