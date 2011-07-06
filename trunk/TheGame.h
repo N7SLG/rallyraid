@@ -117,8 +117,9 @@ private:
     float                           cameraAngle;
     bool                            inGame;
     bool                            editorMode;
+    unsigned int                    editorSeconds;
+    unsigned int                    editorLastTick;
 
-    irr::gui::IGUIStaticText*       testText;
     irr::scene::ISceneNode*         skydome;
 };
 

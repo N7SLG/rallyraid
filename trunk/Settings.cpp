@@ -41,7 +41,8 @@ Settings::Settings()
       displayBits(16),
       driverType("opengl"),
       fullScreen(true),
-      vsync(false)
+      vsync(false),
+      scanForJoystick(true)
 {
     read();
 }
@@ -135,6 +136,9 @@ void Settings::read()
             } else if (keyName == "vsync")
             {
                 vsync = StringConverter::parseBool(valName, false);
+            } else if (keyName == "scan_for_joystick")
+            {
+                scanForJoystick = StringConverter::parseBool(valName, true);
             }
         }
     }
@@ -171,6 +175,7 @@ void Settings::write()
     ret = fprintf(f, "driver_type=%s\n", driverType.c_str());
     ret = fprintf(f, "full_screen=%s\n", fullScreen?"yes":"no");
     ret = fprintf(f, "vsync=%s\n", vsync?"yes":"no");
+    ret = fprintf(f, "scan_for_joystick=%s\n", scanForJoystick?"yes":"no");
 
     fclose(f);
 }

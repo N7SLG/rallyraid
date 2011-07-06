@@ -32,6 +32,7 @@ public:
         MP_INGAME,
         MP_OPTIONS,
         MP_OPTIONSKB,
+        MP_LOADSAVE,
         NUMBER_OF_MENUPAGES
     };
 

@@ -13,6 +13,7 @@
 #include "Settings.h"
 
 #include "stdafx.h"
+#include "error.h"
 
 #include <OISEvents.h>
 #include <OISInputManager.h>
@@ -33,9 +34,25 @@ EventReceiver::EventReceiver()
 {
     inputManager = OIS::InputManager::createInputSystem(TheGame::getInstance()->getWindowId());
 
+    if (inputManager->getNumberOfDevices(OIS::OISKeyboard) <= 0)
+    {
+        PrintError(1, "Unable to detect keyboard. Program will exit");
+        assert(0);
+    }
     keyboard = static_cast<OIS::Keyboard*>(inputManager->createInputObject(OIS::OISKeyboard, false));
     //mouse = static_cast<OIS::Mouse*>(inputManager->createInputObject(OIS::OISMouse, false));
-    joystick = static_cast<OIS::JoyStick*>(inputManager->createInputObject(OIS::OISJoyStick, false));
+    dprintf(MY_DEBUG_ERROR, "If crash here turn the scan_for_joystick off in the settings file\n");
+    if (Settings::getInstance()->scanForJoystick && inputManager->getNumberOfDevices(OIS::OISJoyStick) > 0)
+    {
+        joystick = static_cast<OIS::JoyStick*>(inputManager->createInputObject(OIS::OISJoyStick, false));
+    }
+    else
+    {
+        if (Settings::getInstance()->scanForJoystick)
+        {
+            PrintMessage(1, "Unable to detect joystick. Program will continue.\nYou can turn off joystick check if set scan_for_joystick to no in the settings file");
+        }
+    }
 
     recalibrate();
 
@@ -113,8 +130,11 @@ EventReceiver::~EventReceiver()
         //mouse = 0;
         inputManager->destroyInputObject(keyboard);
         keyboard = 0;
-        inputManager->destroyInputObject(joystick);
-        joystick = 0;
+        if (joystick)
+        {
+            inputManager->destroyInputObject(joystick);
+            joystick = 0;
+        }
  
         OIS::InputManager::destroyInputSystem(inputManager);
         inputManager = 0;
@@ -123,9 +143,12 @@ EventReceiver::~EventReceiver()
 
 void EventReceiver::recalibrate()
 {
-    joystick->capture();
-    //centralJoystickState = joystick->getJoyStickState();
-    KeyConfig::recalibrate(joystick);
+    if (joystick)
+    {
+        joystick->capture();
+        //centralJoystickState = joystick->getJoyStickState();
+        KeyConfig::recalibrate(joystick);
+    }
 }
 
 void EventReceiver::updateWindow(unsigned int width, unsigned int height)
@@ -343,9 +366,10 @@ void EventReceiver::checkEvents()
 {
     //Need to capture/update each device
     keyboard->capture();
-    joystick->capture();
+    if (joystick) joystick->capture();
 
-    const OIS::JoyStickState joystickState = joystick->getJoyStickState();
+    OIS::JoyStickState joystickState;
+    if (joystick) joystickState = joystick->getJoyStickState();
     
 #if 0
     if (test_kc == 0)
@@ -554,9 +578,10 @@ void EventReceiver::checkEventsMenu()
 {
     //Need to capture/update each device
     keyboard->capture();
-    joystick->capture();
+    if (joystick) joystick->capture();
 
-    const OIS::JoyStickState joystickState = joystick->getJoyStickState();
+    OIS::JoyStickState joystickState;
+    if (joystick) joystickState = joystick->getJoyStickState();
     
     if (MenuPageOptionsKB::menuPageOptionsKB->isOpened())
     {

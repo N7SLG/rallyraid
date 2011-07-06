@@ -1,6 +1,7 @@
 
 #include "MenuPageMain.h"
 #include "MenuPageStage.h"
+#include "MenuPageLoadSave.h"
 #include "TheGame.h"
 #include "stdafx.h"
 #include "WStringConverter.h"
@@ -59,6 +60,12 @@ MenuPageMain::MenuPageMain()
     TheGame::getInstance()->getEnv()->addButton(
         irr::core::recti(10,90,90,110),
         window,
+        MI_BUTTONLOAD,
+        L"Load Game");
+
+    TheGame::getInstance()->getEnv()->addButton(
+        irr::core::recti(10,120,90,140),
+        window,
         MI_BUTTONOPTIONS,
         L"Options");
 
@@ -75,6 +82,13 @@ MenuPageMain::MenuPageMain()
     staticTextGameName->setOverrideColor(irr::video::SColor(255, 255, 255, 255));
     staticTextGameName->setTextAlignment(irr::gui::EGUIA_CENTER, irr::gui::EGUIA_UPPERLEFT);
 
+    irr::video::ITexture* havok_logo = TheGame::getInstance()->getDriver()->getTexture("data/menu_textures/havok_logo_1_128.png");
+    irr::gui::IGUIImage* havok_image = TheGame::getInstance()->getEnv()->addImage(
+        irr::core::recti(irr::core::position2di(window->getRelativePosition().getSize().Width - 10 - havok_logo->getOriginalSize().Width, window->getRelativePosition().getSize().Height - 10 - havok_logo->getOriginalSize().Height), havok_logo->getOriginalSize()),
+        window);
+    havok_image->setScaleImage(false);
+    havok_image->setUseAlphaChannel(true);
+    havok_image->setImage(havok_logo);
 
     // ----------------------------
     // Races
@@ -169,6 +183,15 @@ bool MenuPageMain::OnEvent(const irr::SEvent &event)
                             MenuManager::getInstance()->open(MenuManager::MP_STAGE);
                             //GamePlay::getInstance()->startNewGame(selectedRace, selectedVehicleType);
                         }
+                        return true;
+                        break;
+                    case MI_BUTTONLOAD:
+                        dprintf(MY_DEBUG_NOTE, "mainmenu::loadbutton::clicked\n");
+                        willOpenOtherWindow = true;
+                        MenuPageLoadSave::menuPageLoadSave->load = true;
+                        MenuPageLoadSave::menuPageLoadSave->prevMP = MenuManager::MP_MAIN;
+                        MenuManager::getInstance()->close();
+                        MenuManager::getInstance()->open(MenuManager::MP_LOADSAVE);
                         return true;
                         break;
                     case MI_BUTTONOPTIONS:

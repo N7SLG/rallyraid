@@ -28,7 +28,9 @@ void ObjectPoolManager::finalize()
 
 ObjectPoolManager::ObjectPoolManager()
     : objectPoolMap(),
-      editorPool(0)
+      editorPool(0),
+      editorScale(1.0f),
+      editorRot(0.0f)
 {
     read();
 }
@@ -137,9 +139,13 @@ void ObjectPoolManager::read()
     }
 }
 
-OffsetObject* ObjectPoolManager::getObject(const std::string& objectPoolName, const irr::core::vector3df& apos, const irr::core::vector3df& scale, bool addToOffsetManager)
+OffsetObject* ObjectPoolManager::getObject(const std::string& objectPoolName,
+    const irr::core::vector3df& apos,
+    const irr::core::vector3df& scale,
+    const irr::core::vector3df& rot,
+    bool addToOffsetManager)
 {
-    return objectPoolMap[objectPoolName]->getObject(apos, scale, addToOffsetManager);
+    return objectPoolMap[objectPoolName]->getObject(apos, scale, rot, addToOffsetManager);
 }
 
 void ObjectPoolManager::putObject(OffsetObject* offsetObject)

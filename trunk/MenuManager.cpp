@@ -13,6 +13,7 @@
 #include "MenuPageInGame.h"
 #include "MenuPageOptions.h"
 #include "MenuPageOptionsKB.h"
+#include "MenuPageLoadSave.h"
 
 #include <string.h>
 
@@ -83,6 +84,7 @@ MenuManager::MenuManager()
     menuPages[MP_INGAME] = new MenuPageInGame();
     menuPages[MP_OPTIONS] = new MenuPageOptions();
     menuPages[MP_OPTIONSKB] = new MenuPageOptionsKB();
+    menuPages[MP_LOADSAVE] = new MenuPageLoadSave();
 }
 
 MenuManager::~MenuManager()

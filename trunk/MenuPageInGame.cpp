@@ -1,6 +1,7 @@
 
 #include "MenuPageInGame.h"
 #include "MenuPageStage.h"
+#include "MenuPageLoadSave.h"
 #include "TheGame.h"
 #include "stdafx.h"
 #include "WStringConverter.h"
@@ -35,7 +36,8 @@ MenuPageInGame::MenuPageInGame()
       staticTextRaceName(0),
       tableStages(0),
       tableCompetitors(0),
-      tableCompetitorsG(0)
+      tableCompetitorsG(0),
+      willOpenOtherWindow(false)
 {
     menuPageInGame = this;
     window = TheGame::getInstance()->getEnv()->addImage(
@@ -45,14 +47,30 @@ MenuPageInGame::MenuPageInGame()
     window->setScaleImage(true);
     window->setImage(TheGame::getInstance()->getDriver()->getTexture("data/bg/3.jpg"));
 
+    int line = 60;
     TheGame::getInstance()->getEnv()->addButton(
-        irr::core::recti(10,60,90,80),
+        irr::core::recti(10,line,90,line+20),
         window,
         MI_BUTTONBACK,
         L"Back To Game");
 
+    line += 30;
     TheGame::getInstance()->getEnv()->addButton(
-        irr::core::recti(10,90,90,110),
+        irr::core::recti(10,line,90,line+20),
+        window,
+        MI_BUTTONLOAD,
+        L"Load Game");
+
+    line += 30;
+    TheGame::getInstance()->getEnv()->addButton(
+        irr::core::recti(10,line,90,line+20),
+        window,
+        MI_BUTTONSAVE,
+        L"Save Game");
+
+    line += 30;
+    TheGame::getInstance()->getEnv()->addButton(
+        irr::core::recti(10,line,90,line+20),
         window,
         MI_BUTTONOPTIONS,
         L"Options");
@@ -154,7 +172,26 @@ bool MenuPageInGame::OnEvent(const irr::SEvent &event)
                 {
                     case MI_BUTTONBACK:
                         dprintf(MY_DEBUG_NOTE, "ingamemenu::backbutton::clicked\n");
+                        willOpenOtherWindow = false;
                         MenuManager::getInstance()->close();
+                        return true;
+                        break;
+                    case MI_BUTTONLOAD:
+                        dprintf(MY_DEBUG_NOTE, "ingamemenu::loadbutton::clicked\n");
+                        willOpenOtherWindow = true;
+                        MenuPageLoadSave::menuPageLoadSave->load = true;
+                        MenuPageLoadSave::menuPageLoadSave->prevMP = MenuManager::MP_INGAME;
+                        MenuManager::getInstance()->close();
+                        MenuManager::getInstance()->open(MenuManager::MP_LOADSAVE);
+                        return true;
+                        break;
+                    case MI_BUTTONSAVE:
+                        dprintf(MY_DEBUG_NOTE, "ingamemenu::loadbutton::clicked\n");
+                        willOpenOtherWindow = true;
+                        MenuPageLoadSave::menuPageLoadSave->load = false;
+                        MenuPageLoadSave::menuPageLoadSave->prevMP = MenuManager::MP_INGAME;
+                        MenuManager::getInstance()->close();
+                        MenuManager::getInstance()->open(MenuManager::MP_LOADSAVE);
                         return true;
                         break;
                     case MI_BUTTONOPTIONS:
@@ -201,9 +238,13 @@ void MenuPageInGame::close()
     window->setVisible(false);
 
     // start necessarry elements in the game if returns
-    TheGame::getInstance()->setInGame(true);
-    Hud::getInstance()->setVisible(true);
-    VehicleManager::getInstance()->resume();
+    if (!willOpenOtherWindow)
+    {
+        TheGame::getInstance()->setInGame(true);
+        Hud::getInstance()->setVisible(true);
+        VehicleManager::getInstance()->resume();
+    }
+    willOpenOtherWindow = false;
 }
 
 void MenuPageInGame::refresh()

@@ -59,8 +59,12 @@ MenuPageEditor::MenuPageEditor()
       editBoxResetX(0),
       editBoxResetY(0),
       editBoxResetZ(0),
+      editBoxScale(0),
+      editBoxRot(0),
       checkBoxRender(0),
       staticTextItinerGD(0),
+      itinerImage(0),
+      itinerImage2(0),
       currentAction(A_None),
       material(),
       lastTick(0),
@@ -264,8 +268,20 @@ MenuPageEditor::MenuPageEditor()
     // ----------------------------
     irr::gui::IGUITab* tabObjectPool = tc->addTab(L"OPool", MI_TABOBJECTPOOL);
 
+    editBoxScale = TheGame::getInstance()->getEnv()->addEditBox(L"1",
+        irr::core::recti(irr::core::position2di(0, 0), irr::core::dimension2di(68, 20)),
+        true,
+        tabObjectPool,
+        MI_EBSCALE);
+
+    editBoxRot = TheGame::getInstance()->getEnv()->addEditBox(L"0",
+        irr::core::recti(irr::core::position2di(70, 0), irr::core::dimension2di(68, 20)),
+        true,
+        tabObjectPool,
+        MI_EBROT);
+
     tableObjectPool = TheGame::getInstance()->getEnv()->addTable(
-        irr::core::recti(irr::core::position2di(0, 0), tabObjectPool->getRelativePosition().getSize()),
+        irr::core::recti(irr::core::position2di(0, 22), irr::core::dimension2di(tabObjectPool->getRelativePosition().getSize().Width, tabObjectPool->getRelativePosition().getSize().Height-22)),
         tabObjectPool,
         MI_TABLEOBJECTPOOL,
         true);
@@ -405,15 +421,29 @@ MenuPageEditor::MenuPageEditor()
         tabItiner,
         MI_EBITINERDESCRIPTION);
 
+    itinerImage = TheGame::getInstance()->getEnv()->addImage(
+        irr::core::recti(irr::core::position2di(0, 3*22), irr::core::dimension2di(64,64)),
+        tabItiner);
+    itinerImage->setScaleImage(true);
+    itinerImage->setImage(0);
+
+    itinerImage2 = TheGame::getInstance()->getEnv()->addImage(
+        irr::core::recti(irr::core::position2di(96, 3*22), irr::core::dimension2di(64,64)),
+        tabItiner);
+    itinerImage2->setScaleImage(true);
+    itinerImage2->setImage(0);
+
+  /* delme
     tableItiner = TheGame::getInstance()->getEnv()->addTable(
         irr::core::recti(irr::core::position2di(0, 3*22), irr::core::dimension2di(tabItiner->getRelativePosition().getSize().Width, tabItiner->getRelativePosition().getSize().Height-(3*22))),
         //irr::core::recti(irr::core::position2di(0, 0), tabRoads->getRelativePosition().getSize()),
         tabItiner,
         MI_TABLEITINER,
         true);
+  */
 
     tableItiner = TheGame::getInstance()->getEnv()->addTable(
-        irr::core::recti(irr::core::position2di(0, 3*22), irr::core::dimension2di(tabItiner->getRelativePosition().getSize().Width, (tabItiner->getRelativePosition().getSize().Height-(3*22))/2 - 1)),
+        irr::core::recti(irr::core::position2di(0, 3*22+66), irr::core::dimension2di(tabItiner->getRelativePosition().getSize().Width, (tabItiner->getRelativePosition().getSize().Height-(3*22+66))/2 - 1)),
         //irr::core::recti(irr::core::position2di(0, 0), tabRoads->getRelativePosition().getSize()),
         tabItiner,
         MI_TABLEITINER,
@@ -423,7 +453,7 @@ MenuPageEditor::MenuPageEditor()
     tableItiner->setColumnWidth(0, 200);
 
     tableItiner2 = TheGame::getInstance()->getEnv()->addTable(
-        irr::core::recti(irr::core::position2di(0, 3*22 + (tabItiner->getRelativePosition().getSize().Height-(3*22))/2 + 1), irr::core::dimension2di(tabItiner->getRelativePosition().getSize().Width, (tabItiner->getRelativePosition().getSize().Height-(3*22))/2-1)),
+        irr::core::recti(irr::core::position2di(0, 3*22+66 + (tabItiner->getRelativePosition().getSize().Height-(3*22+66))/2 + 1), irr::core::dimension2di(tabItiner->getRelativePosition().getSize().Width, (tabItiner->getRelativePosition().getSize().Height-(3*22+66))/2-1)),
         //irr::core::recti(irr::core::position2di(0, 0), tabRoads->getRelativePosition().getSize()),
         tabItiner,
         MI_TABLEITINER2,
@@ -573,6 +603,7 @@ bool MenuPageEditor::OnEvent(const irr::SEvent &event)
                     case MI_TABLEITINER:
                     {
                         WStringConverter::toString(tableItiner->getCellText(tableItiner->getSelected(), 0), ItinerManager::getInstance()->editorItinerImageName);
+                        itinerImage->setImage((irr::video::ITexture*)tableItiner->getCellData(tableItiner->getSelected(), 0));
                         MenuPageEditor::menuPageEditor->refreshSelected();
                         return true;
                         break;
@@ -580,6 +611,7 @@ bool MenuPageEditor::OnEvent(const irr::SEvent &event)
                     case MI_TABLEITINER2:
                     {
                         WStringConverter::toString(tableItiner2->getCellText(tableItiner2->getSelected(), 0), ItinerManager::getInstance()->editorItinerImageName2);
+                        itinerImage2->setImage((irr::video::ITexture*)tableItiner2->getCellData(tableItiner2->getSelected(), 0));
                         MenuPageEditor::menuPageEditor->refreshSelected();
                         return true;
                         break;
@@ -646,6 +678,14 @@ bool MenuPageEditor::OnEvent(const irr::SEvent &event)
                     case MI_EBITINERDESCRIPTION:
                         WStringConverter::toString(editBoxItinerDescription->getText(), ItinerManager::getInstance()->editorDescription);
                         dprintf(MY_DEBUG_INFO, "set itiner description: [%s]\n", ItinerManager::getInstance()->editorDescription.c_str());
+                        break;
+                    case MI_EBSCALE:
+                        WStringConverter::toFloat(editBoxScale->getText(), ObjectPoolManager::getInstance()->editorScale);
+                        dprintf(MY_DEBUG_INFO, "set object scale: %f\n", ObjectPoolManager::getInstance()->editorScale);
+                        break;
+                    case MI_EBROT:
+                        WStringConverter::toFloat(editBoxRot->getText(), ObjectPoolManager::getInstance()->editorRot);
+                        dprintf(MY_DEBUG_INFO, "set object rotation: %f\n", ObjectPoolManager::getInstance()->editorRot);
                         break;
                 }
                 break;
@@ -1186,6 +1226,7 @@ void MenuPageEditor::refreshItiner()
     tableItiner->addRow(i);
     str = L"none";
     tableItiner->setCellText(i, 0, str.c_str());
+    tableItiner->setCellData(i, 0, (void*)0);
 
     i++;
 
@@ -1198,6 +1239,7 @@ void MenuPageEditor::refreshItiner()
         str = L"";
         str += it->first.c_str();
         tableItiner->setCellText(i, 0, str.c_str());
+        tableItiner->setCellData(i, 0, (void*)it->second);
     }
 
     tableItiner2->clearRows();
@@ -1208,6 +1250,7 @@ void MenuPageEditor::refreshItiner()
     tableItiner2->addRow(i);
     str = L"none";
     tableItiner2->setCellText(i, 0, str.c_str());
+    tableItiner2->setCellData(i, 0, (void*)0);
 
     i++;
 
@@ -1220,6 +1263,7 @@ void MenuPageEditor::refreshItiner()
         str = L"";
         str += it->first.c_str();
         tableItiner2->setCellText(i, 0, str.c_str());
+        tableItiner2->setCellData(i, 0, (void*)it->second);
     }
 }
 
@@ -1268,7 +1312,10 @@ void MenuPageEditor::actionP()
                 RaceManager::getInstance()->editorRace, ObjectPoolManager::getInstance()->editorPool);
             if (RaceManager::getInstance()->editorRace && ObjectPoolManager::getInstance()->editorPool)
             {
-                ObjectWireGlobalObject* go = new ObjectWireGlobalObject(ObjectPoolManager::getInstance()->editorPool, apos);
+                ObjectWireGlobalObject* go = new ObjectWireGlobalObject(ObjectPoolManager::getInstance()->editorPool,
+                    apos,
+                    irr::core::vector3df(0.f, ObjectPoolManager::getInstance()->editorRot, 0.f),
+                    irr::core::vector3df(ObjectPoolManager::getInstance()->editorScale, ObjectPoolManager::getInstance()->editorScale, ObjectPoolManager::getInstance()->editorScale));
                 RaceManager::getInstance()->editorRace->globalObjectList.push_back(go);
                 if (RaceManager::getInstance()->editorRace->active)
                 {
@@ -1284,7 +1331,10 @@ void MenuPageEditor::actionP()
                 RaceManager::getInstance()->editorDay, ObjectPoolManager::getInstance()->editorPool);
             if (RaceManager::getInstance()->editorDay && ObjectPoolManager::getInstance()->editorPool)
             {
-                ObjectWireGlobalObject* go = new ObjectWireGlobalObject(ObjectPoolManager::getInstance()->editorPool, apos);
+                ObjectWireGlobalObject* go = new ObjectWireGlobalObject(ObjectPoolManager::getInstance()->editorPool,
+                    apos,
+                    irr::core::vector3df(0.f, ObjectPoolManager::getInstance()->editorRot, 0.f),
+                    irr::core::vector3df(ObjectPoolManager::getInstance()->editorScale, ObjectPoolManager::getInstance()->editorScale, ObjectPoolManager::getInstance()->editorScale));
                 RaceManager::getInstance()->editorDay->globalObjectList.push_back(go);
                 if (RaceManager::getInstance()->editorDay->active)
                 {
@@ -1300,7 +1350,10 @@ void MenuPageEditor::actionP()
                 RaceManager::getInstance()->editorStage, ObjectPoolManager::getInstance()->editorPool);
             if (RaceManager::getInstance()->editorStage && ObjectPoolManager::getInstance()->editorPool)
             {
-                ObjectWireGlobalObject* go = new ObjectWireGlobalObject(ObjectPoolManager::getInstance()->editorPool, apos);
+                ObjectWireGlobalObject* go = new ObjectWireGlobalObject(ObjectPoolManager::getInstance()->editorPool,
+                    apos,
+                    irr::core::vector3df(0.f, ObjectPoolManager::getInstance()->editorRot, 0.f),
+                    irr::core::vector3df(ObjectPoolManager::getInstance()->editorScale, ObjectPoolManager::getInstance()->editorScale, ObjectPoolManager::getInstance()->editorScale));
                 RaceManager::getInstance()->editorStage->globalObjectList.push_back(go);
                 if (RaceManager::getInstance()->editorStage->active)
                 {

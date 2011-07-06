@@ -48,7 +48,7 @@ public:
         float friction, float mass, const irr::core::vector3df& center);
     ~ObjectPool();
 
-    OffsetObject* getObject(const irr::core::vector3df& apos, const irr::core::vector3df& scale = irr::core::vector3df(1.0f, 1.0f, 1.0f), bool addToOffsetManager = true);
+    OffsetObject* getObject(const irr::core::vector3df& apos, const irr::core::vector3df& scale = irr::core::vector3df(1.0f, 1.0f, 1.0f), const irr::core::vector3df& rot = irr::core::vector3df(), bool addToOffsetManager = true);
     void putObject(OffsetObject* object);
 
     OffsetObject* createNewInstance();
@@ -57,8 +57,16 @@ public:
     unsigned int getNum() {return num;}
     const std::string& getName() {return name;}
     
+    // read mso object, which is my format can be edited by a simple text editor
     static irr::scene::SAnimatedMesh* readMySimpleObject(const std::string& meshFilename, float scale = 1.0f);
+    
+    // calculate convex hull from an irrlicht mesh
     static hkpShape* calculateCollisionMesh(irr::scene::IAnimatedMesh* objectMesh, ObjectType objectType, bool box = false);
+    
+    // calculate general havok shape from an irrlicht mesh: it is only used for the roads
+    static hkpExtendedMeshShape* calculateNonConvexCollisionMeshMeshes(irr::scene::IAnimatedMesh* objectMesh);
+    
+    // generate a grass object mesh
     static irr::scene::SAnimatedMesh* generateGrassMesh();
 
 private:

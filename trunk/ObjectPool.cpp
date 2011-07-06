@@ -66,7 +66,7 @@ ObjectPool::ObjectPool(const std::string& name,
         default:
             if (meshFilename.rfind(".mso") != std::string::npos)
             {
-                objectMesh = readMySimpleObject(meshFilename, (objectType==MyTree)?mass:1.0f);
+                objectMesh = readMySimpleObject(meshFilename, (objectType!=Vehicle)?mass:1.0f);
             }
             else
             {
@@ -112,7 +112,7 @@ ObjectPool::~ObjectPool()
     }
 }
 
-OffsetObject* ObjectPool::getObject(const irr::core::vector3df& apos, const irr::core::vector3df& scale, bool addToOffsetManager)
+OffsetObject* ObjectPool::getObject(const irr::core::vector3df& apos, const irr::core::vector3df& scale, const irr::core::vector3df& rot, bool addToOffsetManager)
 {
     //dprintf(MY_DEBUG_NOTE, "ObjectPool::getObject(): %s\n", name.c_str());
     OffsetObject* offsetObject = 0;
@@ -130,6 +130,7 @@ OffsetObject* ObjectPool::getObject(const irr::core::vector3df& apos, const irr:
     //offsetObject->setPos(apos);
     offsetObject->getNode()->setPosition(apos);
     offsetObject->getNode()->setScale(scale);
+    offsetObject->getNode()->setRotation(rot);
     offsetObject->getNode()->setMaterialType(material);
     if (Shaders::getInstance()->getSupportedSMVersion() < 2)
     {
@@ -144,10 +145,17 @@ OffsetObject* ObjectPool::getObject(const irr::core::vector3df& apos, const irr:
 
     if (hkShape)
     {
+    
         hk::lock();
         hkpRigidBodyCinfo groundInfo;
         groundInfo.m_shape = hkShape;
         groundInfo.m_position.set(apos.X, apos.Y, apos.Z);
+        if (rot != irr::core::vector3df())
+        {
+            irr::core::vector3df rotRad = rot * irr::core::DEGTORAD;
+            irr::core::quaternion rotQuat(rotRad);
+            groundInfo.m_rotation = hkQuaternion(rotQuat.X, rotQuat.Y, rotQuat.Z, rotQuat.W);
+        }
         if (objectType == Vehicle)
         {
             groundInfo.m_motionType = hkpMotion::MOTION_BOX_INERTIA;
@@ -167,9 +175,9 @@ OffsetObject* ObjectPool::getObject(const irr::core::vector3df& apos, const irr:
         hkpRigidBody* hkBody = new hkpRigidBody(groundInfo);
         if (objectType != Vehicle)
         {
-            hk::hkWorld->addEntity(hkBody);
             hkpPropertyValue val(1);
             hkBody->addProperty(hk::materialType::treeId, val);
+            hk::hkWorld->addEntity(hkBody);
         }
         else
         {
@@ -464,19 +472,19 @@ hkpShape* ObjectPool::calculateCollisionMesh(irr::scene::IAnimatedMesh* objectMe
         sizeOfBuffers += objectMesh->getMeshBuffer(i)->getVertexCount();
     }
         
-    float* my_vertices = new float[sizeOfBuffers*4];
+    float* my_vertices = new float[sizeOfBuffers*3];
     int cursor = 0;
         
     for (unsigned int i = 0; i < objectMesh->getMeshBufferCount();i++)
     {
         irr::scene::IMeshBuffer* mb = objectMesh->getMeshBuffer(i);
         irr::video::S3DVertex* mb_vertices = (irr::video::S3DVertex*)mb->getVertices();
-        for (unsigned int j = 0; j < mb->getVertexCount(); j++)
+        for (unsigned int j = 0, tmpCounter = cursor*3; j < mb->getVertexCount(); j++, tmpCounter+=3)
         {
-            my_vertices[(cursor+j)*4] = mb_vertices[j].Pos.X /* scale.X */;
-            my_vertices[(cursor+j)*4+1] = mb_vertices[j].Pos.Y /* scale.Y */;
-            my_vertices[(cursor+j)*4+2] = mb_vertices[j].Pos.Z /* scale.Z */;
-            my_vertices[(cursor+j)*4+3] = 0.0f;
+            my_vertices[tmpCounter] = mb_vertices[j].Pos.X /* scale.X */;
+            my_vertices[tmpCounter+1] = mb_vertices[j].Pos.Y /* scale.Y */;
+            my_vertices[tmpCounter+2] = mb_vertices[j].Pos.Z /* scale.Z */;
+            //my_vertices[(cursor+j)*4+3] = 0.0f;
         }
         cursor += mb->getVertexCount();
     }
@@ -484,7 +492,7 @@ hkpShape* ObjectPool::calculateCollisionMesh(irr::scene::IAnimatedMesh* objectMe
     hk::lock();
     hkStridedVertices stridedVerts;
     stridedVerts.m_numVertices = sizeOfBuffers;
-    stridedVerts.m_striding = 4*sizeof(float);
+    stridedVerts.m_striding = 3*sizeof(float);
     stridedVerts.m_vertices = my_vertices;
 
     hkShape = new hkpConvexVerticesShape(stridedVerts);
@@ -492,6 +500,54 @@ hkpShape* ObjectPool::calculateCollisionMesh(irr::scene::IAnimatedMesh* objectMe
 
     delete [] my_vertices;
 
+    return hkShape;
+}
+
+/* static */ hkpExtendedMeshShape* ObjectPool::calculateNonConvexCollisionMeshMeshes(irr::scene::IAnimatedMesh* objectMesh)
+{
+    hk::lock();
+    hkpExtendedMeshShape* hkShape = new hkpExtendedMeshShape;
+    hk::unlock();
+
+    for (irr::u32 i = 0; i < objectMesh->getMeshBufferCount(); i++) 
+    {
+        irr::scene::IMeshBuffer* mb = objectMesh->getMeshBuffer(i); 
+        if (mb->getVertexType() != irr::video::EVT_STANDARD)
+        {
+            printf("object %u type mismatch %u\n", i, mb->getVertexType());
+            assert(0);
+            return 0;
+        }
+
+        float* vertexBuffer = new float[mb->getVertexCount() * 3];
+        unsigned short* indexBuffer = mb->getIndices();
+
+        for (unsigned int x = 0, tmpCounter = 0; x < mb->getVertexCount(); x++, tmpCounter+=3) 
+        { 
+            const irr::core::vector3df& tmp = mb->getPosition(x); 
+            vertexBuffer[tmpCounter] = tmp.X; 
+            vertexBuffer[tmpCounter+1] = tmp.Y; 
+            vertexBuffer[tmpCounter+2] = tmp.Z; 
+        } 
+
+        hkpExtendedMeshShape::TrianglesSubpart part; 
+
+        part.m_vertexBase = vertexBuffer; 
+        part.m_vertexStriding = sizeof(float) * 3; 
+        part.m_numVertices = mb->getVertexCount(); 
+
+        part.m_indexBase = indexBuffer; 
+        part.m_indexStriding = sizeof(unsigned short)*3; 
+        part.m_numTriangleShapes = mb->getIndexCount()/3; 
+        part.m_stridingType = hkpExtendedMeshShape::INDICES_INT16; 
+
+        hk::lock();
+        hkShape->addTrianglesSubpart(part); 
+        hk::unlock();
+        
+        //delete [] vertexBuffer;
+    }
+    
     return hkShape;
 }
 

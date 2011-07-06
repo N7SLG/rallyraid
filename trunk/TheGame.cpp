@@ -84,6 +84,8 @@ TheGame::TheGame()
       lastScreenSize(),
       failed_render(0),
       tick(0),
+      lastPhysTick(0),
+      lastSlowTick(0),
       physicsOngoing(true),
       cameraOffsetObject(0),
       dynCamDist(2.f),
@@ -91,7 +93,8 @@ TheGame::TheGame()
       cameraAngle(0.0f),
       inGame(true),
       editorMode(true),
-      testText(0),
+      editorSeconds(0),
+      editorLastTick(0),
       skydome(0)
 {
     dprintf(MY_DEBUG_INFO, "TheGame::TheGame(): this: %p\n", this);
@@ -134,7 +137,9 @@ TheGame::TheGame()
         fix_camera = smgr->addCameraSceneNode();
         fps_camera = smgr->addCameraSceneNodeFPS(0, 100.f, 0.1f);
         fix_camera->setFarValue(28000.f);
+        fix_camera->setNearValue(0.5f);
         fps_camera->setFarValue(28000.f);
+        fps_camera->setNearValue(0.5f);
         camera = fix_camera;
         smgr->setActiveCamera(camera);
         lastScreenSize = getScreenSize();
@@ -200,7 +205,6 @@ TheGame::TheGame()
         Hud::initialize();
         hud = Hud::getInstance();
 
-        testText = env->addStaticText(L"", irr::core::recti(10, 10, 790, 30), false, true, 0, -1, true);
         skydome = smgr->addSkyDomeSceneNode(driver->getTexture("data/skys/fairday.jpg"),16,8,0.95f,2.0f);
         /*if (useShaders && useCgShaders)
         {
@@ -433,56 +437,66 @@ void TheGame::loop()
                 {
                     //lastSlowTick += slowStep_ms;
                     lastSlowTick = tick;// + slowStep_ms;
-                    irr::core::stringw str = L"Speed: ";
-                    str += (int)player->getVehicleSpeed();
-                    str += L" km/h (";
-                    str += player->getVehicleGear();
-                    str += L"),     Pos: ";
-                    str += (int)camera->getPosition().X;
-                    str += L", ";
-                    str += (int)camera->getPosition().Y;
-                    str += L", ";
-                    str += (int)camera->getPosition().Z;
-                    str += L" - Offset: ";
-                    str += (int)offsetManager->getOffset().X;
-                    str += L", ";
-                    str += (int)offsetManager->getOffset().Z;
-                    str += ",     Tile pos: ";
-                    str += ((int)offsetManager->getOffset().X+(int)camera->getPosition().X)/TILE_SIZE;
-                    str += L", ";
-                    str += abs((int)offsetManager->getOffset().Z+(int)camera->getPosition().Z)/TILE_SIZE;
-                    str += L"        Polygon count: ";
-                    str += driver->getPrimitiveCountDrawn();
-                    if (TheEarth::getInstance()->threadIsRunning())
-                    {
-                        str += L"       thread is running";
-                    }
                     
-                    str += L"\nDetail pos: ";
-                    str += (int)((offsetManager->getOffset().X+camera->getPosition().X)/TILE_DETAIL_SCALE_F);
-                    str += L", ";
-                    str += (int)((offsetManager->getOffset().Z+camera->getPosition().Z)/TILE_DETAIL_SCALE_F);
-                    if (!RaceManager::getInstance()->getCurrentHeightModifierList().empty())
+                    if (editorMode)
                     {
-                        str += L", last: ";
-                        str += (int)(RaceManager::getInstance()->getCurrentHeightModifierList().back().pos.X/TILE_DETAIL_SCALE_F);
+                        unsigned int mtick = tick / 1000;
+                        if (mtick != editorLastTick)
+                        {
+                            editorLastTick = mtick;
+                            editorSeconds++;
+                        }
+                        
+                        irr::core::stringw str = L"Secs: ";
+                        str += editorSeconds;
+                        str += L",     Pos: ";
+                        str += (int)camera->getPosition().X;
                         str += L", ";
-                        str += (int)(RaceManager::getInstance()->getCurrentHeightModifierList().back().pos.Z/TILE_DETAIL_SCALE_F);
+                        str += (int)camera->getPosition().Y;
+                        str += L", ";
+                        str += (int)camera->getPosition().Z;
+                        str += L" - Offset: ";
+                        str += (int)offsetManager->getOffset().X;
+                        str += L", ";
+                        str += (int)offsetManager->getOffset().Z;
+                        str += ",     Tile pos: ";
+                        str += ((int)offsetManager->getOffset().X+(int)camera->getPosition().X)/TILE_SIZE;
+                        str += L", ";
+                        str += abs((int)offsetManager->getOffset().Z+(int)camera->getPosition().Z)/TILE_SIZE;
+                        str += L"        Polygon count: ";
+                        str += driver->getPrimitiveCountDrawn();
+                        if (TheEarth::getInstance()->threadIsRunning())
+                        {
+                            str += L"       thread is running";
+                        }
+                        
+                        str += L"\nDetail pos: ";
+                        str += (int)((offsetManager->getOffset().X+camera->getPosition().X)/TILE_DETAIL_SCALE_F);
+                        str += L", ";
+                        str += (int)((offsetManager->getOffset().Z+camera->getPosition().Z)/TILE_DETAIL_SCALE_F);
+                        if (!RaceManager::getInstance()->getCurrentHeightModifierList().empty())
+                        {
+                            str += L", last: ";
+                            str += (int)(RaceManager::getInstance()->getCurrentHeightModifierList().back().pos.X/TILE_DETAIL_SCALE_F);
+                            str += L", ";
+                            str += (int)(RaceManager::getInstance()->getCurrentHeightModifierList().back().pos.Z/TILE_DETAIL_SCALE_F);
+                        }
+                        str += L", Distance to last itinerary point: ";
+                        if (RaceManager::getInstance()->getCurrentStage() && !RaceManager::getInstance()->getCurrentStage()->getItinerPointList().empty())
+                        {
+                            str += (int)(RaceManager::getInstance()->getCurrentStage()->getItinerPointList().back()->getPos().getDistanceFrom(offsetManager->getOffset()+camera->getPosition()));
+                        }
+                        else
+                        {
+                            str += L"0";
+                        }
+                        
+                        hud->getEditorText()->setText(str.c_str());
                     }
-                    str += L", Distance to last itinerary point: ";
-                    if (RaceManager::getInstance()->getCurrentStage() && !RaceManager::getInstance()->getCurrentStage()->getItinerPointList().empty())
-                    {
-                        str += (int)(RaceManager::getInstance()->getCurrentStage()->getItinerPointList().back()->getPos().getDistanceFrom(offsetManager->getOffset()+camera->getPosition()));
-                    }
-                    else
-                    {
-                        str += L"0";
-                    }
-                    
-                    testText->setText(str.c_str());
 
                     earth->update(offsetManager->getOffset()+camera->getPosition(), cameraDirection);
                 }
+                gamePlay->update(tick, offsetManager->getOffset()+camera->getPosition());
             }
             else
             {
@@ -492,6 +506,7 @@ void TheGame::loop()
                 }
 
                 lastPhysTick = lastSlowTick = tick;
+                editorLastTick = tick / 1000;
             }
             // -------------------------------
             //         update graphics
@@ -549,6 +564,7 @@ void TheGame::loop()
         {
             device->sleep(100);
             lastPhysTick = lastSlowTick = device->getTimer()->getTime();
+            editorLastTick = lastPhysTick / 1000;
         } // if (!window->active)
     } // wile (run && !terminate)
 
@@ -578,6 +594,8 @@ void TheGame::resetTick()
     device->run();
     lastPhysTick = lastSlowTick = tick = device->getTimer()->getTime();
     lastPhysTick--;
+    editorLastTick = tick / 1000;
+    editorSeconds = 0;
 }
 
 void TheGame::doFewSteps(unsigned int stepCnt)

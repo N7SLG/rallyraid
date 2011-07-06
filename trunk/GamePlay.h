@@ -8,6 +8,7 @@
 #include <irrlicht.h>
 
 #define SAVE_DIR                (std::string("savegames"))
+#define SAVE_DIR_DIR(saveName)  (SAVE_DIR + "/" + saveName)
 #define SAVE_STATE(saveName)    (SAVE_DIR + "/" + saveName + "/" + std::string("racestate"))
 #define SAVE_ENGINE(saveName)   (SAVE_DIR + "/" + saveName + "/" + std::string("stagestate"))
 #define SAVE_PLAYER(saveName)   (SAVE_DIR + "/" + saveName + "/" + std::string("player"))
@@ -78,6 +79,7 @@ private:
 
 public:
     void startNewGame(Race* race, VehicleType* vehicleType);
+    bool goToNextStage();
     bool loadGame(const std::string& saveName);
     bool saveGame(const std::string& saveName);
 
@@ -89,6 +91,8 @@ public:
 private:
     //irr::core::vector3df(4190225.f, 215.f, -6401350.f)
     void startStage(Stage* stage, VehicleType* vehicleType, const irr::core::vector3df& initPos = irr::core::vector3df(4190225.f, 195.f, -6401350.f));
+    
+    void refreshLoadableGames();
 
 private:
     static bool readStageStateList(const std::string& filename, stageStateList_t& stageStateList);
@@ -105,7 +109,10 @@ private:
     stageStateList_t    raceState;
     RaceEngine*         raceEngine;
 
-
+  typedef std::map<std::string, std::string> loadableGames_t;
+    loadableGames_t     loadableGames;
+    
+  
     friend class MenuPageEditor;
     friend class MenuPageEditorRoad;
     friend class MenuPageEditorRace;
@@ -113,6 +120,7 @@ private:
     friend class MenuPageEditorStage;
     friend class MenuPageMain;
     friend class MenuPageInGame;
+    friend class MenuPageLoadSave;
 };
 
 
