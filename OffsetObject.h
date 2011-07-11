@@ -11,6 +11,7 @@ class ObjectPool;
 class OffsetObjectUpdateCB
 {
 protected:
+    virtual ~OffsetObjectUpdateCB() {}
     friend class OffsetObject;
     virtual void handleUpdatePos(bool phys) = 0;
 };

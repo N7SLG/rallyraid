@@ -114,10 +114,13 @@ MenuPageInGame::MenuPageInGame()
         true);
 
     tableCompetitors->addColumn(L"Pos");
+    tableCompetitors->setColumnWidth(0, 30);
     tableCompetitors->addColumn(L"Time");
+    tableCompetitors->setColumnWidth(1, 50);
     tableCompetitors->addColumn(L"Num");
+    tableCompetitors->setColumnWidth(2, 30);
     tableCompetitors->addColumn(L"Name");
-    //tableCompetitors->setColumnWidth(0, tableCompetitors->getRelativePosition().getSize().Width-16);
+    tableCompetitors->setColumnWidth(3, tableCompetitors->getRelativePosition().getSize().Width-(16+tableCompetitors->getColumnWidth(0)+tableCompetitors->getColumnWidth(1)+tableCompetitors->getColumnWidth(2)));
 
    irr::gui::IGUITab* tabGlobal = tc->addTab(L"Overall", 0);
 
@@ -128,9 +131,13 @@ MenuPageInGame::MenuPageInGame()
         true);
 
     tableCompetitorsG->addColumn(L"Pos");
+    tableCompetitorsG->setColumnWidth(0, 30);
     tableCompetitorsG->addColumn(L"Time");
+    tableCompetitorsG->setColumnWidth(1, 50);
     tableCompetitorsG->addColumn(L"Num");
+    tableCompetitorsG->setColumnWidth(2, 30);
     tableCompetitorsG->addColumn(L"Name");
+    tableCompetitorsG->setColumnWidth(3, tableCompetitorsG->getRelativePosition().getSize().Width-(16+tableCompetitorsG->getColumnWidth(0)+tableCompetitorsG->getColumnWidth(1)+tableCompetitorsG->getColumnWidth(2)));
 
     window->setVisible(false);
 }
@@ -311,19 +318,49 @@ void MenuPageInGame::refreshCompetitors(StageState* stageState)
 
         str = L"";
         str += (i+1);
-        tableStages->setCellText(i, 0, str.c_str());
+        tableCompetitors->setCellText(i, 0, str.c_str());
         //tableStages->setCellData(i, 0, (void*)(*it));
 
         str = L"";
         WStringConverter::addTimeToStr(str, (*it)->stageTime + (*it)->stagePenalityTime);
-        tableStages->setCellText(i, 1, str.c_str());
+        tableCompetitors->setCellText(i, 1, str.c_str());
 
         str = L"";
         str += (*it)->competitor->getNum();
-        tableStages->setCellText(i, 2, str.c_str());
+        tableCompetitors->setCellText(i, 2, str.c_str());
 
         str = L"";
         str += (*it)->competitor->getName().c_str();
-        tableStages->setCellText(i, 3, str.c_str());
+        tableCompetitors->setCellText(i, 3, str.c_str());
+    }
+
+    tableCompetitorsG->clearRows();
+
+    const competitorResultList_t& competitorResultListG = stageState->competitorResultListOverall;
+    i = 0;
+    for (competitorResultList_t::const_iterator it = competitorResultListG.begin();
+         it != competitorResultListG.end();
+         it++, i++)
+    {
+        irr::core::stringw str;
+        
+        tableCompetitorsG->addRow(i);
+
+        str = L"";
+        str += (i+1);
+        tableCompetitorsG->setCellText(i, 0, str.c_str());
+        //tableStages->setCellData(i, 0, (void*)(*it));
+
+        str = L"";
+        WStringConverter::addTimeToStr(str, (*it)->stageTime + (*it)->stagePenalityTime);
+        tableCompetitorsG->setCellText(i, 1, str.c_str());
+
+        str = L"";
+        str += (*it)->competitor->getNum();
+        tableCompetitorsG->setCellText(i, 2, str.c_str());
+
+        str = L"";
+        str += (*it)->competitor->getName().c_str();
+        tableCompetitorsG->setCellText(i, 3, str.c_str());
     }
 }

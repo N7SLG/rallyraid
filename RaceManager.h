@@ -85,7 +85,7 @@ public:
     Stage* getCurrentStage(); // inline
     Stage* getNextStage(); // inline
 
-    void activateStage(Stage* stage);
+    void activateStage(Stage* stage, bool forceReload = false);
     const heightModifierList_t& getCurrentHeightModifierList();
 
     static void readShortDescription(const std::string& fileName, std::string& shortDescription);

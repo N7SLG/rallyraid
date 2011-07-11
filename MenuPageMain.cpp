@@ -84,11 +84,15 @@ MenuPageMain::MenuPageMain()
 
     irr::video::ITexture* havok_logo = TheGame::getInstance()->getDriver()->getTexture("data/menu_textures/havok_logo_1_128.png");
     irr::gui::IGUIImage* havok_image = TheGame::getInstance()->getEnv()->addImage(
-        irr::core::recti(irr::core::position2di(window->getRelativePosition().getSize().Width - 10 - havok_logo->getOriginalSize().Width, window->getRelativePosition().getSize().Height - 10 - havok_logo->getOriginalSize().Height), havok_logo->getOriginalSize()),
+        irr::core::recti(irr::core::position2di(window->getRelativePosition().getSize().Width - 10 - havok_logo->getOriginalSize().Width, window->getRelativePosition().getSize().Height - 20 - havok_logo->getOriginalSize().Height), havok_logo->getOriginalSize()),
         window);
     havok_image->setScaleImage(false);
     havok_image->setUseAlphaChannel(true);
     havok_image->setImage(havok_logo);
+
+    TheGame::getInstance()->getEnv()->addStaticText(L"Build: 135",
+        irr::core::recti(irr::core::position2di(window->getRelativePosition().getSize().Width - 60, window->getRelativePosition().getSize().Height - 20), havok_logo->getOriginalSize()),
+        false, false, window, 0, false);
 
     // ----------------------------
     // Races
@@ -109,7 +113,7 @@ MenuPageMain::MenuPageMain()
         window,
         MI_STRACEDATA,
         true);
-    staticTextRaceData->setOverrideFont(FontManager::getInstance()->getFont(FontManager::FONT_NORMALBOLD));
+    staticTextRaceData->setOverrideFont(FontManager::getInstance()->getFont(FontManager::FONT_NORMAL));
 
     // ----------------------------
     // Vehicles

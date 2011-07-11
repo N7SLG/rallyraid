@@ -47,7 +47,9 @@ Player::Player()
       savedPrevItinerIt(helperItinerPointList.end()),
       savedCurrItinerIt(helperItinerPointList.end()),
       passedWayPoints(),
-      savedPassedWayPoints()
+      savedPassedWayPoints(),
+      stageTime(0),
+      savedStageTime(0)
 {
 }
 
@@ -111,6 +113,11 @@ void Player::initializeVehicle(const std::string& vehicleTypeName, const irr::co
     savedPrevItinerIt = helperItinerPointList.end()/*ItinerManager::itinerPointList_t::const_iterator()*/;
     savedCurrItinerIt = helperItinerPointList.end()/*ItinerManager::itinerPointList_t::const_iterator()*/;
     savedPassedWayPoints.clear();
+    if (savedStageTime > 0)
+    {
+        stageTime = savedStageTime;
+    }
+    savedStageTime = 0;
 }
 
 void Player::finalizeVehicle()
@@ -143,6 +150,7 @@ bool Player::save(const std::string& filename)
     
     ret = fprintf(f, "%u\n", (stage && prevItinerIt!=stage->getItinerPointList().end())?(*prevItinerIt)->getNum():0);
     ret = fprintf(f, "%u\n", (stage && currItinerIt!=stage->getItinerPointList().end())?(*currItinerIt)->getNum():0);
+    ret = fprintf(f, "%u\n", stageTime);
     
     ret = fprintf(f, "%lu\n", passedWayPoints.size());
     for (WayPointManager::wayPointNumSet_t::const_iterator it = passedWayPoints.begin();
@@ -238,6 +246,14 @@ bool Player::load(const std::string& filename, Stage* stage)
         }
     }
 
+    ret = fscanf_s(f, "%u\n", &savedStageTime);
+    if (ret < 1)
+    {
+        printf("player file unable to read stage time: %s\n", filename.c_str());
+        fclose(f);
+        return false;
+    }
+    
     savedPassedWayPoints.clear();
     ret = fscanf_s(f, "%lu\n", &numOfPWP);
     if (ret < 1)

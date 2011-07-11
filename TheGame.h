@@ -23,6 +23,7 @@ class GamePlay;
 class WayPointManager;
 class FontManager;
 class MessageManager;
+class LoadingThread;
 
 class TheGame : public OffsetObjectUpdateCB
 {
@@ -63,7 +64,7 @@ public:
 
 private:
     TheGame();
-    ~TheGame();
+    virtual ~TheGame();
 
 protected:
 
@@ -102,6 +103,7 @@ private:
     WayPointManager*                wayPointManager;
     FontManager*                    fontManager;
     MessageManager*                 messageManager;
+    LoadingThread*                  loadingThread;
 
     bool                            terminate;
     size_t                          windowId;

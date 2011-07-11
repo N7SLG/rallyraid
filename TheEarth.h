@@ -37,7 +37,7 @@ private:
 
 private:
     TheEarth();
-    ~TheEarth();
+    virtual ~TheEarth();
 
     virtual void run();
 

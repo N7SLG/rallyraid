@@ -41,7 +41,7 @@
 #define ROADBOOKENTRY_LD_SIZE_X     (92) // 96
 #define ROADBOOKENTRY_LD_SIZE_Y     (24)
 #define ROADBOOKENTRY_ITINER_SIZE   (58)
-#define ROADBOOKENTRY_ITINER2_SIZE  (44)
+#define ROADBOOKENTRY_ITINER2_SIZE  (58) // 44
 #define ROADBOOKENTRY_NOTE_SIZE_X   (62)
 #define ROADBOOKENTRY_NOTE_SIZE_Y   (62)
 
@@ -186,10 +186,10 @@ MenuPageStage::MenuPageStage()
             ROADBOOKBG_POS_Y/*(window->getRelativePosition().getSize().Height*3/4) + 10*/ + ROADBOOKENTRY_ITINER_POS_Y),
             irr::core::dimension2du(ROADBOOKENTRY_ITINER_SIZE, ROADBOOKENTRY_ITINER_SIZE), false);
         roadBookEntries[i].itinerQuad->getMaterial().MaterialType = Shaders::getInstance()->materialMap["quad2d_t"];
-        roadBookEntries[i].itinerQuad->getMaterial().setFlag(irr::video::EMF_ANTI_ALIASING, false);
-        roadBookEntries[i].itinerQuad->getMaterial().setFlag(irr::video::EMF_BILINEAR_FILTER, false);
-        roadBookEntries[i].itinerQuad->getMaterial().setFlag(irr::video::EMF_TRILINEAR_FILTER, false);
-        roadBookEntries[i].itinerQuad->getMaterial().UseMipMaps = false;
+        //roadBookEntries[i].itinerQuad->getMaterial().setFlag(irr::video::EMF_ANTI_ALIASING, false);
+        //roadBookEntries[i].itinerQuad->getMaterial().setFlag(irr::video::EMF_BILINEAR_FILTER, false);
+        //roadBookEntries[i].itinerQuad->getMaterial().setFlag(irr::video::EMF_TRILINEAR_FILTER, false);
+        //roadBookEntries[i].itinerQuad->getMaterial().UseMipMaps = false;
         roadBookEntries[i].itinerQuad->getMaterial().setTexture(0, 0);
 
         roadBookEntries[i].itiner2Quad = new ScreenQuad(TheGame::getInstance()->getDriver(),
@@ -197,10 +197,10 @@ MenuPageStage::MenuPageStage()
             ROADBOOKBG_POS_Y/*(window->getRelativePosition().getSize().Height*3/4) + 10*/ + ROADBOOKENTRY_ITINER2_POS_Y),
             irr::core::dimension2du(ROADBOOKENTRY_ITINER2_SIZE, ROADBOOKENTRY_ITINER2_SIZE), false);
         roadBookEntries[i].itiner2Quad->getMaterial().MaterialType = Shaders::getInstance()->materialMap["quad2d_t"];
-        roadBookEntries[i].itiner2Quad->getMaterial().setFlag(irr::video::EMF_ANTI_ALIASING, false);
-        roadBookEntries[i].itiner2Quad->getMaterial().setFlag(irr::video::EMF_BILINEAR_FILTER, false);
-        roadBookEntries[i].itiner2Quad->getMaterial().setFlag(irr::video::EMF_TRILINEAR_FILTER, false);
-        roadBookEntries[i].itiner2Quad->getMaterial().UseMipMaps = false;
+        //roadBookEntries[i].itiner2Quad->getMaterial().setFlag(irr::video::EMF_ANTI_ALIASING, false);
+        //roadBookEntries[i].itiner2Quad->getMaterial().setFlag(irr::video::EMF_BILINEAR_FILTER, false);
+        //roadBookEntries[i].itiner2Quad->getMaterial().setFlag(irr::video::EMF_TRILINEAR_FILTER, false);
+        //roadBookEntries[i].itiner2Quad->getMaterial().UseMipMaps = false;
         roadBookEntries[i].itiner2Quad->getMaterial().setTexture(0, 0);
     }
 
@@ -302,6 +302,7 @@ bool MenuPageStage::OnEvent(const irr::SEvent &event)
                         {
                             itinerIt = selectedStage->getItinerPointList().begin();
                             for (int i = 0; i < pos; i++, itinerIt++);
+                            updateRoadBook();
                         }
                         return true;
                         break;

@@ -31,6 +31,7 @@
 #include "VehicleType.h"
 #include "VehicleTypeManager.h"
 #include "Terrain_defs.h"
+#include "MessageManager.h"
 
 
 MenuPageEditor* MenuPageEditor::menuPageEditor = 0;
@@ -65,6 +66,8 @@ MenuPageEditor::MenuPageEditor()
       staticTextItinerGD(0),
       itinerImage(0),
       itinerImage2(0),
+      objectImage(0),
+      objectImage2(0),
       currentAction(A_None),
       material(),
       lastTick(0),
@@ -76,7 +79,7 @@ MenuPageEditor::MenuPageEditor()
     material.Thickness = 2.0f;
 
     window = TheGame::getInstance()->getEnv()->addWindow(
-        irr::core::recti(TheGame::getInstance()->getScreenSize().Width-350, 50, TheGame::getInstance()->getScreenSize().Width-10, TheGame::getInstance()->getScreenSize().Height-150),
+        irr::core::recti(TheGame::getInstance()->getScreenSize().Width-350, 50, TheGame::getInstance()->getScreenSize().Width-10, TheGame::getInstance()->getScreenSize().Height-300),
         false,
         L"Editor",
         0,
@@ -87,13 +90,13 @@ MenuPageEditor::MenuPageEditor()
         window,
         MI_BUTTONREFRESH,
         L"Refresh");
-
+/*
     TheGame::getInstance()->getEnv()->addButton(
         irr::core::recti(44,22,84,42),
         window,
         MI_BUTTONCREATEROAD,
         L"new road");
-
+*/
     TheGame::getInstance()->getEnv()->addButton(
         irr::core::recti(86,22,146,42),
         window,
@@ -280,8 +283,20 @@ MenuPageEditor::MenuPageEditor()
         tabObjectPool,
         MI_EBROT);
 
+    objectImage = TheGame::getInstance()->getEnv()->addImage(
+        irr::core::recti(irr::core::position2di(0, 1*22), irr::core::dimension2di(64,64)),
+        tabObjectPool);
+    objectImage->setScaleImage(true);
+    objectImage->setImage(0);
+
+    objectImage2 = TheGame::getInstance()->getEnv()->addImage(
+        irr::core::recti(irr::core::position2di(96, 1*22), irr::core::dimension2di(64,64)),
+        tabObjectPool);
+    objectImage2->setScaleImage(true);
+    objectImage2->setImage(0);
+
     tableObjectPool = TheGame::getInstance()->getEnv()->addTable(
-        irr::core::recti(irr::core::position2di(0, 22), irr::core::dimension2di(tabObjectPool->getRelativePosition().getSize().Width, tabObjectPool->getRelativePosition().getSize().Height-22)),
+        irr::core::recti(irr::core::position2di(0, 22+66), irr::core::dimension2di(tabObjectPool->getRelativePosition().getSize().Width, tabObjectPool->getRelativePosition().getSize().Height-(22+66))),
         tabObjectPool,
         MI_TABLEOBJECTPOOL,
         true);
@@ -507,7 +522,7 @@ bool MenuPageEditor::OnEvent(const irr::SEvent &event)
                         break;
                     case MI_BUTTONCREATEROAD:
                     {
-                        dprintf(MY_DEBUG_NOTE, "editor::race::newRoad\n");
+                        dprintf(MY_DEBUG_NOTE, "editor::newRoad\n");
                         std::string roadName;
                         std::string roadFilename;
                         std::string roadDataFilename;
@@ -547,25 +562,29 @@ bool MenuPageEditor::OnEvent(const irr::SEvent &event)
                             if (resetX < 0) resetX = -resetX;
                             if (resetZ > 0) resetZ = -resetZ;
                             printf("reset: %d, %f (%d), %d\n", resetX, (float)TheEarth::getInstance()->getEarthHeight(resetX, -resetZ)+(float)resetY, resetY, resetZ);
-                            
+                            MenuManager::getInstance()->close();
                             GamePlay::getInstance()->startStage(
                                 RaceManager::getInstance()->getCurrentStage(),
                                 VehicleTypeManager::getInstance()->getVehicleType(Player::getInstance()->getCompetitor()->getVehicleTypeName()),
-                                irr::core::vector3df((float)resetX*TILE_SIZE_F+TILE_HSIZE_F,(float)TheEarth::getInstance()->getEarthHeight(resetX, -resetZ)+(float)resetY,(float)resetZ*TILE_SIZE_F-TILE_HSIZE_F));
+                                irr::core::vector3df((float)resetX*TILE_SIZE_F+TILE_HSIZE_F,(float)TheEarth::getInstance()->getEarthHeight(resetX, -resetZ)+(float)resetY,(float)resetZ*TILE_SIZE_F-TILE_HSIZE_F),
+                                true);
                         }
                         else
                         {
                             printf("unable to reset because reset fields are not int\n");
+                            MessageManager::getInstance()->addText(L"unable to reset because reset fields are not int", 1);
                         }
                         return true;
                         break;
                     }
                     case MI_BUTTONRELOAD:
                     {
+                        MenuManager::getInstance()->close();
                         GamePlay::getInstance()->startStage(
                             RaceManager::getInstance()->getCurrentStage(),
                             VehicleTypeManager::getInstance()->getVehicleType(Player::getInstance()->getCompetitor()->getVehicleTypeName()),
-                            TheGame::getInstance()->getCamera()->getPosition()+OffsetManager::getInstance()->getOffset());
+                            TheGame::getInstance()->getCamera()->getPosition()+OffsetManager::getInstance()->getOffset(),
+                            true);
                         return true;
                         break;
                     }
@@ -582,6 +601,8 @@ bool MenuPageEditor::OnEvent(const irr::SEvent &event)
                         break;
                     case MI_TABLEOBJECTPOOL:
                         ObjectPoolManager::getInstance()->editorPool = (ObjectPool*)tableObjectPool->getCellData(tableObjectPool->getSelected(), 0);
+                        objectImage->setImage(((ObjectPool*)tableObjectPool->getCellData(tableObjectPool->getSelected(), 0))->texture);
+                        objectImage2->setImage(((ObjectPool*)tableObjectPool->getCellData(tableObjectPool->getSelected(), 0))->texture2);
                         refreshSelected();
                         return true;
                         break;
@@ -709,6 +730,7 @@ bool MenuPageEditor::OnEvent(const irr::SEvent &event)
 void MenuPageEditor::open()
 {
     dprintf(MY_DEBUG_NOTE, "MenuPageEditor::open()\n");
+    currentAction = A_None;
     refresh();
     window->setVisible(true);
     TheGame::getInstance()->getEnv()->setFocus(window);
@@ -717,6 +739,7 @@ void MenuPageEditor::open()
 void MenuPageEditor::close()
 {
     dprintf(MY_DEBUG_NOTE, "MenuPageEditor::close()\n");
+    currentAction = A_None;
     window->setVisible(false);
 }
 
@@ -1312,6 +1335,7 @@ void MenuPageEditor::actionP()
                 RaceManager::getInstance()->editorRace, ObjectPoolManager::getInstance()->editorPool);
             if (RaceManager::getInstance()->editorRace && ObjectPoolManager::getInstance()->editorPool)
             {
+                MessageManager::getInstance()->addText(L"add race object", 1);
                 ObjectWireGlobalObject* go = new ObjectWireGlobalObject(ObjectPoolManager::getInstance()->editorPool,
                     apos,
                     irr::core::vector3df(0.f, ObjectPoolManager::getInstance()->editorRot, 0.f),
@@ -1331,6 +1355,7 @@ void MenuPageEditor::actionP()
                 RaceManager::getInstance()->editorDay, ObjectPoolManager::getInstance()->editorPool);
             if (RaceManager::getInstance()->editorDay && ObjectPoolManager::getInstance()->editorPool)
             {
+                MessageManager::getInstance()->addText(L"add day object", 1);
                 ObjectWireGlobalObject* go = new ObjectWireGlobalObject(ObjectPoolManager::getInstance()->editorPool,
                     apos,
                     irr::core::vector3df(0.f, ObjectPoolManager::getInstance()->editorRot, 0.f),
@@ -1350,6 +1375,7 @@ void MenuPageEditor::actionP()
                 RaceManager::getInstance()->editorStage, ObjectPoolManager::getInstance()->editorPool);
             if (RaceManager::getInstance()->editorStage && ObjectPoolManager::getInstance()->editorPool)
             {
+                MessageManager::getInstance()->addText(L"add stage object", 1);
                 ObjectWireGlobalObject* go = new ObjectWireGlobalObject(ObjectPoolManager::getInstance()->editorPool,
                     apos,
                     irr::core::vector3df(0.f, ObjectPoolManager::getInstance()->editorRot, 0.f),
@@ -1368,6 +1394,7 @@ void MenuPageEditor::actionP()
             dprintf(MY_DEBUG_NOTE, "MenuPageEditor::action(): add road point, editorRoad: %p\n", RoadManager::getInstance()->editorRoad);
             if (RoadManager::getInstance()->editorRoad)
             {
+                MessageManager::getInstance()->addText(L"add road point", 1);
                 RoadManager::getInstance()->editorRoad->addRoadFarPoint(pos);
             }
             break;
@@ -1378,6 +1405,7 @@ void MenuPageEditor::actionP()
                 RoadManager::getInstance()->editorRoad);
             if (RoadManager::getInstance()->editorRoad)
             {
+                MessageManager::getInstance()->addText(L"add road point BEGIN", 1);
                 RoadManager::getInstance()->editorRoad->addRoadFarPointBegin(pos);
             }
             break;
@@ -1393,6 +1421,7 @@ void MenuPageEditor::actionP()
                 ItinerManager::getInstance()->editorDescription.c_str());
             if (RaceManager::getInstance()->editorStage)
             {
+                MessageManager::getInstance()->addText(L"add itiner point", 1);
                 ItinerManager::getInstance()->editorGlobalDistance += ItinerManager::getInstance()->editorLocalDistance;
                 refreshItinerGD();
                 ItinerPoint* ip = new ItinerPoint(apos,
@@ -1412,6 +1441,7 @@ void MenuPageEditor::actionP()
                 RaceManager::getInstance()->editorStage);
             if (RaceManager::getInstance()->editorStage)
             {
+                MessageManager::getInstance()->addText(L"add AI point", 1);
                 float gd = 0.f;
                 float ld = 0.f;
                 if (!RaceManager::getInstance()->editorStage->AIPointList.empty())
@@ -1440,6 +1470,7 @@ void MenuPageEditor::actionP()
                 
                 if (ld > 2500.f/*((float)(Settings::getInstance()->objectWireNum*Settings::getInstance()->objectWireSize)+200.f)*/)
                 {
+                    MessageManager::getInstance()->addText(L"add waypoint", 1);
                     unsigned int num = RaceManager::getInstance()->editorStage->wayPointList.size() + 1;
                     WayPoint* wpip = new WayPoint(apos, num);
                     RaceManager::getInstance()->editorStage->wayPointList.push_back(wpip);
@@ -1447,6 +1478,7 @@ void MenuPageEditor::actionP()
                 else
                 {
                     dprintf(MY_DEBUG_INFO, "MenuPageEditor::action(): add waypoint not possible, because last WP is to close: %f < 2500.0\n", ld);
+                    MessageManager::getInstance()->addText(L"add waypoint, but too close not add", 1);
                 }
             }
             break;
@@ -1457,6 +1489,7 @@ void MenuPageEditor::actionP()
                 RaceManager::getInstance()->editorStage);
             if (RaceManager::getInstance()->editorStage && RaceManager::getInstance()->editorStage->editorHeightModifier.pos.Y > 0.01f)
             {
+                MessageManager::getInstance()->addText(L"add height modifier", 1);
                 RaceManager::getInstance()->editorStage->editorHeightModifier.pos.X = apos.X;
                 RaceManager::getInstance()->editorStage->editorHeightModifier.pos.Z = apos.Z;
                 RaceManager::getInstance()->editorStage->heightModifierList.push_back(RaceManager::getInstance()->editorStage->editorHeightModifier);
@@ -1471,6 +1504,7 @@ void MenuPageEditor::actionP()
                 RaceManager::getInstance()->editorStage->editorHeightModifier.pos.Y > 0.01f &&
                 !RaceManager::getInstance()->editorStage->heightModifierList.empty())
             {
+                MessageManager::getInstance()->addText(L"add height modifier line", 1);
                 irr::core::vector2df pos2d = irr::core::vector2df(apos.X, apos.Z);
                 irr::core::vector2df bp = irr::core::vector2df(RaceManager::getInstance()->editorStage->heightModifierList.back().pos.X,
                     (float)(RaceManager::getInstance()->editorStage->heightModifierList.back().pos.Z));
@@ -1507,6 +1541,7 @@ void MenuPageEditor::actionP()
                 RaceManager::getInstance()->editorStage->editorHeightModifier.pos.Y > 0.01f &&
                 !RaceManager::getInstance()->editorStage->heightModifierList.empty())
             {
+                MessageManager::getInstance()->addText(L"add height modifier square", 1);
                 irr::core::vector2df bp = irr::core::vector2df(RaceManager::getInstance()->editorStage->heightModifierList.back().pos.X,
                     (float)(RaceManager::getInstance()->editorStage->heightModifierList.back().pos.Z));
                 bool first = true;
@@ -1576,6 +1611,7 @@ void MenuPageEditor::actionP()
                 RaceManager::getInstance()->editorRace);
             if (RaceManager::getInstance()->editorRace && !RaceManager::getInstance()->editorRace->globalObjectList.empty())
             {
+                MessageManager::getInstance()->addText(L"remove race object", 1);
                 ObjectWireGlobalObject* go = RaceManager::getInstance()->editorRace->globalObjectList.back();
                 RaceManager::getInstance()->editorRace->globalObjectList.pop_back();
                 if (RaceManager::getInstance()->editorRace->active)
@@ -1592,6 +1628,7 @@ void MenuPageEditor::actionP()
                 RaceManager::getInstance()->editorDay);
             if (RaceManager::getInstance()->editorDay && !RaceManager::getInstance()->editorDay->globalObjectList.empty())
             {
+                MessageManager::getInstance()->addText(L"remove day object", 1);
                 ObjectWireGlobalObject* go = RaceManager::getInstance()->editorDay->globalObjectList.back();
                 RaceManager::getInstance()->editorDay->globalObjectList.pop_back();
                 if (RaceManager::getInstance()->editorDay->active)
@@ -1608,6 +1645,7 @@ void MenuPageEditor::actionP()
                 RaceManager::getInstance()->editorStage);
             if (RaceManager::getInstance()->editorStage && !RaceManager::getInstance()->editorStage->globalObjectList.empty())
             {
+                MessageManager::getInstance()->addText(L"remove stage object", 1);
                 ObjectWireGlobalObject* go = RaceManager::getInstance()->editorStage->globalObjectList.back();
                 RaceManager::getInstance()->editorStage->globalObjectList.pop_back();
                 if (RaceManager::getInstance()->editorStage->active)
@@ -1623,6 +1661,7 @@ void MenuPageEditor::actionP()
             dprintf(MY_DEBUG_NOTE, "MenuPageEditor::action(): remove road point, editorRoad: %p\n", RoadManager::getInstance()->editorRoad);
             if (RoadManager::getInstance()->editorRoad)
             {
+                MessageManager::getInstance()->addText(L"remove road point", 1);
                 RoadManager::getInstance()->editorRoad->removeRoadPoint();
             }
             break;
@@ -1632,6 +1671,7 @@ void MenuPageEditor::actionP()
             dprintf(MY_DEBUG_NOTE, "MenuPageEditor::action(): remove road point begin, editorRoad: %p\n", RoadManager::getInstance()->editorRoad);
             if (RoadManager::getInstance()->editorRoad)
             {
+                MessageManager::getInstance()->addText(L"remove road point BEGIN", 1);
                 RoadManager::getInstance()->editorRoad->removeRoadPointBegin();
             }
             break;
@@ -1642,6 +1682,7 @@ void MenuPageEditor::actionP()
                 RaceManager::getInstance()->editorStage);
             if (RaceManager::getInstance()->editorStage && !RaceManager::getInstance()->editorStage->itinerPointList.empty())
             {
+                MessageManager::getInstance()->addText(L"remove itiner point", 1);
                 ItinerPoint* ip = RaceManager::getInstance()->editorStage->itinerPointList.back();
                 ItinerManager::getInstance()->editorGlobalDistance -= ip->getLocalDistance();
                 if (ItinerManager::getInstance()->editorGlobalDistance < 0.f) ItinerManager::getInstance()->editorGlobalDistance = 0.f;
@@ -1657,6 +1698,7 @@ void MenuPageEditor::actionP()
                 RaceManager::getInstance()->editorStage);
             if (RaceManager::getInstance()->editorStage && !RaceManager::getInstance()->editorStage->AIPointList.empty())
             {
+                MessageManager::getInstance()->addText(L"remove AI point", 1);
                 AIPoint* aip = RaceManager::getInstance()->editorStage->AIPointList.back();
                 RaceManager::getInstance()->editorStage->AIPointList.pop_back();
                 delete aip;
@@ -1669,6 +1711,7 @@ void MenuPageEditor::actionP()
                 RaceManager::getInstance()->editorStage);
             if (RaceManager::getInstance()->editorStage && !RaceManager::getInstance()->editorStage->wayPointList.empty())
             {
+                MessageManager::getInstance()->addText(L"remove waypoint", 1);
                 WayPoint* wpip = RaceManager::getInstance()->editorStage->wayPointList.back();
                 RaceManager::getInstance()->editorStage->wayPointList.pop_back();
                 delete wpip;
@@ -1677,6 +1720,7 @@ void MenuPageEditor::actionP()
         }
     default:
         dprintf(MY_DEBUG_ERROR, "MenuPageEditor::action(): no current action: %d\n", (int)currentAction);
+        MessageManager::getInstance()->addText(L"no current action", 1);
     }
 }
 
