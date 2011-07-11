@@ -149,6 +149,8 @@ private:
     irr::gui::IGUIStaticText* staticTextItinerGD;
     irr::gui::IGUIImage*    itinerImage;
     irr::gui::IGUIImage*    itinerImage2;
+    irr::gui::IGUIImage*    objectImage;
+    irr::gui::IGUIImage*    objectImage2;
 
     Action                  currentAction;
     irr::video::SMaterial   material;

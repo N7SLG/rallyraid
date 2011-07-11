@@ -264,6 +264,9 @@
     <ClInclude Include="MenuPageLoadSave.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="LoadingThread.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -477,6 +480,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="MenuPageLoadSave.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="LoadingThread.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

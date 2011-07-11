@@ -12,6 +12,7 @@
 #include "Settings.h"
 #include "Player.h"
 #include "Hud.h"
+#include <assert.h>
 
 
 ItinerManager* ItinerManager::itinerManager = 0;
@@ -196,6 +197,9 @@ bool ItinerManager::readItinerImages2()
     }
 
     unsigned int id = 1;
+    char fillZero[5] = {'0', '0', '0', '0', 0};
+
+    assert(itinerPointList.size() < 100000);
 
     for (itinerPointList_t::const_iterator it = itinerPointList.begin();
          it != itinerPointList.end();
@@ -205,7 +209,27 @@ bool ItinerManager::readItinerImages2()
         {
             fprintf_s(f, "\n");
         }
-        fprintf_s(f, "[%u]\n", id);
+        if (id < 10)
+        {
+            fillZero[4] = 0;
+        }
+        else if (id < 100)
+        {
+            fillZero[3] = 0;
+        }
+        else if (id < 1000)
+        {
+            fillZero[2] = 0;
+        }
+        else if (id < 10000)
+        {
+            fillZero[1] = 0;
+        }
+        else
+        {
+            fillZero[0] = 0;
+        }
+        fprintf_s(f, "[%s%u]\n", fillZero, id);
 
         fprintf_s(f, "pos=%f %f %f\n", (*it)->getPos().X, (*it)->getPos().Y, (*it)->getPos().Z);
         //fprintf_s(f, "gd=%f\n", (*it)->getGlobalDistance());

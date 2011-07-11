@@ -9,6 +9,7 @@
 #include "Vehicle.h"
 #include "ItinerPoint.h"
 #include "WayPointManager.h"
+#include "WStringConverter.h"
 
 
 // normalize angle between 0 and 360
@@ -56,7 +57,7 @@ static float normalizeAngle180(float &angle)
 #define ROADBOOKENTRY_LD_SIZE_X     (92) // 96
 #define ROADBOOKENTRY_LD_SIZE_Y     (24)
 #define ROADBOOKENTRY_ITINER_SIZE   (58)
-#define ROADBOOKENTRY_ITINER2_SIZE  (44)
+#define ROADBOOKENTRY_ITINER2_SIZE  (58) // 44
 #define ROADBOOKENTRY_NOTE_SIZE_X   (62)
 #define ROADBOOKENTRY_NOTE_SIZE_Y   (62)
 
@@ -104,10 +105,11 @@ Hud::Hud()
       tmPartText(0),
       tmTotalText(0),
       speedText(0),
+      stageTimeText(0),
       editorText(0)
 {
     miniMapQuad = new ScreenQuad(TheGame::getInstance()->getDriver(),
-        irr::core::position2di(HUD_PADDING, TheGame::getInstance()->getDriver()->getScreenSize().Height - MINIMAP_SIZE - 2*HUD_PADDING - 30),
+        irr::core::position2di(HUD_PADDING, TheGame::getInstance()->getDriver()->getScreenSize().Height - MINIMAP_SIZE - (3*HUD_PADDING) - (2*25)),
         irr::core::dimension2du(MINIMAP_SIZE, MINIMAP_SIZE), false);
     miniMapQuad->getMaterial().MaterialType = Shaders::getInstance()->materialMap["quad2d"];
 
@@ -234,10 +236,10 @@ Hud::Hud()
             TheGame::getInstance()->getDriver()->getScreenSize().Height - ROADBOOKBG_SIZE_Y - HUD_PADDING + ROADBOOKENTRY_ITINER_POS_Y),
             irr::core::dimension2du(ROADBOOKENTRY_ITINER_SIZE, ROADBOOKENTRY_ITINER_SIZE), false);
         roadBookEntries[i].itinerQuad->getMaterial().MaterialType = Shaders::getInstance()->materialMap["quad2d_t"];
-        roadBookEntries[i].itinerQuad->getMaterial().setFlag(irr::video::EMF_ANTI_ALIASING, false);
-        roadBookEntries[i].itinerQuad->getMaterial().setFlag(irr::video::EMF_BILINEAR_FILTER, false);
-        roadBookEntries[i].itinerQuad->getMaterial().setFlag(irr::video::EMF_TRILINEAR_FILTER, false);
-        roadBookEntries[i].itinerQuad->getMaterial().UseMipMaps = false;
+        //roadBookEntries[i].itinerQuad->getMaterial().setFlag(irr::video::EMF_ANTI_ALIASING, false);
+        //roadBookEntries[i].itinerQuad->getMaterial().setFlag(irr::video::EMF_BILINEAR_FILTER, false);
+        //roadBookEntries[i].itinerQuad->getMaterial().setFlag(irr::video::EMF_TRILINEAR_FILTER, false);
+        //roadBookEntries[i].itinerQuad->getMaterial().UseMipMaps = false;
         roadBookEntries[i].itinerQuad->getMaterial().setTexture(0, 0);
 
         roadBookEntries[i].itiner2Quad = new ScreenQuad(TheGame::getInstance()->getDriver(),
@@ -245,20 +247,28 @@ Hud::Hud()
             TheGame::getInstance()->getDriver()->getScreenSize().Height - ROADBOOKBG_SIZE_Y - HUD_PADDING + ROADBOOKENTRY_ITINER2_POS_Y),
             irr::core::dimension2du(ROADBOOKENTRY_ITINER2_SIZE, ROADBOOKENTRY_ITINER2_SIZE), false);
         roadBookEntries[i].itiner2Quad->getMaterial().MaterialType = Shaders::getInstance()->materialMap["quad2d_t"];
-        roadBookEntries[i].itiner2Quad->getMaterial().setFlag(irr::video::EMF_ANTI_ALIASING, false);
-        roadBookEntries[i].itiner2Quad->getMaterial().setFlag(irr::video::EMF_BILINEAR_FILTER, false);
-        roadBookEntries[i].itiner2Quad->getMaterial().setFlag(irr::video::EMF_TRILINEAR_FILTER, false);
-        roadBookEntries[i].itiner2Quad->getMaterial().UseMipMaps = false;
+        //roadBookEntries[i].itiner2Quad->getMaterial().setFlag(irr::video::EMF_ANTI_ALIASING, false);
+        //roadBookEntries[i].itiner2Quad->getMaterial().setFlag(irr::video::EMF_BILINEAR_FILTER, false);
+        //roadBookEntries[i].itiner2Quad->getMaterial().setFlag(irr::video::EMF_TRILINEAR_FILTER, false);
+        //roadBookEntries[i].itiner2Quad->getMaterial().UseMipMaps = false;
         roadBookEntries[i].itiner2Quad->getMaterial().setTexture(0, 0);
     }
 
     speedText = TheGame::getInstance()->getEnv()->addStaticText(L"000.00",
         irr::core::recti(irr::core::position2di(HUD_PADDING,
-        TheGame::getInstance()->getDriver()->getScreenSize().Height - HUD_PADDING - 30),
-        irr::core::dimension2di(350, 30)),
+        TheGame::getInstance()->getDriver()->getScreenSize().Height - HUD_PADDING - 25),
+        irr::core::dimension2di(350, 25)),
         false, false, 0, -1, false);
     speedText->setOverrideFont(FontManager::getInstance()->getFont(FontManager::FONT_EXTRALARGEBOLD));
     speedText->setOverrideColor(irr::video::SColor(255, 255, 255, 255));
+
+    stageTimeText = TheGame::getInstance()->getEnv()->addStaticText(L"0:00:00",
+        irr::core::recti(irr::core::position2di(HUD_PADDING,
+        TheGame::getInstance()->getDriver()->getScreenSize().Height - (2*HUD_PADDING) - (2*25)),
+        irr::core::dimension2di(350, 25)),
+        false, false, 0, -1, false);
+    stageTimeText->setOverrideFont(FontManager::getInstance()->getFont(FontManager::FONT_EXTRALARGEBOLD));
+    stageTimeText->setOverrideColor(irr::video::SColor(255, 255, 255, 255));
 
     editorText = TheGame::getInstance()->getEnv()->addStaticText(L"", irr::core::recti(10, 10, 790, 30), false, true, 0, -1, true);
 }
@@ -326,6 +336,7 @@ void Hud::setVisible(bool newVisible)
     tmPartText->setVisible(visible);
     tmTotalText->setVisible(visible);
     speedText->setVisible(visible);
+    stageTimeText->setVisible(visible);
     editorText->setVisible(TheGame::getInstance()->getEditorMode() && visible);
 
     updateRoadBook();
@@ -417,6 +428,9 @@ void Hud::preRender(float p_angle)
     str += rpm;
     speedText->setText(str.c_str());
       
+    str = L"Time: ";
+    WStringConverter::addTimeToStr(str, Player::getInstance()->getStageTime());
+    stageTimeText->setText(str.c_str());
 
     bool showWPCompass = WayPointManager::getInstance()->getShowCompass();
     if (showWPCompass)

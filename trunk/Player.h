@@ -75,6 +75,9 @@ public:
     bool isCurrItinerValid(); //inline
     bool isItinerValid(const ItinerManager::itinerPointList_t::const_iterator& itinerIt); //inline
 
+    unsigned int getStageTime(); // inline
+    void setStageTime(unsigned int stageTime); // inline
+
     bool addPassedWayPointNum(unsigned int wpNum); // inline
     bool isPassedWayPointNum(unsigned int wpNum); // inline
 
@@ -90,6 +93,8 @@ private:
     float           savedDistance;
     float           lastVehicleDistance;
     float           savedVehicleDistance;
+    unsigned int    stageTime;
+    unsigned int    savedStageTime;
 
     ItinerManager::itinerPointList_t::const_iterator prevItinerIt;
     ItinerManager::itinerPointList_t::const_iterator currItinerIt;
@@ -317,6 +322,16 @@ inline bool Player::addPassedWayPointNum(unsigned int wpNum)
 inline bool Player::isPassedWayPointNum(unsigned int wpNum)
 {
     return passedWayPoints.count(wpNum) > 0;
+}
+
+inline unsigned int Player::getStageTime()
+{
+    return stageTime;
+}
+
+inline void Player::setStageTime(unsigned int stageTime)
+{
+    this->stageTime = stageTime;
 }
 
 #endif // PLAYER_H

@@ -5,7 +5,7 @@
 #include <irrlicht.h>
 #include "ConfigFile.h"
 #include "StringConverter.h"
-
+#include <assert.h>
 
 AIPoint::AIPoint(const irr::core::vector3df& apos,
         float globalDistance,
@@ -128,6 +128,9 @@ void AIPoint::updateVisible()
     }
 
     unsigned int id = 1;
+    char fillZero[5] = {'0', '0', '0', '0', 0};
+
+    assert(AIPointList.size() < 100000);
 
     for (AIPointList_t::const_iterator it = AIPointList.begin();
          it != AIPointList.end();
@@ -137,7 +140,27 @@ void AIPoint::updateVisible()
         {
             fprintf_s(f, "\n");
         }
-        fprintf_s(f, "[%u]\n", id);
+        if (id < 10)
+        {
+            fillZero[4] = 0;
+        }
+        else if (id < 100)
+        {
+            fillZero[3] = 0;
+        }
+        else if (id < 1000)
+        {
+            fillZero[2] = 0;
+        }
+        else if (id < 10000)
+        {
+            fillZero[1] = 0;
+        }
+        else
+        {
+            fillZero[0] = 0;
+        }
+        fprintf_s(f, "[%s%u]\n", fillZero, id);
 
         fprintf_s(f, "pos=%f %f %f\n", (*it)->getPos().X, (*it)->getPos().Y, (*it)->getPos().Z);
 

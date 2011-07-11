@@ -116,7 +116,7 @@ Vehicle::Vehicle(const std::string& vehicleTypeName, const irr::core::vector3df&
     vehicleType = VehicleTypeManager::getInstance()->getVehicleType(vehicleTypeName);
     assert(vehicleType);
 
-    offsetObject = ObjectPoolManager::getInstance()->getObject(vehicleType->objectName, apos);
+    offsetObject = ObjectPoolManager::getInstance()->getObject(vehicleType->objectName, apos, irr::core::vector3df(1.f, 1.f, 1.f), rotation);
     offsetObject->setUpdateCB(this);
     node = offsetObject->getNode();
     hkBody = offsetObject->getBody();
@@ -124,7 +124,7 @@ Vehicle::Vehicle(const std::string& vehicleTypeName, const irr::core::vector3df&
     lastPos = node->getPosition();
 
     node->setMaterialTexture(0, vehicleType->texture);
-    node->setRotation(rotation);
+    //node->setRotation(rotation);
 
     matrix.setTranslation(node->getPosition());
     matrix.setRotationDegrees(rotation);
@@ -540,6 +540,8 @@ void Vehicle::reset(const irr::core::vector3df& pos)
     // vector3df(0.f, rot.Y, 0.f)
     matrix.setRotationDegrees(rot);
     //hkBody->setLinearVelocity(hkVector4());
+    //hkBody->activate();
+    hkBody->applyLinearImpulse(/*hkVector4(-hkBody->getLinearVelocity()(0), -hkBody->getLinearVelocity()(1), -hkBody->getLinearVelocity()(2))*/hkVector4(0.0f, 1.0f, 0.0f));
     updateToMatrix();
 }
 

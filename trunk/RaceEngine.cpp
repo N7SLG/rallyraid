@@ -130,6 +130,7 @@ bool Starter::update(unsigned int currentTime, const irr::core::vector3df& apos,
 
     if (!competitor->getAi())
     {
+        Player::getInstance()->setStageTime((currentTime - startTime) + penalityTime);
         if (!stage->getAIPointList().empty())
         {
             irr::core::vector3df cp(OffsetManager::getInstance()->getOffset()+Player::getInstance()->getVehicleMatrix().getTranslation());
@@ -137,7 +138,7 @@ bool Starter::update(unsigned int currentTime, const irr::core::vector3df& apos,
 
             if (distToFinish < 5.f)
             {
-                finishTime = currentTime;
+                finishTime = currentTime - startTime;
                 globalTime += finishTime;
                 globalPenalityTime += penalityTime;
         

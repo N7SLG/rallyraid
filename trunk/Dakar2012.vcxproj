@@ -110,6 +110,7 @@
     <ClInclude Include="ItinerManager.h" />
     <ClInclude Include="ItinerPoint.h" />
     <ClInclude Include="KeyConfig.h" />
+    <ClInclude Include="LoadingThread.h" />
     <ClInclude Include="MenuManager.h" />
     <ClInclude Include="MenuPageBase.h" />
     <ClInclude Include="MenuPageEditor.h" />
@@ -192,6 +193,7 @@
     <ClCompile Include="ItinerManager.cpp" />
     <ClCompile Include="ItinerPoint.cpp" />
     <ClCompile Include="KeyConfig.cpp" />
+    <ClCompile Include="LoadingThread.cpp" />
     <ClCompile Include="MenuManager.cpp" />
     <ClCompile Include="MenuPageBase.cpp" />
     <ClCompile Include="MenuPageEditor.cpp" />

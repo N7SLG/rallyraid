@@ -271,7 +271,7 @@ bool GamePlay::saveGame(const std::string& saveName)
     return ret;
 }
 
-void GamePlay::startStage(Stage* stage, VehicleType* vehicleType, const irr::core::vector3df& initPos)
+void GamePlay::startStage(Stage* stage, VehicleType* vehicleType, const irr::core::vector3df& initPos, bool forceReload)
 {
     irr::core::vector3df initialPos(initPos);
     irr::core::vector3df initialDir(1.f, 0.f, 0.f);
@@ -280,7 +280,7 @@ void GamePlay::startStage(Stage* stage, VehicleType* vehicleType, const irr::cor
     dprintf(MY_DEBUG_INFO, "GamePlay::startGame(): stage: %p, vehicleType: %p\n", stage, vehicleType);
     assert(vehicleType);
 
-    if (stage)
+    if (stage && !forceReload)
     {
         unsigned int size = stage->getAIPointList().size();
         
@@ -310,7 +310,7 @@ void GamePlay::startStage(Stage* stage, VehicleType* vehicleType, const irr::cor
 
     if (stage)
     {
-        RaceManager::getInstance()->activateStage(stage);
+        RaceManager::getInstance()->activateStage(stage, forceReload);
     }
     currentStage = stage;
 

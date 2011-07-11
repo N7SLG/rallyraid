@@ -42,7 +42,6 @@ protected:
 
 private:
     void refresh();
-    void refreshItiner();
     void setVisible(bool visible);
     void updateRoadBook();
 
