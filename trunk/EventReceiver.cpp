@@ -115,6 +115,12 @@ EventReceiver::EventReceiver()
     keyNameMap["reset_partial"] = RESET_PARTIAL;
     kp.keyLongName = "Reset partial";
     keyMap[RESET_PARTIAL] = kp;
+    keyNameMap["inc_fps_speed"] = INC_FPS_SPEED;
+    kp.keyLongName = "Increase FPS camera movement speed";
+    keyMap[INC_FPS_SPEED] = kp;
+    keyNameMap["dec_fps_speed"] = DEC_FPS_SPEED;
+    kp.keyLongName = "Decrease FPS camera movement speed";
+    keyMap[DEC_FPS_SPEED] = kp;
 
     loadKeyMapping();
     //saveKeyMapping();
@@ -546,6 +552,16 @@ void EventReceiver::checkEvents()
         if (IS_PRESSED(SWITCH_INPUT))
         {
             MenuManager::getInstance()->refreshEventReceiver();
+        }
+
+        if (IS_PRESSED(INC_FPS_SPEED))
+        {
+            TheGame::getInstance()->incFPSSpeed();
+        }
+
+        if (IS_PRESSED(DEC_FPS_SPEED))
+        {
+            TheGame::getInstance()->decFPSSpeed();
         }
 
         if (Settings::getInstance()->navigationAssistant == false)

@@ -43,20 +43,20 @@
 #define ROADBOOKENTRY_ITINER_SIZE   (58)
 #define ROADBOOKENTRY_ITINER2_SIZE  (58) // 44
 #define ROADBOOKENTRY_NOTE_SIZE_X   (62)
-#define ROADBOOKENTRY_NOTE_SIZE_Y   (62)
+#define ROADBOOKENTRY_NOTE_SIZE_Y   (31) // 62
 
 #define ROADBOOKENTRY_NUM_POS_X(num)    (num*ROADBOOKBG_SIZE_Y+0)
 #define ROADBOOKENTRY_NUM_POS_Y         (2)
 #define ROADBOOKENTRY_GD_POS_X(num)     (num*ROADBOOKBG_SIZE_Y+32)
 #define ROADBOOKENTRY_GD_POS_Y          (2)
-#define ROADBOOKENTRY_LD_POS_X(num)     (num*ROADBOOKBG_SIZE_Y+32)
+#define ROADBOOKENTRY_LD_POS_X(num)     (num*ROADBOOKBG_SIZE_Y+5) // +32
 #define ROADBOOKENTRY_LD_POS_Y          (36)
 #define ROADBOOKENTRY_ITINER_POS_X(num) (num*ROADBOOKBG_SIZE_Y+3)
 #define ROADBOOKENTRY_ITINER_POS_Y      (67)
 #define ROADBOOKENTRY_ITINER2_POS_X(num) (num*ROADBOOKBG_SIZE_Y+67)
 #define ROADBOOKENTRY_ITINER2_POS_Y     (67)
 #define ROADBOOKENTRY_NOTE_POS_X(num)   (num*ROADBOOKBG_SIZE_Y+64)
-#define ROADBOOKENTRY_NOTE_POS_Y        (64)
+#define ROADBOOKENTRY_NOTE_POS_Y        (64+32) // 64
 
 #define ROADBOOKBG_POS_Y                (600)
 #define STAGEIMAGE_POS_Y                (140)
@@ -159,7 +159,7 @@ MenuPageStage::MenuPageStage()
             ROADBOOKBG_POS_Y/*(window->getRelativePosition().getSize().Height*3/4) + 10*/ + ROADBOOKENTRY_GD_POS_Y),
             irr::core::dimension2di(ROADBOOKENTRY_GD_SIZE_X, ROADBOOKENTRY_GD_SIZE_Y)),
             false, false, window, -1, false);
-        roadBookEntries[i].globalDistanceText->setOverrideFont(FontManager::getInstance()->getFont(FontManager::FONT_EXTRALARGE));
+        roadBookEntries[i].globalDistanceText->setOverrideFont(FontManager::getInstance()->getFont(FontManager::FONT_EXTRALARGEBOLD));
         roadBookEntries[i].globalDistanceText->setTextAlignment(irr::gui::EGUIA_LOWERRIGHT, irr::gui::EGUIA_UPPERLEFT);
         //if (i!=1) roadBookEntries[i].globalDistanceText->setOverrideColor(irr::video::SColor(255, 127, 127, 127));
 
@@ -168,8 +168,8 @@ MenuPageStage::MenuPageStage()
             ROADBOOKBG_POS_Y/*(window->getRelativePosition().getSize().Height*3/4) + 10*/ + ROADBOOKENTRY_LD_POS_Y),
             irr::core::dimension2di(ROADBOOKENTRY_LD_SIZE_X, ROADBOOKENTRY_LD_SIZE_Y)),
             false, false, window, -1, false);
-        roadBookEntries[i].localDistanceText->setOverrideFont(FontManager::getInstance()->getFont(FontManager::FONT_NORMALBOLD));
-        roadBookEntries[i].localDistanceText->setTextAlignment(irr::gui::EGUIA_LOWERRIGHT, irr::gui::EGUIA_UPPERLEFT);
+        roadBookEntries[i].localDistanceText->setOverrideFont(FontManager::getInstance()->getFont(FontManager::FONT_LARGEBOLD));
+        //roadBookEntries[i].localDistanceText->setTextAlignment(irr::gui::EGUIA_LOWERRIGHT, irr::gui::EGUIA_UPPERLEFT);
         //if (i!=1) roadBookEntries[i].localDistanceText->setOverrideColor(irr::video::SColor(255, 127, 127, 127));
 
         roadBookEntries[i].noteText = TheGame::getInstance()->getEnv()->addStaticText(L"0,00",
@@ -178,7 +178,7 @@ MenuPageStage::MenuPageStage()
             irr::core::dimension2di(ROADBOOKENTRY_NOTE_SIZE_X, ROADBOOKENTRY_NOTE_SIZE_Y)),
             false, true, window, -1, false);
         roadBookEntries[i].noteText->setOverrideFont(FontManager::getInstance()->getFont(FontManager::FONT_SMALLBOLD));
-        roadBookEntries[i].noteText->setTextAlignment(irr::gui::EGUIA_LOWERRIGHT, irr::gui::EGUIA_LOWERRIGHT);
+        roadBookEntries[i].noteText->setTextAlignment(irr::gui::EGUIA_CENTER, irr::gui::EGUIA_CENTER);
         //if (i!=1) roadBookEntries[i].noteText->setOverrideColor(irr::video::SColor(255, 127, 127, 127));
 
         roadBookEntries[i].itinerQuad = new ScreenQuad(TheGame::getInstance()->getDriver(),

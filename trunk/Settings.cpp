@@ -42,7 +42,8 @@ Settings::Settings()
       driverType("opengl"),
       fullScreen(true),
       vsync(false),
-      scanForJoystick(true)
+      scanForJoystick(true),
+      shadowMapSize(2048)
 {
     read();
 }
@@ -139,6 +140,9 @@ void Settings::read()
             } else if (keyName == "scan_for_joystick")
             {
                 scanForJoystick = StringConverter::parseBool(valName, true);
+            } else if (keyName == "shadow_map_size")
+            {
+                shadowMapSize = StringConverter::parseUnsignedInt(valName, 2048);
             }
         }
     }
@@ -176,6 +180,7 @@ void Settings::write()
     ret = fprintf(f, "full_screen=%s\n", fullScreen?"yes":"no");
     ret = fprintf(f, "vsync=%s\n", vsync?"yes":"no");
     ret = fprintf(f, "scan_for_joystick=%s\n", scanForJoystick?"yes":"no");
+    ret = fprintf(f, "shadow_map_size=%u\n", shadowMapSize);
 
     fclose(f);
 }

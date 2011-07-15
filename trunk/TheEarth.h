@@ -133,6 +133,9 @@ public:
 
     unsigned int calculateTileNum(unsigned int x, unsigned int y) const; // inline
     bool threadIsRunning() {return newVisualPart!=0;}
+    
+    irr::video::ITexture* getSmokeTexture(); // inline
+    irr::video::E_MATERIAL_TYPE getSmokeMaterial(); // inline
 
 private:
     const tileMap_t& getTileMap() {return tileMap;}
@@ -176,6 +179,8 @@ private:
     irr::video::IImage*     miniMap;
     irr::video::ITexture*   miniMapTexture;
     irr::core::dimension2di lastMiniMapPos;
+    irr::video::ITexture*   smokeTexture;
+    irr::video::E_MATERIAL_TYPE smokeMaterial;
     
     
     // store data - reveresed Z coord
@@ -422,6 +427,17 @@ inline void TheEarth::setIsLoaded(unsigned int tileNum, bool val)
 inline unsigned int TheEarth::calculateTileNum(unsigned int x, unsigned int y) const
 {
     return (x + (xsize*y));
+}
+
+
+inline irr::video::ITexture* TheEarth::getSmokeTexture()
+{
+    return smokeTexture;
+}
+
+inline irr::video::E_MATERIAL_TYPE TheEarth::getSmokeMaterial()
+{
+    return smokeMaterial;
 }
 
 #endif // THEEARTH_H

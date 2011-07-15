@@ -6,41 +6,39 @@
 #include "ShadersSM20.h"
 #include "TheGame.h"
 #include "ConfigFile.h"
+#include "Settings.h"
+#include "ShadowRenderer.h"
 
-/*
-#define ADD_TEXTURE_MATRIX_V \
-        ptextureMatrix = cgGetNamedParameter(Vertex, "mTextureMatrix"); \
-        if (ptextureMatrix) \
-        { \
-            core::matrix4 textureMatrix; \
-            textureMatrix = lightCam->getProjectionMatrix(); \
-            textureMatrix *= lightCam->getViewMatrix(); \
-            textureMatrix *= driver->getTransform(video::ETS_WORLD); \
-        	services->setMatrix(ptextureMatrix,ICGT_MATRIX_IDENTITY,textureMatrix); \
-        }
-*/
+
 #define ADD_WORLD_VIEW_PROJ_V \
     irr::core::matrix4 cworldViewProj; \
     cworldViewProj = driver->getTransform(irr::video::ETS_PROJECTION); \
     cworldViewProj *= driver->getTransform(irr::video::ETS_VIEW); \
     cworldViewProj *= driver->getTransform(irr::video::ETS_WORLD); \
-    services->setVertexShaderConstant("mWorldViewProj",cworldViewProj.pointer(), 16);
+    services->setVertexShaderConstant("mWorldViewProj", cworldViewProj.pointer(), 16);
 
 #define ADD_WORLD_V \
     irr::core::matrix4 cworld; \
     cworld = driver->getTransform(irr::video::ETS_WORLD); \
-    services->setVertexShaderConstant("mWorld",cworld.pointer(), 16);
+    services->setVertexShaderConstant("mWorld", cworld.pointer(), 16);
 
 #define ADD_TRANS_WORLD_V \
     irr::core::matrix4 ctransWorld; \
     ctransWorld = driver->getTransform(irr::video::ETS_WORLD); \
     ctransWorld = ctransWorld.getTransposed(); \
-    services->setVertexShaderConstant("mTransWorld",ctransWorld.pointer(), 16);
+    services->setVertexShaderConstant("mTransWorld", ctransWorld.pointer(), 16);
 
 #define ADD_INV_WORLD_V \
     irr::core::matrix4 cinvWorld = driver->getTransform(irr::video::ETS_WORLD); \
     cinvWorld.makeInverse(); \
-    services->setVertexShaderConstant("mInvWorld",cinvWorld.pointer(), 16);
+    services->setVertexShaderConstant("mInvWorld", cinvWorld.pointer(), 16);
+
+#define ADD_TEXTURE_MATRIX_V \
+    irr::core::matrix4 textureMatrix = ShadowRenderer::getInstance()->getProjectionMatrix(); \
+    textureMatrix *= ShadowRenderer::getInstance()->getViewMatrix(); \
+    textureMatrix *= driver->getTransform(irr::video::ETS_WORLD); \
+    services->setVertexShaderConstant("mTextureMatrix", textureMatrix.pointer(), 16);
+
 
 #define ADD_LIGHT_COL_V \
     irr::video::SColorf col(0.98f, 0.98f, 0.98f); \
@@ -61,7 +59,27 @@
         services->setVertexShaderConstant("shininess",&shininess, 1);
 
 #define ADD_PARAM_F \
-        services->setPixelShaderConstant("param", &material.MaterialTypeParam, 1);
+        services->setPixelShaderConstant("param", &material->MaterialTypeParam, 1);
+
+#define ADD_PARAM2_F \
+        services->setPixelShaderConstant("param2", &material->MaterialTypeParam2, 1);
+
+#define ADD_MAX_SHADOW_F \
+        float max_shadow = ShadowRenderer::getInstance()->getMaxShadow(); \
+        services->setPixelShaderConstant("max_shadow", &max_shadow, 1);
+
+#define ADD_SHADOWMAP_F \
+        float shadowParam = 0.0f; \
+        if (ShadowRenderer::getInstance()->getShadowMap()) \
+        { \
+            if(TheGame::getInstance()->getDriver()->getDriverType() == irr::video::EDT_OPENGL /*|| driverType == video::EDT_OPENGL3*/) \
+                shadowParam = -1.0f; \
+            else \
+                shadowParam = 1.0f; \
+        } \
+        services->setPixelShaderConstant("shadowRes", (float*)&Settings::getInstance()->shadowMapSize, 1); \
+        services->setPixelShaderConstant("shadowParam", &shadowParam, 1);
+
 
 #define ADD_TEX0 \
         float tex0 = 0.f; \
@@ -75,7 +93,7 @@ class SM20_ShaderCallback : public irr::video::IShaderConstantSetCallBack
 {
 public:
     SM20_ShaderCallback()
-        : device(TheGame::getInstance()->getDevice()), driver(TheGame::getInstance()->getDriver())
+        : device(TheGame::getInstance()->getDevice()), driver(TheGame::getInstance()->getDriver()), material(0)
     {
         callbacks.insert(this);
     }
@@ -85,9 +103,15 @@ public:
         //assert(0);
     }
 
+	virtual void OnSetMaterial(const irr::video::SMaterial& material)
+    {
+        this->material = &material;
+    }
+
 public:
-    irr::IrrlichtDevice*        device;
-    irr::video::IVideoDriver*   driver;
+    irr::IrrlichtDevice*            device;
+    irr::video::IVideoDriver*       driver;
+    const irr::video::SMaterial*    material;
 
 public:
     static std::set<SM20_ShaderCallback*> callbacks;
@@ -122,11 +146,12 @@ public:
         ADD_WORLD_V
         ADD_WORLD_VIEW_PROJ_V
         ADD_INV_WORLD_V
-        //ADD_TEXTURE_MATRIX_V
+        ADD_TEXTURE_MATRIX_V
         ADD_LIGHT_COL_V
         ADD_LIGHT_POS_V
         //ADD_TEX0
         //ADD_TEX1
+        ADD_SHADOWMAP_F
     }
 
 };
@@ -174,6 +199,51 @@ public:
 
 };
 
+class SM20_ShaderCallback_normal_shadow : public SM20_ShaderCallback
+{
+public:
+    SM20_ShaderCallback_normal_shadow()
+    {
+    }
+
+    virtual void OnSetConstants(irr::video::IMaterialRendererServices* services, int userData)
+    {
+        ADD_WORLD_V
+        ADD_WORLD_VIEW_PROJ_V
+        ADD_INV_WORLD_V
+        ADD_TEXTURE_MATRIX_V
+        ADD_LIGHT_COL_V
+        ADD_LIGHT_POS_V
+        //ADD_EYEPOSITION_SHINE_V
+        //ADD_TEX0
+        ADD_SHADOWMAP_F
+    }
+
+};
+
+class SM20_ShaderCallback_normal_no_light_smoke : public SM20_ShaderCallback
+{
+public:
+    SM20_ShaderCallback_normal_no_light_smoke()
+    {
+    }
+
+    virtual void OnSetConstants(irr::video::IMaterialRendererServices* services, int userData)
+    {
+        ADD_WORLD_V
+        ADD_WORLD_VIEW_PROJ_V
+        //ADD_INV_WORLD_V
+        //ADD_TEXTURE_MATRIX_V
+        //ADD_LIGHT_COL_V
+        //ADD_LIGHT_POS_V
+        //ADD_EYEPOSITION_SHINE_V
+        //ADD_TEX0
+        //ADD_PARAM_F
+        ADD_PARAM2_F
+    }
+
+};
+
 class SM20_ShaderCallback_vehicle : public SM20_ShaderCallback
 {
 public:
@@ -186,11 +256,35 @@ public:
         ADD_WORLD_V
         ADD_WORLD_VIEW_PROJ_V
         ADD_INV_WORLD_V
-        //ADD_TEXTURE_MATRIX_V
+        ADD_TEXTURE_MATRIX_V
         ADD_LIGHT_COL_V
         ADD_LIGHT_POS_V
         ADD_EYEPOSITION_SHINE_V
         //ADD_TEX0
+        ADD_SHADOWMAP_F
+    }
+
+};
+
+class SM20_ShaderCallback_shadow : public SM20_ShaderCallback
+{
+public:
+    SM20_ShaderCallback_shadow()
+    {
+    }
+
+    virtual void OnSetConstants(irr::video::IMaterialRendererServices* services, int userData)
+    {
+        ADD_WORLD_V
+        ADD_WORLD_VIEW_PROJ_V
+        //ADD_INV_WORLD_V
+        //ADD_TEXTURE_MATRIX_V
+        //ADD_LIGHT_COL_V
+        //ADD_LIGHT_POS_V
+        //ADD_EYEPOSITION_SHINE_V
+        //ADD_TEX0
+        //ADD_PARAM_F
+        ADD_MAX_SHADOW_F
     }
 
 };
@@ -301,6 +395,22 @@ void ShadersSM20::loadSM20Materials()
                     shaderFile.c_str(), "main_f", ps_version,
                     new SM20_ShaderCallback_normal_no_light(), /*irr::video::EMT_SOLIDirr::video::EMT_TRANSPARENT_ALPHA_CHANNEL*/baseMaterial, 0, shadingLanguage);
             }
+            else if (materialName=="normal_shadow" || materialName=="normal_shadow_t")
+            {
+                // use specific shader CB
+                materialMap[materialName] = (irr::video::E_MATERIAL_TYPE)gpu->addHighLevelShaderMaterialFromFiles(
+                    shaderFile.c_str(), "main_v", vs_version,
+                    shaderFile.c_str(), "main_f", ps_version,
+                    new SM20_ShaderCallback_normal_shadow(), /*irr::video::EMT_SOLIDirr::video::EMT_TRANSPARENT_ALPHA_CHANNEL*/baseMaterial, 0, shadingLanguage);
+            }
+            else if (materialName=="smoke")
+            {
+                // use specific shader CB
+                materialMap[materialName] = (irr::video::E_MATERIAL_TYPE)gpu->addHighLevelShaderMaterialFromFiles(
+                    shaderFile.c_str(), "main_v", vs_version,
+                    shaderFile.c_str(), "main_f", ps_version,
+                    new SM20_ShaderCallback_normal_no_light_smoke(), /*irr::video::EMT_SOLIDirr::video::EMT_TRANSPARENT_ALPHA_CHANNEL*/baseMaterial, 0, shadingLanguage);
+            }
             else if (materialName=="vehicle")
             {
                 // use specific shader CB
@@ -308,6 +418,14 @@ void ShadersSM20::loadSM20Materials()
                     shaderFile.c_str(), "main_v", vs_version,
                     shaderFile.c_str(), "main_f", ps_version,
                     new SM20_ShaderCallback_vehicle(), /*irr::video::EMT_SOLIDirr::video::EMT_TRANSPARENT_ALPHA_CHANNEL*/baseMaterial, 0, shadingLanguage);
+            }
+            else if (materialName=="shadow")
+            {
+                // use specific shader CB
+                materialMap[materialName] = (irr::video::E_MATERIAL_TYPE)gpu->addHighLevelShaderMaterialFromFiles(
+                    shaderFile.c_str(), "main_v", vs_version,
+                    shaderFile.c_str(), "main_f", ps_version,
+                    new SM20_ShaderCallback_shadow(), /*irr::video::EMT_SOLIDirr::video::EMT_TRANSPARENT_ALPHA_CHANNEL*/baseMaterial, 0, shadingLanguage);
             }
             else
             {

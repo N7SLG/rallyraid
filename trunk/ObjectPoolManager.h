@@ -3,6 +3,7 @@
 #define OBJECTPOOLMANAGER_H
 
 #include <string>
+#include <set>
 #include <map>
 #include <irrlicht.h>
 
@@ -18,6 +19,7 @@ public:
     static ObjectPoolManager* getInstance() {return objectPoolManager;}
 
     typedef std::map<std::string, ObjectPool*> objectPoolMap_t;
+    typedef std::set<irr::scene::ISceneNode*> sceneNodeSet_t;
 
 private:
     static ObjectPoolManager* objectPoolManager;
@@ -36,7 +38,10 @@ public:
         bool addToOffsetManager = true);
     void putObject(OffsetObject* offsetObject);
     
-    const objectPoolMap_t& getObjectPoolMap() {return objectPoolMap;}
+    const objectPoolMap_t& getObjectPoolMap() const; // inline
+    const sceneNodeSet_t& getShadowNodeSet() const; // inline
+    void addShadowNode(irr::scene::ISceneNode* node); // inline
+    void removeShadowNode(irr::scene::ISceneNode* node); // inline
 
 private:
     objectPoolMap_t objectPoolMap;
@@ -44,9 +49,30 @@ private:
     ObjectPool*     editorPool;
     float           editorScale;
     float           editorRot;
+    sceneNodeSet_t  shadowNodeSet;
 
 
     friend class MenuPageEditor;
 };
+
+inline const ObjectPoolManager::objectPoolMap_t& ObjectPoolManager::getObjectPoolMap() const
+{
+    return objectPoolMap;
+}
+
+inline const ObjectPoolManager::sceneNodeSet_t& ObjectPoolManager::getShadowNodeSet() const
+{
+    return shadowNodeSet;
+}
+
+inline void ObjectPoolManager::addShadowNode(irr::scene::ISceneNode* node)
+{
+    shadowNodeSet.insert(node);
+}
+
+inline void ObjectPoolManager::removeShadowNode(irr::scene::ISceneNode* node)
+{
+    shadowNodeSet.erase(node);
+}
 
 #endif // OBJECTPOOLMANAGER_H

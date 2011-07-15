@@ -44,6 +44,8 @@ private:
         ROADBOOK_NEXT,
         ROADBOOK_PREV,
         RESET_PARTIAL,
+        INC_FPS_SPEED,
+        DEC_FPS_SPEED,
         NUMBER_OF_KEYNAMES
     };
     struct KeyProperty

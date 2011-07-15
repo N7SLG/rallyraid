@@ -31,6 +31,8 @@
 #include "Stage.h"
 #include "ItinerPoint.h"
 #include "LoadingThread.h"
+#include "ShadowRenderer.h"
+#include <CSceneNodeAnimatorCameraFPS.h>
 
 
 // static stuff
@@ -170,6 +172,8 @@ TheGame::TheGame()
         offsetManager = OffsetManager::getInstance();
         dprintf(MY_DEBUG_NOTE, "Initialize object pool manager\n");
         ObjectPoolManager::initialize();
+        dprintf(MY_DEBUG_NOTE, "Initialize shadow renderer\n");
+        ShadowRenderer::initialize();
         dprintf(MY_DEBUG_NOTE, "Initialize road type manager\n");
         RoadTypeManager::initialize();
         roadTypeManager = RoadTypeManager::getInstance();
@@ -295,6 +299,8 @@ TheGame::~TheGame()
     RoadManager::finalize();
     dprintf(MY_DEBUG_NOTE, "Finalize road type manager\n");
     RoadTypeManager::finalize();
+    dprintf(MY_DEBUG_NOTE, "Finalize shadow renderer\n");
+    ShadowRenderer::finalize();
     dprintf(MY_DEBUG_NOTE, "Finalize offsetManager\n");
     OffsetManager::finalize();
     dprintf(MY_DEBUG_NOTE, "Finalize objectPoolManager\n");
@@ -510,6 +516,8 @@ void TheGame::loop()
                         {
                             str += L"0";
                         }
+                        str += L"     FPS speed: ";
+                        str += (int)(getFPSSpeed()*10.f);
                         
                         hud->getEditorText()->setText(str.c_str());
                     }
@@ -544,6 +552,8 @@ void TheGame::loop()
                 continue;
             }
             failed_render = 0;
+
+            ShadowRenderer::getInstance()->renderShadowNodes();
 
             driver->setRenderTarget(0, true, true, irr::video::SColor(0, 0, 0, 255));
             //printf("prerender\n");
@@ -641,6 +651,54 @@ void TheGame::switchCamera()
     camera->setTarget(tar);
     if (cameraOffsetObject) cameraOffsetObject->setNode(camera);
 }
+
+float TheGame::getFPSSpeed()
+{
+    float ret = 0.0f;
+    if (!fps_camera->getAnimators().empty())
+    {
+        ret = ((irr::scene::CSceneNodeAnimatorCameraFPS*)(*(fps_camera->getAnimators().begin())))->getMoveSpeed();
+    }
+    return ret;
+}
+
+void TheGame::setFPSSpeed(float speed)
+{
+    if (!fps_camera->getAnimators().empty())
+    {
+        ((irr::scene::CSceneNodeAnimatorCameraFPS*)(*(fps_camera->getAnimators().begin())))->setMoveSpeed(speed);
+    }
+}
+
+void TheGame::incFPSSpeed()
+{
+    float fpsSpeed = getFPSSpeed();
+    if (fpsSpeed > 1.95f)
+    {
+        fpsSpeed = 2.0f;
+    }
+    else
+    {
+        fpsSpeed += 0.1f;
+    }
+    setFPSSpeed(fpsSpeed);
+}
+
+void TheGame::decFPSSpeed()
+{
+    float fpsSpeed = getFPSSpeed();
+    if (fpsSpeed < 0.15f)
+    {
+        fpsSpeed = 0.1f;
+    }
+    else
+    {
+        fpsSpeed -= 0.1f;
+    }
+    setFPSSpeed(fpsSpeed);
+}
+
+
 
 void TheGame::handleUpdatePos(bool phys)
 {

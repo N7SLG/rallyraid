@@ -1,12 +1,14 @@
 
 #include "ObjectPool.h"
 #include "OffsetObject.h"
+#include "ObjectPoolManager.h"
 #include "TheGame.h"
 #include "Settings.h"
 #include "Shaders.h"
 #include "stdafx.h"
 #include "CTreeSceneNode.h"
 #include "CTreeGenerator.h"
+#include "ShadowRenderer.h"
 
 
 ObjectPool::ObjectPool(const std::string& name, 
@@ -31,7 +33,8 @@ ObjectPool::ObjectPool(const std::string& name,
       mass(mass),
       center(center),
       num(num),
-      inUse(0)
+      inUse(0),
+      receiveShadow(false)
 {
     if (textureFilename != "")
     {
@@ -48,6 +51,10 @@ ObjectPool::ObjectPool(const std::string& name,
     if (material2Name != "")
     {
         material2 = Shaders::getInstance()->materialMap[material2Name];
+    }
+    if (materialName == "vehicle" || materialName == "normal_shadow" || materialName == "normal_shadow_t")
+    {
+        receiveShadow = true;
     }
 
     switch (objectType)
@@ -197,12 +204,30 @@ OffsetObject* ObjectPool::getObject(const irr::core::vector3df& apos, const irr:
         offsetObject->addToManager();
     }
     offsetObject->getNode()->setVisible(true);
+    switch (objectType)
+    {
+    case Grass:
+    case MyTree:
+        break;
+    default:
+        ObjectPoolManager::getInstance()->addShadowNode(offsetObject->getNode());
+        break;
+    }
     return offsetObject;
 }
 
 void ObjectPool::putObject(OffsetObject* object)
 {
     //dprintf(MY_DEBUG_NOTE, "ObjectPool::putObject(): %s\n", name.c_str());
+    switch (objectType)
+    {
+    case Grass:
+    case MyTree:
+        break;
+    default:
+        ObjectPoolManager::getInstance()->removeShadowNode(object->getNode());
+        break;
+    }
     object->getNode()->setVisible(false);
     hkpRigidBody* hkBody = object->getBody();
     if (hkBody)
@@ -294,7 +319,22 @@ OffsetObject* ObjectPool::createNewInstance()
             }
             objectNode->setMaterialFlag(irr::video::EMF_BLEND_OPERATION, true);
             objectNode->setMaterialTexture(0, texture);
-            objectNode->setMaterialTexture(1, texture2);
+            if (receiveShadow)
+            {
+                if (texture2 == 0)
+                {
+                    objectNode->setMaterialTexture(1, ShadowRenderer::getInstance()->getShadowMap());
+                }
+                else
+                {
+                    objectNode->setMaterialTexture(1, texture2);
+                    objectNode->setMaterialTexture(2, ShadowRenderer::getInstance()->getShadowMap());
+                }
+            }
+            else
+            {
+                objectNode->setMaterialTexture(1, texture2);
+            }
             break;
     }
     

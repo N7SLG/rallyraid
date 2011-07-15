@@ -89,6 +89,7 @@ private:
     unsigned int                num;
     
     unsigned int                inUse;
+    bool                        receiveShadow;
     
     
     friend class MenuPageEditor;

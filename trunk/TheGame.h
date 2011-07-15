@@ -62,6 +62,11 @@ public:
     bool                            getEditorMode(); // inline
     void                            setEditorMode(bool val); // inline
 
+    float                           getFPSSpeed();
+    void                            setFPSSpeed(float speed);
+    void                            incFPSSpeed();
+    void                            decFPSSpeed();
+
 private:
     TheGame();
     virtual ~TheGame();
