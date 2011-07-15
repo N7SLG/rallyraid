@@ -42,6 +42,7 @@ public:
     bool                    fullScreen;
     bool                    vsync;
     bool                    scanForJoystick;
+    unsigned int            shadowMapSize;
 };
 
 #endif // SETTINGS_H

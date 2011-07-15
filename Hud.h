@@ -48,6 +48,7 @@ private:
     ScreenQuad*     compassWPQuad;
     ScreenQuad*     tripMasterQuad;
     ScreenQuad*     roadBookBGQuad;
+    ScreenQuad*     roadBookBGOQuad;
 
     irr::gui::IGUIStaticText*   compassText;
     irr::gui::IGUIStaticText*   tmPartText;

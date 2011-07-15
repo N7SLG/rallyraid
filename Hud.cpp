@@ -10,6 +10,7 @@
 #include "ItinerPoint.h"
 #include "WayPointManager.h"
 #include "WStringConverter.h"
+#include "ShadowRenderer.h"
 
 
 // normalize angle between 0 and 360
@@ -31,7 +32,7 @@ static float normalizeAngle180(float &angle)
 
 #define COMPASS_SIZE            192 // 128
 #define COMPASS_HSIZE           (COMPASS_SIZE / 2)
-#define COMPASS_TEXT_SIZE_X     42// normalbold: 28, largebold: 34, extralargebold: 42
+#define COMPASS_TEXT_SIZE_X     44 // normalbold: 28, largebold: 34, extralargebold: 42
 #define COMPASS_TEXT_HSIZE_X    (COMPASS_TEXT_SIZE_X / 2)
 #define COMPASS_TEXT_SIZE_Y     26// normalbold: 18, largebold: 22, extralargebold: 26
 #define COMPASS_TEXT_HSIZE_Y    (COMPASS_TEXT_SIZE_Y / 2)
@@ -40,11 +41,11 @@ static float normalizeAngle180(float &angle)
 #define COMPASS_WP_ARROW_HDIFF  (COMPASS_WP_ARROW_DIFF / 2)
 #define COMPASS_WP_ARROW_SIZE   (COMPASS_WP_ARROW_DIFF + COMPASS_SIZE)
 
-#define TM_TEXT_X               (107)
-#define TM_PART_TEXT_Y          (78)
-#define TM_TOTAL_TEXT_Y         (34)
-#define TM_TEXT_SIZE_X          (70)
-#define TM_TEXT_SIZE_Y          (22)
+#define TM_TEXT_X               (122) // 107
+#define TM_PART_TEXT_Y          (82)  // 78
+#define TM_TOTAL_TEXT_Y         (38)  // 34
+#define TM_TEXT_SIZE_X          (80)  // 70
+#define TM_TEXT_SIZE_Y          (24)  // 22
 
 #define ROADBOOKBG_SIZE_Y       (128)
 #define ROADBOOKBG_SIZE_X       (4*ROADBOOKBG_SIZE_Y)
@@ -59,20 +60,20 @@ static float normalizeAngle180(float &angle)
 #define ROADBOOKENTRY_ITINER_SIZE   (58)
 #define ROADBOOKENTRY_ITINER2_SIZE  (58) // 44
 #define ROADBOOKENTRY_NOTE_SIZE_X   (62)
-#define ROADBOOKENTRY_NOTE_SIZE_Y   (62)
+#define ROADBOOKENTRY_NOTE_SIZE_Y   (31) // 62
 
 #define ROADBOOKENTRY_NUM_POS_X(num)    (num*ROADBOOKBG_SIZE_Y+0)
 #define ROADBOOKENTRY_NUM_POS_Y         (2)
 #define ROADBOOKENTRY_GD_POS_X(num)     (num*ROADBOOKBG_SIZE_Y+32)
 #define ROADBOOKENTRY_GD_POS_Y          (2)
-#define ROADBOOKENTRY_LD_POS_X(num)     (num*ROADBOOKBG_SIZE_Y+32)
+#define ROADBOOKENTRY_LD_POS_X(num)     (num*ROADBOOKBG_SIZE_Y+5) // +32
 #define ROADBOOKENTRY_LD_POS_Y          (36)
 #define ROADBOOKENTRY_ITINER_POS_X(num) (num*ROADBOOKBG_SIZE_Y+3)
 #define ROADBOOKENTRY_ITINER_POS_Y      (67)
 #define ROADBOOKENTRY_ITINER2_POS_X(num) (num*ROADBOOKBG_SIZE_Y+67)
 #define ROADBOOKENTRY_ITINER2_POS_Y     (67)
 #define ROADBOOKENTRY_NOTE_POS_X(num)   (num*ROADBOOKBG_SIZE_Y+64)
-#define ROADBOOKENTRY_NOTE_POS_Y        (64)
+#define ROADBOOKENTRY_NOTE_POS_Y        (64+32) // 64
 
 Hud* Hud::hud = 0;
 
@@ -101,6 +102,7 @@ Hud::Hud()
       compassWPQuad(0),
       tripMasterQuad(0),
       roadBookBGQuad(0),
+      roadBookBGOQuad(0),
       compassText(0),
       tmPartText(0),
       tmTotalText(0),
@@ -111,6 +113,8 @@ Hud::Hud()
     miniMapQuad = new ScreenQuad(TheGame::getInstance()->getDriver(),
         irr::core::position2di(HUD_PADDING, TheGame::getInstance()->getDriver()->getScreenSize().Height - MINIMAP_SIZE - (3*HUD_PADDING) - (2*25)),
         irr::core::dimension2du(MINIMAP_SIZE, MINIMAP_SIZE), false);
+//        irr::core::position2di(HUD_PADDING, TheGame::getInstance()->getDriver()->getScreenSize().Height - MINIMAP_SIZE*3 - (3*HUD_PADDING) - (2*25)),
+//        irr::core::dimension2du(MINIMAP_SIZE*3, MINIMAP_SIZE*3), false);
     miniMapQuad->getMaterial().MaterialType = Shaders::getInstance()->materialMap["quad2d"];
 
     tripMasterQuad = new ScreenQuad(TheGame::getInstance()->getDriver(),
@@ -125,7 +129,7 @@ Hud::Hud()
     tripMasterQuad->getMaterial().setFlag(irr::video::EMF_TRILINEAR_FILTER, false);
     tripMasterQuad->getMaterial().setFlag(irr::video::EMF_BLEND_OPERATION, true);
     tripMasterQuad->getMaterial().UseMipMaps = false;
-    tripMasterQuad->getMaterial().setTexture(0, TheGame::getInstance()->getDriver()->getTexture("data/hud/tripmaster.png"));
+    tripMasterQuad->getMaterial().setTexture(0, TheGame::getInstance()->getDriver()->getTexture("data/hud/tripmaster2.png"));
 
     compassQuad = new ScreenQuad(TheGame::getInstance()->getDriver(),
         irr::core::position2di(TheGame::getInstance()->getDriver()->getScreenSize().Width - COMPASS_SIZE - COMPASS_WP_ARROW_HDIFF - HUD_PADDING,
@@ -146,7 +150,7 @@ Hud::Hud()
         TheGame::getInstance()->getDriver()->getScreenSize().Height - COMPASS_HSIZE - COMPASS_HSIZE - COMPASS_WP_ARROW_HDIFF - HUD_PADDING*2 - COMPASS_TEXT_HSIZE_Y),
         irr::core::dimension2di(COMPASS_TEXT_SIZE_X, COMPASS_TEXT_SIZE_Y)),
         false, false, 0, -1, false);
-    compassText->setOverrideFont(FontManager::getInstance()->getFont(FontManager::FONT_EXTRALARGEBOLD));
+    compassText->setOverrideFont(FontManager::getInstance()->getFont(FontManager::FONT_SPECIAL16));
 
     compassWPQuad = new ScreenQuad(TheGame::getInstance()->getDriver(),
         irr::core::position2di(TheGame::getInstance()->getDriver()->getScreenSize().Width - COMPASS_WP_ARROW_SIZE - HUD_PADDING,
@@ -167,14 +171,16 @@ Hud::Hud()
         TheGame::getInstance()->getDriver()->getScreenSize().Height - HUD_PADDING - TM_PART_TEXT_Y),
         irr::core::dimension2di(TM_TEXT_SIZE_X, TM_TEXT_SIZE_Y)),
         false, false, 0, -1, false);
-    tmPartText->setOverrideFont(FontManager::getInstance()->getFont(FontManager::FONT_LARGE));
+    tmPartText->setTextAlignment(irr::gui::EGUIA_CENTER, irr::gui::EGUIA_UPPERLEFT);
+    tmPartText->setOverrideFont(FontManager::getInstance()->getFont(FontManager::FONT_EXTRALARGE));
 
     tmTotalText = TheGame::getInstance()->getEnv()->addStaticText(L"000.00",
         irr::core::recti(irr::core::position2di(TheGame::getInstance()->getDriver()->getScreenSize().Width - COMPASS_WP_ARROW_HDIFF - HUD_PADDING - TM_TEXT_X,
         TheGame::getInstance()->getDriver()->getScreenSize().Height - HUD_PADDING - TM_TOTAL_TEXT_Y),
         irr::core::dimension2di(TM_TEXT_SIZE_X, TM_TEXT_SIZE_Y)),
         false, false, 0, -1, false);
-    tmTotalText->setOverrideFont(FontManager::getInstance()->getFont(FontManager::FONT_LARGE));
+    tmTotalText->setTextAlignment(irr::gui::EGUIA_CENTER, irr::gui::EGUIA_UPPERLEFT);
+    tmTotalText->setOverrideFont(FontManager::getInstance()->getFont(FontManager::FONT_EXTRALARGE));
 
 
     roadBookBGQuad = new ScreenQuad(TheGame::getInstance()->getDriver(),
@@ -187,6 +193,18 @@ Hud::Hud()
     roadBookBGQuad->getMaterial().setFlag(irr::video::EMF_TRILINEAR_FILTER, false);
     roadBookBGQuad->getMaterial().UseMipMaps = false;
     roadBookBGQuad->getMaterial().setTexture(0, TheGame::getInstance()->getDriver()->getTexture("data/hud/roadbookbg.png"));
+
+    roadBookBGOQuad = new ScreenQuad(TheGame::getInstance()->getDriver(),
+        irr::core::position2di(TheGame::getInstance()->getDriver()->getScreenSize().Width/2 - ROADBOOKBG_HSIZE_X,
+        TheGame::getInstance()->getDriver()->getScreenSize().Height - ROADBOOKBG_SIZE_Y - HUD_PADDING),
+        irr::core::dimension2du(ROADBOOKBG_SIZE_X, ROADBOOKBG_SIZE_Y), false);
+    roadBookBGOQuad->getMaterial().MaterialType = Shaders::getInstance()->materialMap["quad2d_t"];
+    roadBookBGOQuad->getMaterial().setFlag(irr::video::EMF_ANTI_ALIASING, false);
+    roadBookBGOQuad->getMaterial().setFlag(irr::video::EMF_BILINEAR_FILTER, false);
+    roadBookBGOQuad->getMaterial().setFlag(irr::video::EMF_TRILINEAR_FILTER, false);
+    roadBookBGOQuad->getMaterial().setFlag(irr::video::EMF_BLEND_OPERATION, true);
+    roadBookBGOQuad->getMaterial().UseMipMaps = false;
+    roadBookBGOQuad->getMaterial().setTexture(0, TheGame::getInstance()->getDriver()->getTexture("data/hud/roadbookbg_over.png"));
 
     for (unsigned int i = 0; i < 4; i++)
     {
@@ -209,7 +227,7 @@ Hud::Hud()
             TheGame::getInstance()->getDriver()->getScreenSize().Height - ROADBOOKBG_SIZE_Y - HUD_PADDING + ROADBOOKENTRY_GD_POS_Y),
             irr::core::dimension2di(ROADBOOKENTRY_GD_SIZE_X, ROADBOOKENTRY_GD_SIZE_Y)),
             false, false, 0, -1, false);
-        roadBookEntries[i].globalDistanceText->setOverrideFont(FontManager::getInstance()->getFont(FontManager::FONT_EXTRALARGE));
+        roadBookEntries[i].globalDistanceText->setOverrideFont(FontManager::getInstance()->getFont(FontManager::FONT_EXTRALARGEBOLD));
         roadBookEntries[i].globalDistanceText->setTextAlignment(irr::gui::EGUIA_LOWERRIGHT, irr::gui::EGUIA_UPPERLEFT);
         if (i!=1) roadBookEntries[i].globalDistanceText->setOverrideColor(irr::video::SColor(255, 127, 127, 127));
 
@@ -218,8 +236,8 @@ Hud::Hud()
             TheGame::getInstance()->getDriver()->getScreenSize().Height - ROADBOOKBG_SIZE_Y - HUD_PADDING + ROADBOOKENTRY_LD_POS_Y),
             irr::core::dimension2di(ROADBOOKENTRY_LD_SIZE_X, ROADBOOKENTRY_LD_SIZE_Y)),
             false, false, 0, -1, false);
-        roadBookEntries[i].localDistanceText->setOverrideFont(FontManager::getInstance()->getFont(FontManager::FONT_NORMALBOLD));
-        roadBookEntries[i].localDistanceText->setTextAlignment(irr::gui::EGUIA_LOWERRIGHT, irr::gui::EGUIA_UPPERLEFT);
+        roadBookEntries[i].localDistanceText->setOverrideFont(FontManager::getInstance()->getFont(FontManager::FONT_LARGEBOLD));
+        //roadBookEntries[i].localDistanceText->setTextAlignment(irr::gui::EGUIA_LOWERRIGHT, irr::gui::EGUIA_UPPERLEFT);
         if (i!=1) roadBookEntries[i].localDistanceText->setOverrideColor(irr::video::SColor(255, 127, 127, 127));
 
         roadBookEntries[i].noteText = TheGame::getInstance()->getEnv()->addStaticText(L"0,00",
@@ -228,7 +246,7 @@ Hud::Hud()
             irr::core::dimension2di(ROADBOOKENTRY_NOTE_SIZE_X, ROADBOOKENTRY_NOTE_SIZE_Y)),
             false, true, 0, -1, false);
         roadBookEntries[i].noteText->setOverrideFont(FontManager::getInstance()->getFont(FontManager::FONT_SMALLBOLD));
-        roadBookEntries[i].noteText->setTextAlignment(irr::gui::EGUIA_LOWERRIGHT, irr::gui::EGUIA_LOWERRIGHT);
+        roadBookEntries[i].noteText->setTextAlignment(irr::gui::EGUIA_CENTER, irr::gui::EGUIA_CENTER);
         if (i!=1) roadBookEntries[i].noteText->setOverrideColor(irr::video::SColor(255, 127, 127, 127));
 
         roadBookEntries[i].itinerQuad = new ScreenQuad(TheGame::getInstance()->getDriver(),
@@ -259,7 +277,7 @@ Hud::Hud()
         TheGame::getInstance()->getDriver()->getScreenSize().Height - HUD_PADDING - 25),
         irr::core::dimension2di(350, 25)),
         false, false, 0, -1, false);
-    speedText->setOverrideFont(FontManager::getInstance()->getFont(FontManager::FONT_EXTRALARGEBOLD));
+    speedText->setOverrideFont(FontManager::getInstance()->getFont(FontManager::FONT_SPECIAL16));
     speedText->setOverrideColor(irr::video::SColor(255, 255, 255, 255));
 
     stageTimeText = TheGame::getInstance()->getEnv()->addStaticText(L"0:00:00",
@@ -267,7 +285,7 @@ Hud::Hud()
         TheGame::getInstance()->getDriver()->getScreenSize().Height - (2*HUD_PADDING) - (2*25)),
         irr::core::dimension2di(350, 25)),
         false, false, 0, -1, false);
-    stageTimeText->setOverrideFont(FontManager::getInstance()->getFont(FontManager::FONT_EXTRALARGEBOLD));
+    stageTimeText->setOverrideFont(FontManager::getInstance()->getFont(FontManager::FONT_SPECIAL16));
     stageTimeText->setOverrideColor(irr::video::SColor(255, 255, 255, 255));
 
     editorText = TheGame::getInstance()->getEnv()->addStaticText(L"", irr::core::recti(10, 10, 790, 30), false, true, 0, -1, true);
@@ -305,6 +323,12 @@ Hud::~Hud()
         roadBookBGQuad = 0;
     }
 
+    if (roadBookBGOQuad)
+    {
+        delete roadBookBGOQuad;
+        roadBookBGOQuad = 0;
+    }
+
     for (unsigned int i = 0; i < 4; i++)
     {
         if (roadBookEntries[i].itinerQuad)
@@ -331,6 +355,7 @@ void Hud::setVisible(bool newVisible)
     compassWPQuad->setVisible(WayPointManager::getInstance()->getShowCompass() && visible);
     tripMasterQuad->setVisible(visible);
     roadBookBGQuad->setVisible(visible);
+    roadBookBGOQuad->setVisible(visible);
 
     compassText->setVisible(visible);
     tmPartText->setVisible(visible);
@@ -349,7 +374,7 @@ void Hud::preRender(float p_angle)
     float angle = -p_angle-90.f;
     irr::core::stringw str;
 
-    miniMapQuad->getMaterial().setTexture(0, TheEarth::getInstance()->getMiniMapTexture());
+    miniMapQuad->getMaterial().setTexture(0, TheEarth::getInstance()->getMiniMapTexture()/*ShadowRenderer::getInstance()->getShadowMap()*/);
     compassQuad->rotate(angle);
 
     str = L"";
@@ -453,6 +478,7 @@ void Hud::render()
         roadBookEntries[i].itinerQuad->render();
         roadBookEntries[i].itiner2Quad->render();
     }
+    roadBookBGOQuad->render();
 }
 
 void Hud::updateRoadBook()

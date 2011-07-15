@@ -9,6 +9,7 @@
 #include "Shaders.h"
 #include "Settings.h"
 #include "stdafx.h"
+#include "ShadowRenderer.h"
 
 
 Terrain::Terrain(const std::string& prefix)
@@ -100,6 +101,7 @@ void Terrain::setVisible(bool p_visible)
             //    image->getPixel(image->getDimension().Width/2,image->getDimension().Height/2).getBlue());
             terrain->setMaterialTexture(0, texture);
             terrain->setMaterialTexture(1, TheGame::getInstance()->getDriver()->getTexture("data/earthdata/detailmap_03.png"));
+            terrain->setMaterialTexture(2, ShadowRenderer::getInstance()->getShadowMap());
             if (Shaders::getInstance()->getSupportedSMVersion() < 2)
             {
                 terrain->setMaterialFlag(irr::video::EMF_LIGHTING, Settings::getInstance()->nonshaderLight);

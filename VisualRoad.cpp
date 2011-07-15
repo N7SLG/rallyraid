@@ -12,6 +12,7 @@
 #include "ObjectPool.h"
 #include "stdafx.h"
 #include "Shaders.h"
+#include "ShadowRenderer.h"
 
 //#include <Physics/Collide/Shape/Compound/Collection/ExtendedMeshShape/hkpExtendedMeshShape.h>
 //#include <Physics/Collide/Shape/Compound/Collection/Mesh/hkpMeshMaterial.h>
@@ -237,14 +238,15 @@ void VisualRoad::switchToVisible()
     }
     //roadNode->getMaterial(0).UseMipMaps = false;
     roadNode->setMaterialTexture(0, roadType->texture);
+    roadNode->setMaterialTexture(1, ShadowRenderer::getInstance()->getShadowMap());
     if (roadType->frictionMulti > 0.01f)
     {
-        roadNode->setMaterialType(Shaders::getInstance()->materialMap["normal"]);
+        roadNode->setMaterialType(Shaders::getInstance()->materialMap["normal_shadow"]);
     }
     else
     {
         roadNode->setMaterialFlag(irr::video::EMF_BLEND_OPERATION, true);
-        roadNode->setMaterialType(Shaders::getInstance()->materialMap["normal_no_light_t"]);
+        roadNode->setMaterialType(Shaders::getInstance()->materialMap["normal_shadow_t"]);
     }
 //////////////////
     // turned off the physics because it is extremelly slow

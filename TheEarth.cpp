@@ -16,6 +16,7 @@
 #include "TerrainLarge.h"
 #include "Settings.h"
 #include "RoadManager.h"
+#include "Shaders.h"
 #include "stdafx.h"
 
 
@@ -238,6 +239,8 @@ TheEarth::TheEarth()
       miniMap(0),
       miniMapTexture(0),
       lastMiniMapPos(),
+      smokeTexture(0),
+      smokeMaterial((irr::video::E_MATERIAL_TYPE)0),
       xsize(0),
       ysize(0),
       height(0),
@@ -256,6 +259,8 @@ TheEarth::TheEarth()
 #else
     miniMap = TheGame::getInstance()->getDriver()->createImage(irr::video::ECF_R8G8B8, irr::core::dimension2du(TILE_POINTS_NUM, TILE_POINTS_NUM));
 #endif
+    smokeTexture = TheGame::getInstance()->getDriver()->getTexture("data/smoke/dirt.png");
+    smokeMaterial = Shaders::getInstance()->materialMap["smoke"];
 }
 
 TheEarth::~TheEarth()
@@ -506,13 +511,14 @@ const irr::video::SColor& TheEarth::getTileFineDensity(unsigned int x, unsigned 
         {
             if (getHasDetail(tileNum))
             {
-                assert(0 && "should be called only on loaded tiles");
+                //assert(0 && "should be called only on loaded tiles");
+                baseColor = irr::video::SColor(0);
             }
             else
             {
                 baseColor = getEarthDensity(tileX, tileY);
-                return baseColor;
             }
+            return baseColor;
         }
         return tile->getFineDensity(inX, inY);
     }
