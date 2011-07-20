@@ -347,6 +347,8 @@ void Road::editorRender(bool editorRoad)
 {
     irr::video::IVideoDriver* driver = TheGame::getInstance()->getDriver();
 
+    unsigned int step = 50;
+    if (editorRoad) step = 10;
     unsigned int i = 0;
     const unsigned int lastIndex = roadPointVector.size() - 1;
 
@@ -354,7 +356,7 @@ void Road::editorRender(bool editorRoad)
          it != roadPointVector.end();
          it++)
     {
-        if (i == 0 || i == lastIndex || (i % 10) == 0)
+        if (i == 0 || i == lastIndex || (i % step) == 0)
         {
             irr::core::vector3df renderPos = irr::core::vector3df((float)(it->p.X - (double)OffsetManager::getInstance()->getOffset().X),
                 (float)(it->p.Y - (double)OffsetManager::getInstance()->getOffset().Y),

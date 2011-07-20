@@ -90,7 +90,7 @@ MenuPageMain::MenuPageMain()
     havok_image->setUseAlphaChannel(true);
     havok_image->setImage(havok_logo);
 
-    TheGame::getInstance()->getEnv()->addStaticText(L"Build: 139",
+    TheGame::getInstance()->getEnv()->addStaticText(L"Build: 140",
         irr::core::recti(irr::core::position2di(window->getRelativePosition().getSize().Width - 60, window->getRelativePosition().getSize().Height - 20), havok_logo->getOriginalSize()),
         false, false, window, 0, false);
 
@@ -330,7 +330,7 @@ void MenuPageMain::refresh()
         tableVehicles->setCellText(i, 0, str.c_str());
         tableVehicles->setCellData(i, 0, (void*)vit->second);
         
-        if (i==0)
+        if (i==VehicleTypeManager::getInstance()->getVehicleTypeMap().size()-1)
         {
             selectedVehicleType = vit->second;
         }

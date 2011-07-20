@@ -228,12 +228,12 @@ MenuPageEditorStage::MenuPageEditorStage()
         tabHM,
         MI_EBHMHEIGHT);
 
-    editBoxHMRadius = TheGame::getInstance()->getEnv()->addEditBox(L"0",
+/*    editBoxHMRadius = TheGame::getInstance()->getEnv()->addEditBox(L"0",
         irr::core::recti(irr::core::position2di(tabHM->getRelativePosition().getSize().Width/3, 0), irr::core::dimension2di(tabHM->getRelativePosition().getSize().Width/3-2, 20)),
         true,
         tabHM,
         MI_EBHMRADIUS);
-
+*/
     TheGame::getInstance()->getEnv()->addButton(
         irr::core::recti(irr::core::position2di(tabHM->getRelativePosition().getSize().Width*2/3, 0), irr::core::dimension2di(tabHM->getRelativePosition().getSize().Width/3-2, 20)),
         tabHM,
@@ -367,6 +367,11 @@ bool MenuPageEditorStage::OnEvent(const irr::SEvent &event)
                 {
                     case MI_TABLEROADS:
                         RoadManager::getInstance()->editorRoad = (Road*)tableRoads->getCellData(tableRoads->getSelected(), 0);
+                        if (RoadManager::getInstance()->editorRoad && !RoadManager::getInstance()->editorRoad->getRoadPointVector().empty())
+                        {
+                            RoadManager::getInstance()->editorColor = RoadManager::getInstance()->editorRoad->getRoadPointVector().back().color;
+                            RoadManager::getInstance()->editorRadius = RoadManager::getInstance()->editorRoad->getRoadPointVector().back().radius;
+                        }
                         MenuPageEditor::menuPageEditor->refreshSelected();
                         return true;
                         break;
@@ -379,6 +384,11 @@ bool MenuPageEditorStage::OnEvent(const irr::SEvent &event)
                 {
                     case MI_TABLEROADS:
                         RoadManager::getInstance()->editorRoad = (Road*)tableRoads->getCellData(tableRoads->getSelected(), 0);
+                        if (RoadManager::getInstance()->editorRoad && !RoadManager::getInstance()->editorRoad->getRoadPointVector().empty())
+                        {
+                            RoadManager::getInstance()->editorColor = RoadManager::getInstance()->editorRoad->getRoadPointVector().back().color;
+                            RoadManager::getInstance()->editorRadius = RoadManager::getInstance()->editorRoad->getRoadPointVector().back().radius;
+                        }
                         MenuPageEditor::menuPageEditor->refreshSelected();
                         MenuManager::getInstance()->open(MenuManager::MP_EDITORROAD);
                         return true;
@@ -387,6 +397,7 @@ bool MenuPageEditorStage::OnEvent(const irr::SEvent &event)
                 break;
             }
             case irr::gui::EGET_EDITBOX_CHANGED:
+            case irr::gui::EGET_EDITBOX_ENTER:
             {
                 switch (id)
                 {
@@ -395,6 +406,7 @@ bool MenuPageEditorStage::OnEvent(const irr::SEvent &event)
                         break;
                     case MI_EBHMHEIGHT:
                         WStringConverter::toFloat(editBoxHMHeight->getText(), RaceManager::getInstance()->editorStage->editorHeightModifier.pos.Y);
+                        dprintf(MY_DEBUG_NOTE, "editor::stage::hm, set to %f\n", RaceManager::getInstance()->editorStage->editorHeightModifier.pos.Y);
                         break;
                     case MI_EBHMRADIUS:
                         WStringConverter::toFloat(editBoxHMRadius->getText(), RaceManager::getInstance()->editorStage->editorHeightModifier.radius);

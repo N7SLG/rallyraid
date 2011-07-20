@@ -298,6 +298,11 @@ bool MenuPageEditorRace::OnEvent(const irr::SEvent &event)
                         break;
                     case MI_TABLEROADS:
                         RoadManager::getInstance()->editorRoad = (Road*)tableRoads->getCellData(tableRoads->getSelected(), 0);
+                        if (RoadManager::getInstance()->editorRoad && !RoadManager::getInstance()->editorRoad->getRoadPointVector().empty())
+                        {
+                            RoadManager::getInstance()->editorColor = RoadManager::getInstance()->editorRoad->getRoadPointVector().back().color;
+                            RoadManager::getInstance()->editorRadius = RoadManager::getInstance()->editorRoad->getRoadPointVector().back().radius;
+                        }
                         MenuPageEditor::menuPageEditor->refreshSelected();
                         return true;
                         break;
@@ -316,6 +321,11 @@ bool MenuPageEditorRace::OnEvent(const irr::SEvent &event)
                         break;
                     case MI_TABLEROADS:
                         RoadManager::getInstance()->editorRoad = (Road*)tableRoads->getCellData(tableRoads->getSelected(), 0);
+                        if (RoadManager::getInstance()->editorRoad && !RoadManager::getInstance()->editorRoad->getRoadPointVector().empty())
+                        {
+                            RoadManager::getInstance()->editorColor = RoadManager::getInstance()->editorRoad->getRoadPointVector().back().color;
+                            RoadManager::getInstance()->editorRadius = RoadManager::getInstance()->editorRoad->getRoadPointVector().back().radius;
+                        }
                         MenuPageEditor::menuPageEditor->refreshSelected();
                         MenuManager::getInstance()->open(MenuManager::MP_EDITORROAD);
                         return true;

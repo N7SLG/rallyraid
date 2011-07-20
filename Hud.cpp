@@ -275,7 +275,7 @@ Hud::Hud()
     speedText = TheGame::getInstance()->getEnv()->addStaticText(L"000.00",
         irr::core::recti(irr::core::position2di(HUD_PADDING,
         TheGame::getInstance()->getDriver()->getScreenSize().Height - HUD_PADDING - 25),
-        irr::core::dimension2di(350, 25)),
+        irr::core::dimension2di(365, 25)),
         false, false, 0, -1, false);
     speedText->setOverrideFont(FontManager::getInstance()->getFont(FontManager::FONT_SPECIAL16));
     speedText->setOverrideColor(irr::video::SColor(255, 255, 255, 255));
@@ -283,7 +283,7 @@ Hud::Hud()
     stageTimeText = TheGame::getInstance()->getEnv()->addStaticText(L"0:00:00",
         irr::core::recti(irr::core::position2di(HUD_PADDING,
         TheGame::getInstance()->getDriver()->getScreenSize().Height - (2*HUD_PADDING) - (2*25)),
-        irr::core::dimension2di(350, 25)),
+        irr::core::dimension2di(365, 25)),
         false, false, 0, -1, false);
     stageTimeText->setOverrideFont(FontManager::getInstance()->getFont(FontManager::FONT_SPECIAL16));
     stageTimeText->setOverrideColor(irr::video::SColor(255, 255, 255, 255));

@@ -133,7 +133,7 @@ KeyConfig* KeyConfig::getKeyConfig(OIS::Keyboard* keyboard, const OIS::JoyStickS
             {
                 kc->to = OIS::JoyStick::MAX_AXIS;
             }
-            dprintf(MY_DEBUG_INFO, "joystick axis assign: %u\n", i);
+            dprintf(MY_DEBUG_INFO, "joystick axis assign: %u, from: %d, to: %d\n", i, kc->from, kc->to);
             return kc;
         }
     }
@@ -163,7 +163,7 @@ KeyConfig* KeyConfig::getKeyConfig(OIS::Keyboard* keyboard, const OIS::JoyStickS
             {
                 kc->to = OIS::JoyStick::MAX_AXIS;
             }
-            dprintf(MY_DEBUG_INFO, "joystick slide x assign: %u\n", i);
+            dprintf(MY_DEBUG_INFO, "joystick slide x assign: %u, from: %d, to: %d\n", i, kc->from, kc->to);
             return kc;
         }
     }
@@ -471,8 +471,8 @@ void KeyConfigJoystickAxis::writeToFile(FILE* f, const std::string& prefix)
 {
     fprintf_s(f, "%s_type=%u\n", prefix.c_str(), (unsigned int)type);
     fprintf_s(f, "%s_key=%u\n", prefix.c_str(), key);
-    fprintf_s(f, "%s_from=%u\n", prefix.c_str(), from);
-    fprintf_s(f, "%s_to=%u\n", prefix.c_str(), to);
+    fprintf_s(f, "%s_from=%d\n", prefix.c_str(), from);
+    fprintf_s(f, "%s_to=%d\n", prefix.c_str(), to);
 }
 
 const wchar_t* KeyConfigJoystickAxis::getName()

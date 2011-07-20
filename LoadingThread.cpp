@@ -104,19 +104,34 @@ void LoadingThread::endLoading()
 
 void LoadingThread::run()
 {
-    irr::IrrlichtDevice* device = TheGame::getInstance()->getDevice();
     dprintf(MY_DEBUG_NOTE, "start loading thread render\n");
     running = true;
     while (loading)
     {
-        dprintf(MY_DEBUG_NOTE, "loading thread render\n");
-        device->run();
-        device->getVideoDriver()->beginScene(true, true, irr::video::SColor(0,192,192,192));
-        bgQuad->render();
-        device->getGUIEnvironment()->drawAll();
-        device->getVideoDriver()->endScene();
+        render();
         TheGame::getInstance()->getDevice()->sleep(250);
     }
     dprintf(MY_DEBUG_NOTE, "end loading thread render\n");
     running = false;
+}
+
+void LoadingThread::refresh()
+{
+    dprintf(MY_DEBUG_NOTE, "start refresh: loading: %u, running: %u\n", loading, running);
+    if (loading && !running)
+    {
+        render();
+    }
+    dprintf(MY_DEBUG_NOTE, "end refresh\n");
+}
+
+void LoadingThread::render()
+{
+    irr::IrrlichtDevice* device = TheGame::getInstance()->getDevice();
+    dprintf(MY_DEBUG_NOTE, "loading thread render step\n");
+    device->run();
+    device->getVideoDriver()->beginScene(true, true, irr::video::SColor(0,192,192,192));
+    bgQuad->render();
+    device->getGUIEnvironment()->drawAll();
+    device->getVideoDriver()->endScene();
 }

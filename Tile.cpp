@@ -247,6 +247,11 @@ Tile::~Tile()
         delete [] fineColors;
         fineColors = 0;
     }
+    if (fineDensity)
+    {
+        delete [] fineDensity;
+        fineDensity = 0;
+    }
     if (adjusted)
     {
         delete [] adjusted;

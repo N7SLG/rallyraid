@@ -1,5 +1,11 @@
 // Dakar2012.cpp : Defines the entry point for the console application.
 //
+//#define DETECT_MEM_LEAKS 1
+#ifdef DETECT_MEM_LEAKS
+#define _CRTDBG_MAP_ALLOC
+#include <stdlib.h>
+#include <crtdbg.h>
+#endif // DETECT_MEM_LEAKS
 
 #include "stdafx.h"
 #include "TheGame.h"
@@ -26,6 +32,10 @@ int main()
 #endif
     }
 */  
-     return 0;
+#ifdef DETECT_MEM_LEAKS
+    _CrtDumpMemoryLeaks();
+    assert(0);
+#endif // DETECT_MEM_LEAKS
+    return 0;
 }
 

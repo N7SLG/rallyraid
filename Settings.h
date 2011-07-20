@@ -43,6 +43,7 @@ public:
     bool                    vsync;
     bool                    scanForJoystick;
     unsigned int            shadowMapSize;
+    float                   joystickDeadZone;
 };
 
 #endif // SETTINGS_H

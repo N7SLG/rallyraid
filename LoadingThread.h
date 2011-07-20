@@ -23,12 +23,16 @@ public:
     
     // returns if the loading is active
     bool getLoading(); // inline
+    
+    void refresh();
 
 private:
     LoadingThread();
     virtual ~LoadingThread();
 
     virtual void run();
+    
+    void render();
 
 private:
     static LoadingThread*   loadingThread;

@@ -1070,6 +1070,7 @@ void TheEarth::update(const irr::core::vector3df& apos, const irr::core::vector3
     {
         dprintf(MY_DEBUG_NOTE, "switch to new, set visible true ... \n");
         delete visualPart;
+        TheGame::getInstance()->getDriver()->removeAllHardwareBuffers();
         visualPart = newReadyVisualPart;
         newReadyVisualPart = 0;
         visualPart->setVisible(true);

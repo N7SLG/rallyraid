@@ -117,6 +117,11 @@ ObjectPool::~ObjectPool()
         hk::unlock();
         hkShape = 0;
     }
+    if (objectMesh)
+    {
+        //objectMesh->drop(); // commented out because
+        objectMesh = 0;
+    }
 }
 
 OffsetObject* ObjectPool::getObject(const irr::core::vector3df& apos, const irr::core::vector3df& scale, const irr::core::vector3df& rot, bool addToOffsetManager)

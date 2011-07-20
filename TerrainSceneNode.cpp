@@ -51,7 +51,7 @@ namespace scene
 	OldCameraRotation(core::vector3df(-99999.9f, -99999.9f, -99999.9f)),
 	OldCameraUp(core::vector3df(-99999.9f, -99999.9f, -99999.9f)),
 	CameraMovementDelta(10.0f), CameraRotationDelta(1.0f),CameraFOVDelta(0.1f),
-	TCoordScale1(1.0f), TCoordScale2(1.0f), FileSystem(fs)/*, texture(0), image(0)*/
+	TCoordScale1(1.0f), TCoordScale2(1.0f), FileSystem(fs)/*, texture(0), image(0)*/, type(0)
 	{
         //printf("TerrainSceneNode: ctor\n");
 		#ifdef _DEBUG
@@ -79,10 +79,20 @@ namespace scene
 			FileSystem->drop();
 
 		if (Mesh)
+        {
+            //printf("TerrainSceneNode::~TerrainSceneNode(): Mesh refcnt: %u, mb: %u, mbvb: %u\n",
+            //    Mesh->getReferenceCount(), Mesh->getMeshBuffer(0)->getReferenceCount(), ((irr::scene::CDynamicMeshBuffer*)Mesh->getMeshBuffer(0))->getVertexBuffer().getReferenceCount());
 			Mesh->drop();
+        }
 
 		if (RenderBuffer)
-			RenderBuffer->drop();
+        {
+            //printf("TerrainSceneNode::~TerrainSceneNode(): type: %u, RenderBuffer %p, refcnt: %u\n", type, RenderBuffer, RenderBuffer->getReferenceCount());
+			if (!RenderBuffer->drop())
+            {
+                //SceneManager->getVideoDriver()->removeHardwareBuffer(RenderBuffer);
+            }
+        }
         
         /*if (image)
         {
@@ -101,6 +111,7 @@ namespace scene
 	//! Initializes the terrain data. Loads the vertices from earth data
 	bool TerrainSceneNode::loadHeightMap(TheEarth* earth, int offsetX, int offsetY, unsigned int size, irr::video::IImage* image)
 	{
+        type = 1;
 		Mesh->MeshBuffers.clear();
 		//const u32 startTime = os::Timer::getRealTime();
         /*
@@ -266,6 +277,7 @@ namespace scene
 	//! Initializes the terrain data. Loads the vertices from terrain detail and earth data
 	bool TerrainSceneNode::loadHeightMap(TerrainDetail* td, int offsetX, int offsetY, unsigned int size/*, irr::video::IImage* image*/)
 	{
+        type = 2;
 		Mesh->MeshBuffers.clear();
 		//const u32 startTime = os::Timer::getRealTime();
         /*
@@ -384,6 +396,7 @@ namespace scene
 			RenderBuffer->getVertexBuffer()[i].Pos += TerrainData.Position;
 		}
 
+        //printf("TerrainDetail::load(): mb: %u, RenderBuffer: %u\n", mb->getReferenceCount(), RenderBuffer->getReferenceCount());
 		// We no longer need the mb
 		mb->drop();
 
@@ -413,6 +426,7 @@ namespace scene
 				TerrainData.CalcPatchSize * TerrainData.CalcPatchSize * 6);
 
 		RenderBuffer->setDirty();
+        //printf("TerrainDetail::load() 2: RenderBuffer: %u\n", RenderBuffer->getReferenceCount());
 
 		//const u32 endTime = os::Timer::getRealTime();
 
@@ -426,6 +440,7 @@ namespace scene
 
 	bool TerrainSceneNode::loadHeightMap(TerrainLarge* /*tl*/, TheEarth* earth, int offsetX, int offsetY, unsigned int size, irr::video::IImage* image)
 	{
+        type = 3;
 		Mesh->MeshBuffers.clear();
 		//const u32 startTime = os::Timer::getRealTime();
         /*
