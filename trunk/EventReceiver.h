@@ -2,6 +2,10 @@
 #ifndef EVENTRECEIVER_H
 #define EVENTRECEIVER_H
 
+#ifdef _DEBUG
+#define DETECT_MEM_LEAKS 1
+#endif // _DEBUG 
+
 #include <map>
 #include <vector>
 #include <string>
@@ -46,6 +50,10 @@ private:
         RESET_PARTIAL,
         INC_FPS_SPEED,
         DEC_FPS_SPEED,
+#ifdef DETECT_MEM_LEAKS
+        PRINT_MEM_LEAKS,
+        PRINT_MEM_LEAKS_IRR,
+#endif // _DEBUG
         NUMBER_OF_KEYNAMES
     };
     struct KeyProperty

@@ -34,6 +34,11 @@ VisualRoad::VisualRoad(const RoadRoadChunk& roadRoadChunk)
 
 VisualRoad::~VisualRoad()
 {
+    if (animatedMesh)
+    {
+        animatedMesh->drop();
+        animatedMesh = 0;
+    }
     if (roadNode)
     {
         roadNode->setVisible(false);

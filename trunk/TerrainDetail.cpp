@@ -97,6 +97,11 @@ TerrainDetail::~TerrainDetail()
         delete [] fineHeights;
         fineHeights = 0;
     }
+    if (baseHeights)
+    {
+        delete [] baseHeights;
+        baseHeights = 0;
+    }
 }
 
 void TerrainDetail::load(TheEarth* earth)

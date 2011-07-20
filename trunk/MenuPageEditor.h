@@ -55,6 +55,7 @@ public:
         MI_EBROT,
 
         MI_CBRENDER,
+        MI_CBRENDERALLROADS,
         
         MI_STITINERGD,
 
@@ -146,6 +147,7 @@ private:
     irr::gui::IGUIEditBox*  editBoxScale;
     irr::gui::IGUIEditBox*  editBoxRot;
     irr::gui::IGUICheckBox* checkBoxRender;
+    irr::gui::IGUICheckBox* checkBoxRenderAllRoads;
     irr::gui::IGUIStaticText* staticTextItinerGD;
     irr::gui::IGUIImage*    itinerImage;
     irr::gui::IGUIImage*    itinerImage2;
@@ -156,6 +158,7 @@ private:
     irr::video::SMaterial   material;
     unsigned int            lastTick;
     bool                    doRender;
+    bool                    renderAllRoads;
 };
 
 #endif // MENUPAGEEDITOR_H

@@ -1,4 +1,5 @@
 
+
 #include "EventReceiver.h"
 #include "TheGame.h"
 #include "KeyConfig.h"
@@ -21,6 +22,13 @@
 #include <OISMouse.h>
 #include <OISJoyStick.h>
 
+#ifdef DETECT_MEM_LEAKS
+//#define _CRTDBG_MAP_ALLOC
+//#include <stdlib.h>
+//#include <crtdbg.h>
+#include <vld.h>
+#endif // DETECT_MEM_LEAKS
+
 const std::string EventReceiver::keyMappingFilename = "data/Dakar2012_keymapping.cfg";
 
 EventReceiver::EventReceiver()
@@ -33,6 +41,12 @@ EventReceiver::EventReceiver()
       keyNameMap()
 {
     inputManager = OIS::InputManager::createInputSystem(TheGame::getInstance()->getWindowId());
+
+    // for mem leak test
+    //for (unsigned int i = 0; i < 10; i++)
+    //{
+    //    new char[100+i];
+    //}
 
     if (inputManager->getNumberOfDevices(OIS::OISKeyboard) <= 0)
     {
@@ -121,6 +135,14 @@ EventReceiver::EventReceiver()
     keyNameMap["dec_fps_speed"] = DEC_FPS_SPEED;
     kp.keyLongName = "Decrease FPS camera movement speed";
     keyMap[DEC_FPS_SPEED] = kp;
+#ifdef DETECT_MEM_LEAKS
+    keyNameMap["print_mem_leaks"] = PRINT_MEM_LEAKS;
+    kp.keyLongName = "Print memory leaks";
+    keyMap[PRINT_MEM_LEAKS] = kp;
+    keyNameMap["print_mem_leaks_irr"] = PRINT_MEM_LEAKS_IRR;
+    kp.keyLongName = "Print memory leaks from Irrlicht";
+    keyMap[PRINT_MEM_LEAKS_IRR] = kp;
+#endif // DETECT_MEM_LEAKS
 
     loadKeyMapping();
     //saveKeyMapping();
@@ -450,35 +472,35 @@ void EventReceiver::checkEvents()
         */
 
         // other
-
-        if (IS_PRESSED(ACCELERATE))
+        float perc = 0.f;
+        if (IS_PRESSED(ACCELERATE) && (perc = getPercentage(ACCELERATE, joystickState)) > Settings::getInstance()->joystickDeadZone)
         {
-            //dprintf(MY_DEBUG_NOTE, "accelerate pressed\n");
+            //dprintf(MY_DEBUG_NOTE, "accelerate pressed: %f\n", perc);
             Player::getInstance()->setFirstPressed();
-            Player::getInstance()->getVehicle()->setTorque(-1);
+            Player::getInstance()->getVehicle()->setTorque(-1.0f*perc);
         }
         else
-        if (IS_PRESSED(BRAKE))
+        if (IS_PRESSED(BRAKE) && (perc = getPercentage(BRAKE, joystickState)) > Settings::getInstance()->joystickDeadZone)
         {
-            //dprintf(MY_DEBUG_NOTE, "brake pressed\n");
+            //dprintf(MY_DEBUG_NOTE, "brake pressed: %f\n", perc);
             Player::getInstance()->setFirstPressed();
-            Player::getInstance()->getVehicle()->setTorque(1);
+            Player::getInstance()->getVehicle()->setTorque(perc);
         }
         else
         {
             Player::getInstance()->getVehicle()->setTorque(0);
         }
 
-        if (IS_PRESSED(LEFT))
+        if (IS_PRESSED(LEFT) && (perc = getPercentage(LEFT, joystickState)) > Settings::getInstance()->joystickDeadZone)
         {
-            //dprintf(MY_DEBUG_NOTE, "left pressed\n");
-            Player::getInstance()->getVehicle()->setSteer(-1);
+            //dprintf(MY_DEBUG_NOTE, "left pressed: %f\n", perc);
+            Player::getInstance()->getVehicle()->setSteer(-1.0f*perc);
         }
         else
-        if (IS_PRESSED(RIGHT))
+        if (IS_PRESSED(RIGHT) && (perc = getPercentage(RIGHT, joystickState)) > Settings::getInstance()->joystickDeadZone)
         {
-            //dprintf(MY_DEBUG_NOTE, "right pressed\n");
-            Player::getInstance()->getVehicle()->setSteer(1);
+            //dprintf(MY_DEBUG_NOTE, "right pressed: %f\n", perc);
+            Player::getInstance()->getVehicle()->setSteer(perc);
         }
         else
         {
@@ -586,6 +608,20 @@ void EventReceiver::checkEvents()
         {
             MenuManager::getInstance()->open(MenuManager::MP_INGAME);
         }
+#ifdef DETECT_MEM_LEAKS
+        if (IS_PRESSED(PRINT_MEM_LEAKS))
+        {
+            VLDReportLeaks();
+            //_CrtDumpMemoryLeaks();
+            //assert(0);
+        }
+        if (IS_PRESSED(PRINT_MEM_LEAKS_IRR))
+        {
+            TheGame::getInstance()->getSmgr()->addTerrainSceneNode("fake/path");
+            //_CrtDumpMemoryLeaks();
+            //assert(0);
+        }
+#endif // DETECT_MEM_LEAKS
     }
 #endif // 0 or 1
 }

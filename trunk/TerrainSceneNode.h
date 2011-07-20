@@ -341,6 +341,7 @@ namespace scene
 		io::IFileSystem* FileSystem;
         //video::ITexture* texture;
         //video::IImage* image;
+        unsigned int type;
 	};
 
 

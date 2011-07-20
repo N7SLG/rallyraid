@@ -63,6 +63,7 @@ MenuPageEditor::MenuPageEditor()
       editBoxScale(0),
       editBoxRot(0),
       checkBoxRender(0),
+      checkBoxRenderAllRoads(0),
       staticTextItinerGD(0),
       itinerImage(0),
       itinerImage2(0),
@@ -71,7 +72,8 @@ MenuPageEditor::MenuPageEditor()
       currentAction(A_None),
       material(),
       lastTick(0),
-      doRender(true)
+      doRender(true),
+      renderAllRoads(true)
 {
     menuPageEditor = this;
     material.MaterialType = irr::video::EMT_SOLID;
@@ -150,6 +152,12 @@ MenuPageEditor::MenuPageEditor()
         true,
         tabSelected,
         MI_EBRESETZ);
+
+    checkBoxRenderAllRoads = TheGame::getInstance()->getEnv()->addCheckBox(renderAllRoads,
+        irr::core::recti(irr::core::position2di(0, 22), irr::core::dimension2di(100, 20)),
+        tabSelected,
+        MI_CBRENDERALLROADS,
+        L"render all roads");
 
     tableSelected = TheGame::getInstance()->getEnv()->addTable(
         irr::core::recti(irr::core::position2di(0, 44), irr::core::dimension2di(tabSelected->getRelativePosition().getSize().Width, (tabSelected->getRelativePosition().getSize().Height-44)/3-1)),
@@ -718,6 +726,10 @@ bool MenuPageEditor::OnEvent(const irr::SEvent &event)
                     case MI_CBRENDER:
                         doRender = checkBoxRender->isChecked();
                         dprintf(MY_DEBUG_INFO, "set render to: %u\n", doRender);
+                        break;
+                    case MI_CBRENDERALLROADS:
+                        renderAllRoads = checkBoxRenderAllRoads->isChecked();
+                        dprintf(MY_DEBUG_INFO, "set render all roads to: %u\n", renderAllRoads);
                         break;
                 }
                 break;
@@ -1485,9 +1497,11 @@ void MenuPageEditor::actionP()
         }
     case A_AddHeightModifier:
         {
-            dprintf(MY_DEBUG_NOTE, "MenuPageEditor::action(): add height modifier editorStage: %p\n",
-                RaceManager::getInstance()->editorStage);
-            if (RaceManager::getInstance()->editorStage && RaceManager::getInstance()->editorStage->editorHeightModifier.pos.Y > 0.01f)
+            dprintf(MY_DEBUG_NOTE, "MenuPageEditor::action(): add height modifier editorStage: %p, height: %f\n",
+                RaceManager::getInstance()->editorStage, RaceManager::getInstance()->editorStage?RaceManager::getInstance()->editorStage->editorHeightModifier.pos.Y:0.0f);
+            if (RaceManager::getInstance()->editorStage && 
+                (RaceManager::getInstance()->editorStage->editorHeightModifier.pos.Y > 0.01f || RaceManager::getInstance()->editorStage->editorHeightModifier.pos.Y < -0.01f)
+                )
             {
                 MessageManager::getInstance()->addText(L"add height modifier", 1);
                 RaceManager::getInstance()->editorStage->editorHeightModifier.pos.X = apos.X;
@@ -1498,10 +1512,10 @@ void MenuPageEditor::actionP()
         }
     case A_AddHeightModifierLine:
         {
-            dprintf(MY_DEBUG_NOTE, "MenuPageEditor::action(): add height modifier line editorStage: %p\n",
-                RaceManager::getInstance()->editorStage);
+            dprintf(MY_DEBUG_NOTE, "MenuPageEditor::action(): add height modifier line editorStage: %p, height: %f\n",
+                RaceManager::getInstance()->editorStage, RaceManager::getInstance()->editorStage?RaceManager::getInstance()->editorStage->editorHeightModifier.pos.Y:0.0f);
             if (RaceManager::getInstance()->editorStage &&
-                RaceManager::getInstance()->editorStage->editorHeightModifier.pos.Y > 0.01f &&
+                (RaceManager::getInstance()->editorStage->editorHeightModifier.pos.Y > 0.01f || RaceManager::getInstance()->editorStage->editorHeightModifier.pos.Y < -0.01f) &&
                 !RaceManager::getInstance()->editorStage->heightModifierList.empty())
             {
                 MessageManager::getInstance()->addText(L"add height modifier line", 1);
@@ -1512,17 +1526,21 @@ void MenuPageEditor::actionP()
                 irr::core::vector2df tmpp;
                 irr::core::vector2di lastDetailPos;
                 irr::core::vector2di currentDetailPos;
-                float dist = dir.getLength();
+                const float dist = dir.getLength();
                 float cur = 0.f;
-                while (cur + TILE_DETAIL_SCALE_F < dist && dist < 1024.f)
+                //printf("start draw a line, dist: %f, step: %f\n", dist, TILE_DETAIL_SCALE_F);
+                while (cur + TILE_DETAIL_SCALE_F < dist && dist < 16000.f)
                 {
                     cur += TILE_DETAIL_SCALE_F;
                     tmpp = bp + dir*(cur/dist);
                     currentDetailPos.X = (int)(tmpp.X / TILE_DETAIL_SCALE_F);
                     currentDetailPos.Y = (int)(tmpp.Y / TILE_DETAIL_SCALE_F);
+
+                    //printf("try line point: cur: %f, last: (%d, %d), current: (%d, %d)\n", cur, lastDetailPos.X, lastDetailPos.Y, currentDetailPos.X, currentDetailPos.Y);
                     
                     if (lastDetailPos != currentDetailPos)
                     {
+                        //printf("add line point: point: (%f, %f)\n", tmpp.X, tmpp.Y);
                         RaceManager::getInstance()->editorStage->editorHeightModifier.pos.X = tmpp.X;
                         RaceManager::getInstance()->editorStage->editorHeightModifier.pos.Z = tmpp.Y;
                         RaceManager::getInstance()->editorStage->heightModifierList.push_back(RaceManager::getInstance()->editorStage->editorHeightModifier);
@@ -1535,10 +1553,10 @@ void MenuPageEditor::actionP()
         }
     case A_AddHeightModifierSquare:
         {
-            dprintf(MY_DEBUG_NOTE, "MenuPageEditor::action(): add height modifier line editorStage: %p\n",
-                RaceManager::getInstance()->editorStage);
+            dprintf(MY_DEBUG_NOTE, "MenuPageEditor::action(): add height modifier line editorStage: %p, height: %f\n",
+                RaceManager::getInstance()->editorStage, RaceManager::getInstance()->editorStage?RaceManager::getInstance()->editorStage->editorHeightModifier.pos.Y:0.0f);
             if (RaceManager::getInstance()->editorStage &&
-                RaceManager::getInstance()->editorStage->editorHeightModifier.pos.Y > 0.01f &&
+                (RaceManager::getInstance()->editorStage->editorHeightModifier.pos.Y > 0.01f || RaceManager::getInstance()->editorStage->editorHeightModifier.pos.Y < -0.01f) &&
                 !RaceManager::getInstance()->editorStage->heightModifierList.empty())
             {
                 MessageManager::getInstance()->addText(L"add height modifier square", 1);
@@ -1571,7 +1589,7 @@ void MenuPageEditor::actionP()
                     min.Y = apos.Z;
                     max.Y = bp.Y;
                 }
-                while (min.X < max.X && distX < 1024.f && distY < 1024.f)
+                while (min.X < max.X && distX < 2048.f && distY < 2048.f)
                 {
                     irr::core::vector2df pos2d = min;
                     if (first)
@@ -1734,12 +1752,18 @@ void MenuPageEditor::renderP()
     if (RaceManager::getInstance()->editorRace)
     {
         RaceManager::editorRenderObjects(RaceManager::getInstance()->editorRace->globalObjectList);
-        RoadManager::editorRenderRoads(RaceManager::getInstance()->editorRace->roadMap);
+        if (renderAllRoads)
+        {
+            RoadManager::editorRenderRoads(RaceManager::getInstance()->editorRace->roadMap);
+        }
     }
     if (RaceManager::getInstance()->editorDay)
     {
         RaceManager::editorRenderObjects(RaceManager::getInstance()->editorDay->globalObjectList);
-        RoadManager::editorRenderRoads(RaceManager::getInstance()->editorDay->roadMap);
+        if (renderAllRoads)
+        {
+            RoadManager::editorRenderRoads(RaceManager::getInstance()->editorDay->roadMap);
+        }
     }
     if (RaceManager::getInstance()->editorStage)
     {
@@ -1747,7 +1771,10 @@ void MenuPageEditor::renderP()
         ItinerManager::editorRenderItinerPointList(RaceManager::getInstance()->editorStage->itinerPointList);
         AIPoint::editorRenderAIPointList(RaceManager::getInstance()->editorStage->AIPointList);
         WayPointManager::editorRenderWayPointList(RaceManager::getInstance()->editorStage->wayPointList);
-        RoadManager::editorRenderRoads(RaceManager::getInstance()->editorStage->roadMap);
+        if (renderAllRoads)
+        {
+            RoadManager::editorRenderRoads(RaceManager::getInstance()->editorStage->roadMap);
+        }
     }
     if (RoadManager::getInstance()->editorRoad)
     {

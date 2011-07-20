@@ -43,7 +43,8 @@ Settings::Settings()
       fullScreen(true),
       vsync(false),
       scanForJoystick(true),
-      shadowMapSize(2048)
+      shadowMapSize(2048),
+      joystickDeadZone(0.01f)
 {
     read();
 }
@@ -143,6 +144,9 @@ void Settings::read()
             } else if (keyName == "shadow_map_size")
             {
                 shadowMapSize = StringConverter::parseUnsignedInt(valName, 2048);
+            } else if (keyName == "joystick_dead_zone")
+            {
+                joystickDeadZone = StringConverter::parseFloat(valName, 0.01f);
             }
         }
     }
@@ -181,6 +185,7 @@ void Settings::write()
     ret = fprintf(f, "vsync=%s\n", vsync?"yes":"no");
     ret = fprintf(f, "scan_for_joystick=%s\n", scanForJoystick?"yes":"no");
     ret = fprintf(f, "shadow_map_size=%u\n", shadowMapSize);
+    ret = fprintf(f, "joystick_dead_zone=%f\n", joystickDeadZone);
 
     fclose(f);
 }
