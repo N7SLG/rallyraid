@@ -49,12 +49,16 @@ private:
     ScreenQuad*     tripMasterQuad;
     ScreenQuad*     roadBookBGQuad;
     ScreenQuad*     roadBookBGOQuad;
+    ScreenQuad*     speedometerQuad;
+    ScreenQuad*     stickQuad;
+    ScreenQuad*     rpmStickQuad;
 
     irr::gui::IGUIStaticText*   compassText;
     irr::gui::IGUIStaticText*   tmPartText;
     irr::gui::IGUIStaticText*   tmTotalText;
     irr::gui::IGUIStaticText*   speedText;
     irr::gui::IGUIStaticText*   stageTimeText;
+    irr::gui::IGUIStaticText*   gearText;
     irr::gui::IGUIStaticText*   editorText;
 
     RoadBookEntry roadBookEntries[4];

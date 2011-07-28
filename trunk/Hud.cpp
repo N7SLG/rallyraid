@@ -7,6 +7,7 @@
 #include "FontManager.h"
 #include "Player.h"
 #include "Vehicle.h"
+#include "VehicleType.h"
 #include "ItinerPoint.h"
 #include "WayPointManager.h"
 #include "WStringConverter.h"
@@ -57,23 +58,46 @@ static float normalizeAngle180(float &angle)
 #define ROADBOOKENTRY_GD_SIZE_Y     (32)
 #define ROADBOOKENTRY_LD_SIZE_X     (92) // 96
 #define ROADBOOKENTRY_LD_SIZE_Y     (24)
-#define ROADBOOKENTRY_ITINER_SIZE   (58)
-#define ROADBOOKENTRY_ITINER2_SIZE  (58) // 44
-#define ROADBOOKENTRY_NOTE_SIZE_X   (62)
-#define ROADBOOKENTRY_NOTE_SIZE_Y   (31) // 62
+#define ROADBOOKENTRY_ITINER_SIZE   (64) // 58
+#define ROADBOOKENTRY_ITINER2_SIZE  (48) // 44, 58
+#define ROADBOOKENTRY_NOTE_SIZE_X   (54) // 62
+#define ROADBOOKENTRY_NOTE_SIZE_Y   (43) // 62, 31
 
 #define ROADBOOKENTRY_NUM_POS_X(num)    (num*ROADBOOKBG_SIZE_Y+0)
 #define ROADBOOKENTRY_NUM_POS_Y         (2)
 #define ROADBOOKENTRY_GD_POS_X(num)     (num*ROADBOOKBG_SIZE_Y+32)
 #define ROADBOOKENTRY_GD_POS_Y          (2)
-#define ROADBOOKENTRY_LD_POS_X(num)     (num*ROADBOOKBG_SIZE_Y+5) // +32
-#define ROADBOOKENTRY_LD_POS_Y          (36)
-#define ROADBOOKENTRY_ITINER_POS_X(num) (num*ROADBOOKBG_SIZE_Y+3)
-#define ROADBOOKENTRY_ITINER_POS_Y      (67)
-#define ROADBOOKENTRY_ITINER2_POS_X(num) (num*ROADBOOKBG_SIZE_Y+67)
-#define ROADBOOKENTRY_ITINER2_POS_Y     (67)
-#define ROADBOOKENTRY_NOTE_POS_X(num)   (num*ROADBOOKBG_SIZE_Y+64)
-#define ROADBOOKENTRY_NOTE_POS_Y        (64+32) // 64
+#define ROADBOOKENTRY_LD_POS_X(num)     (num*ROADBOOKBG_SIZE_Y+5) // +32,+5
+#define ROADBOOKENTRY_LD_POS_Y          (28) // 36
+#define ROADBOOKENTRY_ITINER_POS_X(num) (num*ROADBOOKBG_SIZE_Y+4) // +3
+#define ROADBOOKENTRY_ITINER_POS_Y      (60) // 67
+#define ROADBOOKENTRY_ITINER2_POS_X(num) (num*ROADBOOKBG_SIZE_Y+75) // +67
+#define ROADBOOKENTRY_ITINER2_POS_Y     (59) // 67
+#define ROADBOOKENTRY_NOTE_POS_X(num)   (num*ROADBOOKBG_SIZE_Y+73) // +64
+#define ROADBOOKENTRY_NOTE_POS_Y        (56+28) // (64+32)
+
+#define SPEEDOMETER_SIZE                (192)
+#define SPEEDOMETER_HSIZE               (SPEEDOMETER_SIZE/2)
+#define SPEEDOMETER_STICK_DIFF          (80)
+#define SPEEDOMETER_STICK_HDIFF         (SPEEDOMETER_STICK_DIFF/2)
+#define SPEEDOMETER_STICK_SIZE          (SPEEDOMETER_SIZE-SPEEDOMETER_STICK_DIFF)
+#define SPEEDOMETER_STICK_HSIZE         (SPEEDOMETER_STICK_SIZE/2)
+#define SPEEDOMETER_RPM_STICK_DIFF      (140)
+#define SPEEDOMETER_RPM_STICK_HDIFF     (SPEEDOMETER_RPM_STICK_DIFF/2)
+#define SPEEDOMETER_RPM_STICK_SIZE      (SPEEDOMETER_SIZE-SPEEDOMETER_RPM_STICK_DIFF)
+#define SPEEDOMETER_RPM_STICK_HSIZE     (SPEEDOMETER_RPM_STICK_SIZE/2)
+
+#define SPEEDOMETER_POS_X               (HUD_PADDING)
+#define SPEEDOMETER_POS_Y               (TheGame::getInstance()->getDriver()->getScreenSize().Height-(HUD_PADDING*3)-(2*25)-SPEEDOMETER_SIZE) // The time and speed text
+#define SPEEDOMETER_STICK_POS_X         (SPEEDOMETER_POS_X+SPEEDOMETER_STICK_HDIFF)
+#define SPEEDOMETER_STICK_POS_Y         (SPEEDOMETER_POS_Y+SPEEDOMETER_STICK_HDIFF)
+#define SPEEDOMETER_RPM_STICK_POS_X     (SPEEDOMETER_POS_X+SPEEDOMETER_RPM_STICK_HDIFF)
+#define SPEEDOMETER_RPM_STICK_POS_Y     (SPEEDOMETER_POS_Y+((479*SPEEDOMETER_SIZE)/512)-SPEEDOMETER_RPM_STICK_HSIZE)
+
+#define GEAR_TEXT_SIZE                  ((64*SPEEDOMETER_SIZE)/512)
+#define GEAR_TEXT_POS_X                 (SPEEDOMETER_POS_X+((226*SPEEDOMETER_SIZE)/512))
+#define GEAR_TEXT_POS_Y                 (SPEEDOMETER_POS_Y+((310*SPEEDOMETER_SIZE)/512))
+
 
 Hud* Hud::hud = 0;
 
@@ -103,15 +127,19 @@ Hud::Hud()
       tripMasterQuad(0),
       roadBookBGQuad(0),
       roadBookBGOQuad(0),
+      speedometerQuad(0),
+      stickQuad(0),
+      rpmStickQuad(0),
       compassText(0),
       tmPartText(0),
       tmTotalText(0),
       speedText(0),
       stageTimeText(0),
+      gearText(0),
       editorText(0)
 {
     miniMapQuad = new ScreenQuad(TheGame::getInstance()->getDriver(),
-        irr::core::position2di(HUD_PADDING, TheGame::getInstance()->getDriver()->getScreenSize().Height - MINIMAP_SIZE - (3*HUD_PADDING) - (2*25)),
+        irr::core::position2di(HUD_PADDING, TheGame::getInstance()->getDriver()->getScreenSize().Height - MINIMAP_SIZE - (4*HUD_PADDING) - (2*25) - SPEEDOMETER_SIZE),
         irr::core::dimension2du(MINIMAP_SIZE, MINIMAP_SIZE), false);
 //        irr::core::position2di(HUD_PADDING, TheGame::getInstance()->getDriver()->getScreenSize().Height - MINIMAP_SIZE*3 - (3*HUD_PADDING) - (2*25)),
 //        irr::core::dimension2du(MINIMAP_SIZE*3, MINIMAP_SIZE*3), false);
@@ -289,6 +317,48 @@ Hud::Hud()
     stageTimeText->setOverrideColor(irr::video::SColor(255, 255, 255, 255));
 
     editorText = TheGame::getInstance()->getEnv()->addStaticText(L"", irr::core::recti(10, 10, 790, 30), false, true, 0, -1, true);
+
+
+    speedometerQuad = new ScreenQuad(TheGame::getInstance()->getDriver(),
+        irr::core::position2di(SPEEDOMETER_POS_X, SPEEDOMETER_POS_Y),
+        irr::core::dimension2du(SPEEDOMETER_SIZE, SPEEDOMETER_SIZE), false);
+    speedometerQuad->getMaterial().MaterialType = Shaders::getInstance()->materialMap["quad2d_t"];
+    speedometerQuad->getMaterial().setFlag(irr::video::EMF_ANTI_ALIASING, false);
+    speedometerQuad->getMaterial().setFlag(irr::video::EMF_BILINEAR_FILTER, false);
+    speedometerQuad->getMaterial().setFlag(irr::video::EMF_TRILINEAR_FILTER, false);
+    speedometerQuad->getMaterial().setFlag(irr::video::EMF_BLEND_OPERATION, true);
+    speedometerQuad->getMaterial().UseMipMaps = false;
+    speedometerQuad->getMaterial().setTexture(0, TheGame::getInstance()->getDriver()->getTexture("data/hud/speedometer.png"));
+
+    stickQuad = new ScreenQuad(TheGame::getInstance()->getDriver(),
+        irr::core::position2di(SPEEDOMETER_STICK_POS_X, SPEEDOMETER_STICK_POS_Y),
+        irr::core::dimension2du(SPEEDOMETER_STICK_SIZE, SPEEDOMETER_STICK_SIZE), false);
+    stickQuad->getMaterial().MaterialType = Shaders::getInstance()->materialMap["quad2d_t"];
+    stickQuad->getMaterial().setFlag(irr::video::EMF_ANTI_ALIASING, false);
+    stickQuad->getMaterial().setFlag(irr::video::EMF_BILINEAR_FILTER, false);
+    stickQuad->getMaterial().setFlag(irr::video::EMF_TRILINEAR_FILTER, false);
+    stickQuad->getMaterial().setFlag(irr::video::EMF_BLEND_OPERATION, true);
+    stickQuad->getMaterial().UseMipMaps = false;
+    stickQuad->getMaterial().setTexture(0, TheGame::getInstance()->getDriver()->getTexture("data/hud/palca.png"));
+
+    rpmStickQuad = new ScreenQuad(TheGame::getInstance()->getDriver(),
+        irr::core::position2di(SPEEDOMETER_RPM_STICK_POS_X, SPEEDOMETER_RPM_STICK_POS_Y),
+        irr::core::dimension2du(SPEEDOMETER_RPM_STICK_SIZE, SPEEDOMETER_RPM_STICK_SIZE), false);
+    rpmStickQuad->getMaterial().MaterialType = Shaders::getInstance()->materialMap["quad2d_t"];
+    rpmStickQuad->getMaterial().setFlag(irr::video::EMF_ANTI_ALIASING, false);
+    rpmStickQuad->getMaterial().setFlag(irr::video::EMF_BILINEAR_FILTER, false);
+    rpmStickQuad->getMaterial().setFlag(irr::video::EMF_TRILINEAR_FILTER, false);
+    rpmStickQuad->getMaterial().setFlag(irr::video::EMF_BLEND_OPERATION, true);
+    rpmStickQuad->getMaterial().UseMipMaps = false;
+    rpmStickQuad->getMaterial().setTexture(0, TheGame::getInstance()->getDriver()->getTexture("data/hud/palca_e.png"));
+
+    gearText = TheGame::getInstance()->getEnv()->addStaticText(L"N",
+        irr::core::recti(irr::core::position2di(GEAR_TEXT_POS_X, GEAR_TEXT_POS_Y),
+        irr::core::dimension2di(GEAR_TEXT_SIZE, GEAR_TEXT_SIZE)),
+        false, false, 0, -1, false);
+    gearText->setOverrideFont(FontManager::getInstance()->getFont(FontManager::FONT_LARGEBOLD));
+    //gearText->setOverrideColor(irr::video::SColor(255, 0, 0, 0));
+    gearText->setTextAlignment(irr::gui::EGUIA_CENTER, irr::gui::EGUIA_CENTER);
 }
 
 Hud::~Hud()
@@ -329,6 +399,24 @@ Hud::~Hud()
         roadBookBGOQuad = 0;
     }
 
+    if (speedometerQuad)
+    {
+        delete speedometerQuad;
+        speedometerQuad = 0;
+    }
+
+    if (stickQuad)
+    {
+        delete stickQuad;
+        stickQuad = 0;
+    }
+
+    if (rpmStickQuad)
+    {
+        delete rpmStickQuad;
+        rpmStickQuad = 0;
+    }
+
     for (unsigned int i = 0; i < 4; i++)
     {
         if (roadBookEntries[i].itinerQuad)
@@ -356,12 +444,16 @@ void Hud::setVisible(bool newVisible)
     tripMasterQuad->setVisible(visible);
     roadBookBGQuad->setVisible(visible);
     roadBookBGOQuad->setVisible(visible);
+    speedometerQuad->setVisible(visible);
+    stickQuad->setVisible(visible);
+    rpmStickQuad->setVisible(visible);
 
     compassText->setVisible(visible);
     tmPartText->setVisible(visible);
     tmTotalText->setVisible(visible);
     speedText->setVisible(visible);
     stageTimeText->setVisible(visible);
+    gearText->setVisible(visible);
     editorText->setVisible(TheGame::getInstance()->getEditorMode() && visible);
 
     updateRoadBook();
@@ -463,6 +555,21 @@ void Hud::preRender(float p_angle)
         compassWPQuad->rotate(WayPointManager::getInstance()->getAngle());
     }
     compassWPQuad->setVisible(showWPCompass);
+
+    stickQuad->rotate(-90.f+Player::getInstance()->getVehicleSpeed());
+    rpmStickQuad->rotate(-15.f+((Player::getInstance()->getVehicle()->getRPM()/Player::getInstance()->getVehicle()->getVehicleType()->getMaxRPM())*120.f));
+
+    str = L"";
+    if (gear > 0)
+    {
+        str += gear;
+    }
+    else
+    {
+        str = L"N";
+    }
+    gearText->setText(str.c_str());
+
 }
 void Hud::render()
 {
@@ -479,6 +586,10 @@ void Hud::render()
         roadBookEntries[i].itiner2Quad->render();
     }
     roadBookBGOQuad->render();
+
+    speedometerQuad->render();
+    stickQuad->render();
+    rpmStickQuad->render();
 }
 
 void Hud::updateRoadBook()

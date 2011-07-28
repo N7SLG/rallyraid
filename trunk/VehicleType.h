@@ -39,6 +39,7 @@ public:
     const std::string& getName(); // inline
     const std::string& getLongName(); // inline
     float getMaxSpeed(); // inline
+    float getMaxRPM(); // inline
 
 private:
     bool read(const std::string& vehicleTypeFilename);
@@ -85,6 +86,11 @@ inline const std::string& VehicleType::getLongName()
 inline float VehicleType::getMaxSpeed()
 {
     return maxSpeed;
+}
+
+inline float VehicleType::getMaxRPM()
+{
+    return maxTorque;
 }
 
 #endif // VEHICLETYPE_H
