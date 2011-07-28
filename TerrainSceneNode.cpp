@@ -90,7 +90,7 @@ namespace scene
             //printf("TerrainSceneNode::~TerrainSceneNode(): type: %u, RenderBuffer %p, refcnt: %u\n", type, RenderBuffer, RenderBuffer->getReferenceCount());
 			if (!RenderBuffer->drop())
             {
-                //SceneManager->getVideoDriver()->removeHardwareBuffer(RenderBuffer);
+                SceneManager->getVideoDriver()->removeHardwareBuffer(RenderBuffer);
             }
         }
         
