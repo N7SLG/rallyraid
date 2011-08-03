@@ -78,6 +78,11 @@ public:
     unsigned int getStageTime(); // inline
     void setStageTime(unsigned int stageTime); // inline
 
+    float getSuspensionSpringModifier() const; // inline
+    float getSuspensionDamperModifier() const; // inline
+    void setSuspensionSpringModifier(float suspensionSpringModifier); // inline
+    void setSuspensionDamperModifier(float suspensionDamperModifier); // inline
+
     bool addPassedWayPointNum(unsigned int wpNum); // inline
     bool isPassedWayPointNum(unsigned int wpNum); // inline
 
@@ -95,6 +100,8 @@ private:
     float           savedVehicleDistance;
     unsigned int    stageTime;
     unsigned int    savedStageTime;
+    float           suspensionSpringModifier;
+    float           suspensionDamperModifier;
 
     ItinerManager::itinerPointList_t::const_iterator prevItinerIt;
     ItinerManager::itinerPointList_t::const_iterator currItinerIt;
@@ -332,6 +339,34 @@ inline unsigned int Player::getStageTime()
 inline void Player::setStageTime(unsigned int stageTime)
 {
     this->stageTime = stageTime;
+}
+
+inline float Player::getSuspensionSpringModifier() const
+{
+    return suspensionSpringModifier;
+}
+
+inline float Player::getSuspensionDamperModifier() const
+{
+    return suspensionDamperModifier;
+}
+
+inline void Player::setSuspensionSpringModifier(float suspensionSpringModifier)
+{
+    this->suspensionSpringModifier = suspensionSpringModifier;
+    if (vehicle)
+    {
+        vehicle->modifySuspensionSpring(suspensionSpringModifier);
+    }
+}
+
+inline void Player::setSuspensionDamperModifier(float suspensionDamperModifier)
+{
+    this->suspensionDamperModifier = suspensionDamperModifier;
+    if (vehicle)
+    {
+        vehicle->modifySuspensionDamper(suspensionDamperModifier);
+    }
 }
 
 #endif // PLAYER_H

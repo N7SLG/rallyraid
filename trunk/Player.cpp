@@ -5,6 +5,7 @@
 #include "Competitor.h"
 #include "RaceEngine.h"
 #include "ItinerPoint.h"
+#include "Settings.h"
 #include <assert.h>
 
 
@@ -49,7 +50,9 @@ Player::Player()
       passedWayPoints(),
       savedPassedWayPoints(),
       stageTime(0),
-      savedStageTime(0)
+      savedStageTime(0),
+      suspensionSpringModifier(0.0f),
+      suspensionDamperModifier(0.0f)
 {
 }
 
@@ -64,7 +67,8 @@ void Player::initializeVehicle(const std::string& vehicleTypeName, const irr::co
 {
     assert(vehicle == 0);
     competitor->setVehicleTypeName(vehicleTypeName);
-    vehicle = new Vehicle(vehicleTypeName, apos, rotation);
+    vehicle = new Vehicle(vehicleTypeName, apos, rotation, Settings::getInstance()->manualGearShifting,
+        Settings::getInstance()->sequentialGearShifting, suspensionSpringModifier, suspensionDamperModifier);
     recenterView = true;
     firstPressed = false;
     distance = savedDistance;
@@ -151,6 +155,8 @@ bool Player::save(const std::string& filename)
     ret = fprintf(f, "%u\n", (stage && prevItinerIt!=stage->getItinerPointList().end())?(*prevItinerIt)->getNum():0);
     ret = fprintf(f, "%u\n", (stage && currItinerIt!=stage->getItinerPointList().end())?(*currItinerIt)->getNum():0);
     ret = fprintf(f, "%u\n", stageTime);
+    ret = fprintf(f, "%f\n", suspensionSpringModifier);
+    ret = fprintf(f, "%f\n", suspensionDamperModifier);
     
     ret = fprintf(f, "%lu\n", passedWayPoints.size());
     for (WayPointManager::wayPointNumSet_t::const_iterator it = passedWayPoints.begin();
@@ -253,7 +259,16 @@ bool Player::load(const std::string& filename, Stage* stage)
         fclose(f);
         return false;
     }
+
+    ret = fscanf_s(f, "%f\n%f\n", &suspensionSpringModifier, &suspensionDamperModifier);
+    if (ret < 2)
+    {
+        printf("player file unable to read suspension modifiers: %s\n", filename.c_str());
+        fclose(f);
+        return false;
+    }
     
+
     savedPassedWayPoints.clear();
     ret = fscanf_s(f, "%lu\n", &numOfPWP);
     if (ret < 1)

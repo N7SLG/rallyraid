@@ -3,7 +3,7 @@
 #define EVENTRECEIVER_H
 
 #ifdef _DEBUG
-#define DETECT_MEM_LEAKS 1
+//#define DETECT_MEM_LEAKS 1
 #endif // _DEBUG 
 
 #include <map>
@@ -50,6 +50,15 @@ private:
         RESET_PARTIAL,
         INC_FPS_SPEED,
         DEC_FPS_SPEED,
+        GEAR_R,
+        GEAR_1,
+        GEAR_2,
+        GEAR_3,
+        GEAR_4,
+        GEAR_5,
+        GEAR_6,
+        GEAR_UP,
+        GEAR_DOWN,
 #ifdef DETECT_MEM_LEAKS
         PRINT_MEM_LEAKS,
         PRINT_MEM_LEAKS_IRR,

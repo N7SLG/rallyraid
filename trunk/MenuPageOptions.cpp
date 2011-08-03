@@ -9,6 +9,7 @@
 #include "EventReceiver.h"
 #include "Settings.h"
 #include "KeyConfig.h"
+#include "Player.h"
 #include <assert.h>
 
 
@@ -25,6 +26,13 @@ MenuPageOptions::MenuPageOptions()
       comboBoxResolution(0),
       comboBoxDisplayBits(0),
       cbFullScreen(0),
+      cbVsync(0),
+      cbShowNames(0),
+      cbNavigationAssistant(0),
+      cbManualShifting(0),
+      cbSequentialShifting(0),
+      scrollSuspensionSpring(0),
+      scrollSuspensionDamper(0),
       resolutionMap(),
       lastKeyName(0),
       primary(true)
@@ -150,6 +158,30 @@ MenuPageOptions::MenuPageOptions()
         tabGeneral,
         MI_CBNAVIGATIONASSISTANT);
 
+    line += 20;
+    TheGame::getInstance()->getEnv()->addStaticText(L"Manual shifting",
+        irr::core::recti(irr::core::position2di(PADDING, line), irr::core::dimension2di(FTW, 16)),
+        false,
+        false,
+        tabGeneral);
+
+    cbManualShifting = TheGame::getInstance()->getEnv()->addCheckBox(Settings::getInstance()->manualGearShifting,
+        irr::core::recti(irr::core::position2di(FTW+(PADDING*2), line), irr::core::dimension2di(16, 16)),
+        tabGeneral,
+        MI_CBMANUALSHIFTING);
+
+    line += 20;
+    TheGame::getInstance()->getEnv()->addStaticText(L"Sequential shifting (if manual)",
+        irr::core::recti(irr::core::position2di(PADDING, line), irr::core::dimension2di(FTW, 16)),
+        false,
+        false,
+        tabGeneral);
+
+    cbSequentialShifting = TheGame::getInstance()->getEnv()->addCheckBox(Settings::getInstance()->sequentialGearShifting,
+        irr::core::recti(irr::core::position2di(FTW+(PADDING*2), line), irr::core::dimension2di(16, 16)),
+        tabGeneral,
+        MI_CBSEQUENTIALSHIFTING);
+
     // ----------------------------
     // Input
     // ----------------------------
@@ -186,6 +218,42 @@ MenuPageOptions::MenuPageOptions()
     tableKB->addColumn(L"Secondary");
     tableKB->setColumnWidth(2, (tableKB->getRelativePosition().getSize().Width-16)/3);
 
+    // ----------------------------
+    // Vehicle
+    // ----------------------------
+    irr::gui::IGUITab* tabVehicle = tc->addTab(L"Vehicle", 0);
+
+    line = PADDING;
+    TheGame::getInstance()->getEnv()->addStaticText(L"Suspension spring",
+        irr::core::recti(irr::core::position2di(PADDING, line), irr::core::dimension2di(FTW, 16)),
+        false,
+        false,
+        tabVehicle);
+
+    scrollSuspensionSpring = TheGame::getInstance()->getEnv()->addScrollBar(true, 
+            irr::core::recti(irr::core::position2di(FTW+(PADDING*2), line), irr::core::dimension2di(tabGeneral->getRelativePosition().getSize().Width-(4*PADDING)-LTW-FTW, 16)),
+            tabVehicle,
+            MI_SCROLLSUSPENSIONSPRING);
+    scrollSuspensionSpring->setMin(-20);
+    scrollSuspensionSpring->setMax(20);
+    scrollSuspensionSpring->setLargeStep(5);
+    scrollSuspensionSpring->setSmallStep(1);
+
+    line += 20;
+    TheGame::getInstance()->getEnv()->addStaticText(L"Suspension damping",
+        irr::core::recti(irr::core::position2di(PADDING, line), irr::core::dimension2di(FTW, 16)),
+        false,
+        false,
+        tabVehicle);
+
+    scrollSuspensionDamper = TheGame::getInstance()->getEnv()->addScrollBar(true, 
+            irr::core::recti(irr::core::position2di(FTW+(PADDING*2), line), irr::core::dimension2di(tabGeneral->getRelativePosition().getSize().Width-(4*PADDING)-LTW-FTW, 16)),
+            tabVehicle,
+            MI_SCROLLSUSPENSIONDAMPER);
+    scrollSuspensionDamper->setMin(-20);
+    scrollSuspensionDamper->setMax(20);
+    scrollSuspensionDamper->setLargeStep(5);
+    scrollSuspensionDamper->setSmallStep(1);
 
     window->setVisible(false);
 }
@@ -314,6 +382,45 @@ bool MenuPageOptions::OnEvent(const irr::SEvent &event)
                         Settings::getInstance()->navigationAssistant = ((irr::gui::IGUICheckBox*)event.GUIEvent.Caller)->isChecked();
                         return true;
                         break;
+                    case MI_CBMANUALSHIFTING:
+                        Settings::getInstance()->manualGearShifting = ((irr::gui::IGUICheckBox*)event.GUIEvent.Caller)->isChecked();
+                        if (Player::getInstance()->getVehicle())
+                        {
+                            Player::getInstance()->getVehicle()->setGearShifting(Settings::getInstance()->manualGearShifting, Settings::getInstance()->sequentialGearShifting);
+                        }
+                        return true;
+                        break;
+                    case MI_CBSEQUENTIALSHIFTING:
+                        Settings::getInstance()->sequentialGearShifting = ((irr::gui::IGUICheckBox*)event.GUIEvent.Caller)->isChecked();
+                        if (Player::getInstance()->getVehicle())
+                        {
+                            Player::getInstance()->getVehicle()->setGearShifting(Settings::getInstance()->manualGearShifting, Settings::getInstance()->sequentialGearShifting);
+                        }
+                        return true;
+                        break;
+                };
+                break;
+            }
+            case irr::gui::EGET_SCROLL_BAR_CHANGED:
+            {
+                switch (id)
+                {
+                    case MI_SCROLLSUSPENSIONSPRING:
+                    {
+                        int pos = scrollSuspensionSpring->getPos();
+                        dprintf(MY_DEBUG_NOTE, "options::scrollbarsuspensionspring::clicked: pos: %d\n", pos);
+                        Player::getInstance()->setSuspensionSpringModifier((float)pos);
+                        return true;
+                        break;
+                    }
+                    case MI_SCROLLSUSPENSIONDAMPER:
+                    {
+                        int pos = scrollSuspensionDamper->getPos();
+                        dprintf(MY_DEBUG_NOTE, "options::scrollbarsuspensiondamper::clicked: pos: %d\n", pos);
+                        Player::getInstance()->setSuspensionDamperModifier((float)pos);
+                        return true;
+                        break;
+                    }
                 };
                 break;
             }
@@ -340,6 +447,7 @@ void MenuPageOptions::refresh()
 {
     refreshGeneral();
     refreshKB();
+    refreshVehicle();
 }
 
 void MenuPageOptions::refreshGeneral()
@@ -378,6 +486,8 @@ void MenuPageOptions::refreshGeneral()
     cbVsync->setChecked(Settings::getInstance()->vsync);
     cbShowNames->setChecked(Settings::getInstance()->showNames);
     cbNavigationAssistant->setChecked(Settings::getInstance()->navigationAssistant);
+    cbManualShifting->setChecked(Settings::getInstance()->manualGearShifting);
+    cbSequentialShifting->setChecked(Settings::getInstance()->sequentialGearShifting);
 }
 
 void MenuPageOptions::refreshKB()
@@ -425,6 +535,12 @@ void MenuPageOptions::refreshKB()
         }
         tableKB->setCellText(i, 2, str.c_str());
     }
+}
+
+void MenuPageOptions::refreshVehicle()
+{
+    scrollSuspensionSpring->setPos((int)Player::getInstance()->getSuspensionSpringModifier());
+    scrollSuspensionDamper->setPos((int)Player::getInstance()->getSuspensionDamperModifier());
 }
 
 void MenuPageOptions::optionKBClosed()

@@ -60,12 +60,16 @@ typedef std::vector<VehicleTyre*> tyreVector_t;
 class Vehicle : public OffsetObjectUpdateCB
 {
 public:
-    Vehicle(const std::string& vehicleTypeName, const irr::core::vector3df& apos, const irr::core::vector3df& rotation);
+    /* constructor:
+            suspensionSpringModifier and damperModifier must be between -20 .. 20,
+    */
+    Vehicle(const std::string& vehicleTypeName, const irr::core::vector3df& apos, const irr::core::vector3df& rotation,
+        bool manual = false, bool sequential = true, float suspensionSpringModifier = 0.0f, float suspensionDamperModifier = 0.0f);
     ~Vehicle();
 
     void reset(const irr::core::vector3df& pos);
     float getAngle() const;
-    int getGear() const {return hkVehicle->m_currentGear+1;}
+    int getGear() const;
     float getSpeed() const {return hkVehicle->calcKMPH();}
     float getRPM() const {return hkVehicle->calcRPM();}
     const irr::core::vector3df& getLinearVelocity() {return linearVelocity;}
@@ -74,11 +78,27 @@ public:
     const irr::core::matrix4& getViewDest(unsigned int num) const;
     const irr::core::matrix4& getMatrix() const {return matrix;}
     float getDistance() const {return distance;}
+    bool getGearShifting() const;
+    bool getGearShiftingSequential() const;
 
     void setSteer(float value);
     void setTorque(float value);
     void setHandbrake(float value);
+    void setClutch(float value) {clutch = value;}
     void setDistance(float distance) {this->distance = distance;}
+    void setGearShifting(bool manual, bool sequential);
+    void setGear(char gear);
+    void incGear();
+    void decGear();
+
+    /* constructor:
+            suspensionSpringModifier must be between -20 .. 20,
+    */
+    void modifySuspensionSpring(float suspensionSpringModifier = 0.0f);
+    /* constructor:
+            damperModifier must be between -20 .. 20,
+    */
+    void modifySuspensionDamper(float suspensionDamperModifier = 0.0f);
     
     void pause();
     void resume();
@@ -104,10 +124,14 @@ private:
     irr::core::vector3df        lastPos;
     Smoke**                     smokes;
     unsigned int                physUpdates;
+    float                       clutch;
+    float                       suspensionSpringModifier;
+    float                       suspensionDamperModifier;
 
 
     friend class FrictionMapVehicleRaycastWheelCollide;
     friend class VehicleTyre;
+    friend class VehicleTransmission;
 };
 
 #endif // VEHICLE_H

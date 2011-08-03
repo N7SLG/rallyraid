@@ -565,6 +565,11 @@ void Hud::preRender(float p_angle)
         str += gear;
     }
     else
+    if (gear < 0)
+    {
+        str = L"R";
+    }
+    else
     {
         str = L"N";
     }

@@ -45,6 +45,104 @@ public:
     FrictionMapVehicleRaycastWheelCollide(hkFinishLoadedObjectFlag f) : hkpVehicleRayCastWheelCollide(f) {}
 };
 
+// -------------------------------------------------------
+//                   Transmission
+// -------------------------------------------------------
+
+extern const class hkClass VehicleTransmissionClass;
+
+class VehicleTransmission : public hkpVehicleDefaultTransmission
+{
+public:
+    HK_DECLARE_CLASS_ALLOCATOR(HK_MEMORY_CLASS_BASE);
+    HK_DECLARE_REFLECTION();
+    
+    /// Default constructor
+    VehicleTransmission(Vehicle* vehicle, bool manual = false, bool sequential = true)
+        : hkpVehicleDefaultTransmission(), vehicle(vehicle), manual(manual), sequential(sequential), gear(0)
+    {
+    }
+        
+    VehicleTransmission(hkFinishLoadedObjectFlag f, Vehicle* vehicle, bool manual = false, bool sequential = true)
+        : hkpVehicleDefaultTransmission(f), vehicle(vehicle), manual(manual), sequential(sequential), gear(0)
+    {
+    }
+
+    /// Calculates information about the effects of transmission on the vehicle.
+    virtual void calcTransmission(const hkReal deltaTime, const hkpVehicleInstance* hkVehicle, TransmissionOutput& TransmissionOutputOut)
+    {
+        if (manual)
+        {
+            // TODO
+            if (gear < 0)
+            {
+                TransmissionOutputOut.m_isReversing = true;
+                TransmissionOutputOut.m_currentGear = 0;
+            }
+            else
+            {
+                TransmissionOutputOut.m_isReversing = false;
+                if (gear)
+                {
+                    TransmissionOutputOut.m_currentGear = gear - 1;
+                }
+                else
+                {
+                    TransmissionOutputOut.m_currentGear = 0;
+                }
+            }
+            
+            hkReal transTorque = 0.0f;
+            if (gear != 0)
+            {
+                transTorque = calcMainTransmittedTorque(hkVehicle, TransmissionOutputOut) * (1.0f - vehicle->clutch);
+            }
+            TransmissionOutputOut.m_mainTransmittedTorque = transTorque;
+
+            hkReal rpm = calcTransmissionRPM(hkVehicle, TransmissionOutputOut);
+            TransmissionOutputOut.m_transmissionRPM = rpm;
+            
+            assert(m_wheelsTorqueRatio.getSize() == TransmissionOutputOut.m_numWheelsTramsmittedTorque);
+            
+            for (char i = 0; i < TransmissionOutputOut.m_numWheelsTramsmittedTorque; i++)
+            {
+                TransmissionOutputOut.m_wheelsTransmittedTorque[i] = transTorque * m_wheelsTorqueRatio[i];
+            }
+
+            TransmissionOutputOut.m_delayed = false;
+            TransmissionOutputOut.m_clutchDelayCountdown = 0.0f;
+        }
+        else
+        {
+            //hkpVehicleDefaultTransmission::calcTransmission(deltaTime, hkVehicle, TransmissionOutputOut);
+
+            hkBool isRev = calcIsReversing(hkVehicle, TransmissionOutputOut);   
+            TransmissionOutputOut.m_isReversing = isRev;
+
+            hkReal transTorque = calcMainTransmittedTorque(hkVehicle, TransmissionOutputOut);
+            TransmissionOutputOut.m_mainTransmittedTorque = transTorque;
+
+            hkReal rpm = calcTransmissionRPM(hkVehicle, TransmissionOutputOut);
+            TransmissionOutputOut.m_transmissionRPM = rpm;
+            
+            assert(m_wheelsTorqueRatio.getSize() == TransmissionOutputOut.m_numWheelsTramsmittedTorque);
+            
+            for (char i = 0; i < TransmissionOutputOut.m_numWheelsTramsmittedTorque; i++)
+            {
+                TransmissionOutputOut.m_wheelsTransmittedTorque[i] = transTorque * m_wheelsTorqueRatio[i];
+            }
+ 
+            updateCurrentGear(deltaTime, hkVehicle, TransmissionOutputOut);
+        }
+    }
+    
+
+public:
+    Vehicle*    vehicle;
+    bool        manual;
+    bool        sequential;
+    hkInt8      gear;
+};
 
 // -------------------------------------------------------
 //                   Smoke class
@@ -124,7 +222,8 @@ VehicleTyre::~VehicleTyre()
 //                       Vehicle
 // -------------------------------------------------------
 
-Vehicle::Vehicle(const std::string& vehicleTypeName, const irr::core::vector3df& apos, const irr::core::vector3df& rotation)
+Vehicle::Vehicle(const std::string& vehicleTypeName, const irr::core::vector3df& apos, const irr::core::vector3df& rotation,
+    bool manual, bool sequential, float suspensionSpringModifier, float suspensionDamperModifier)
     : vehicleType(0),
       matrix(),
       node(0),
@@ -137,7 +236,10 @@ Vehicle::Vehicle(const std::string& vehicleTypeName, const irr::core::vector3df&
       distance(0.0f),
       lastPos(),
       smokes(new Smoke*[MAX_SMOKES]),
-      physUpdates(0)
+      physUpdates(0),
+      clutch(0.0f),
+      suspensionSpringModifier(suspensionSpringModifier),
+      suspensionDamperModifier(suspensionDamperModifier)
 {
     dprintf(MY_DEBUG_NOTE, "Vehicle::Vehicle(): %p, [%s]\n", this, vehicleTypeName.c_str());
     vehicleType = VehicleTypeManager::getInstance()->getVehicleType(vehicleTypeName);
@@ -168,7 +270,7 @@ Vehicle::Vehicle(const std::string& vehicleTypeName, const irr::core::vector3df&
     hkVehicle->m_driverInput = new hkpVehicleDefaultAnalogDriverInput;
     hkVehicle->m_steering = new hkpVehicleDefaultSteering;
     hkVehicle->m_engine = new hkpVehicleDefaultEngine;
-    hkVehicle->m_transmission = new hkpVehicleDefaultTransmission;
+    hkVehicle->m_transmission = new VehicleTransmission(this, manual, sequential);//new hkpVehicleDefaultTransmission;
     hkVehicle->m_brake = new hkpVehicleDefaultBrake;
     hkVehicle->m_suspension = new hkpVehicleDefaultSuspension;
     hkVehicle->m_aerodynamics = new hkpVehicleDefaultAerodynamics;
@@ -190,9 +292,21 @@ Vehicle::Vehicle(const std::string& vehicleTypeName, const irr::core::vector3df&
 
     // Inertia tensor for each axis is calculated by using :
     // (1 / chassis_mass) * (torque(axis)Factor / chassisUnitInertia)
-    hkVehicle->m_data->m_torqueRollFactor = 0.625f;
-    hkVehicle->m_data->m_torquePitchFactor = 0.5f;
-    hkVehicle->m_data->m_torqueYawFactor = 0.35f;
+    // roll - x, yaw - y, pitch - z
+//    hkVehicle->m_data->m_torquePitchFactor = 0.5f;
+////    hkVehicle->m_data->m_torqueYawFactor = 0.35f;
+////    hkVehicle->m_data->m_torqueRollFactor = 0.8f;
+////    hkVehicle->m_data->m_torquePitchFactor = 0.6f;
+//    hkVehicle->m_data->m_torqueYawFactor = 0.425f;
+///    hkVehicle->m_data->m_torqueRollFactor = 0.625f;
+///    hkVehicle->m_data->m_torquePitchFactor = 0.6f;
+///    hkVehicle->m_data->m_torqueYawFactor = 0.6f;
+//    hkVehicle->m_data->m_torqueRollFactor = 0.675f;
+//    hkVehicle->m_data->m_torquePitchFactor = 0.675f;
+//    hkVehicle->m_data->m_torqueYawFactor = 0.8f;
+    hkVehicle->m_data->m_torqueRollFactor = 1.0f;
+    hkVehicle->m_data->m_torquePitchFactor = 1.0f;
+    hkVehicle->m_data->m_torqueYawFactor = 1.0f;
 
     hkVehicle->m_data->m_chassisUnitInertiaYaw = 1.0f;
     hkVehicle->m_data->m_chassisUnitInertiaRoll = 1.0f;
@@ -201,7 +315,7 @@ Vehicle::Vehicle(const std::string& vehicleTypeName, const irr::core::vector3df&
     // Adds or removes torque around the yaw axis 
     // based on the current steering angle.  This will 
     // affect steering.
-    hkVehicle->m_data->m_extraTorqueFactor = -0.5f;
+    hkVehicle->m_data->m_extraTorqueFactor = -2.0f;// -0.5f;
     hkVehicle->m_data->m_maxVelocityForPositionalFriction = 0.0f;
 
     // ------------------------------------------------
@@ -238,7 +352,7 @@ Vehicle::Vehicle(const std::string& vehicleTypeName, const irr::core::vector3df&
     steering->m_maxSteeringAngle = vehicleType->maxSteerAngle * ( HK_REAL_PI / 180 );
     // [mph/h] The steering angle decreases linearly 
     // based on your overall max speed of the vehicle. 
-    steering->m_maxSpeedFullSteeringAngle = 70.0f * (1.605f / 3.6f);
+    steering->m_maxSpeedFullSteeringAngle = /*70.0f*/(vehicleType->maxSpeed * 0.5f) * (1.605f / 3.6f);
     for (unsigned int i = 0; i < tyres.size(); i++)
     {
         steering->m_doesWheelSteer[i] = tyres[i]->tyreType->steerable;
@@ -263,7 +377,7 @@ Vehicle::Vehicle(const std::string& vehicleTypeName, const irr::core::vector3df&
     // ------------------------------------------------
     // setupComponent( *hkVehicle->m_data, *static_cast< hkpVehicleDefaultTransmission*>(hkVehicle->m_transmission) );
     // ------------------------------------------------
-    hkpVehicleDefaultTransmission* transmission = static_cast< hkpVehicleDefaultTransmission*>(hkVehicle->m_transmission);
+    VehicleTransmission* transmission = static_cast<VehicleTransmission*>(hkVehicle->m_transmission);
     transmission->m_gearsRatio.setSize(vehicleType->gearMap.size());
     transmission->m_wheelsTorqueRatio.setSize(hkVehicle->m_data->m_numWheels);
 
@@ -284,8 +398,21 @@ Vehicle::Vehicle(const std::string& vehicleTypeName, const irr::core::vector3df&
     transmission.m_gearsRatio[2] = 1.0f;
     transmission.m_gearsRatio[3] = 0.75f;
     */
+    float torqueableTyreNum = 0.0f;
     for (unsigned int i = 0; i < tyres.size(); i++)
     {
+        if (tyres[i]->tyreType->torqueable)
+        {
+            if (tyres[i]->tyreType->steerable)
+            {
+                torqueableTyreNum += 2.0f;
+            }
+            else
+            {
+                torqueableTyreNum += 3.0f;
+            }
+        }
+        /*
         if (tyres[i]->tyreType->steerable)
         {
             transmission->m_wheelsTorqueRatio[i] = 0.2f;
@@ -293,6 +420,27 @@ Vehicle::Vehicle(const std::string& vehicleTypeName, const irr::core::vector3df&
         else
         {
             transmission->m_wheelsTorqueRatio[i] = 0.3f;
+        }
+        */
+    }
+    
+    float torqueableTyreRate = torqueableTyreNum > 0.0f ? 1.0f / torqueableTyreNum : 0.0f;
+    for (unsigned int i = 0; i < tyres.size(); i++)
+    {
+        if (tyres[i]->tyreType->torqueable)
+        {
+            if (tyres[i]->tyreType->steerable)
+            {
+                transmission->m_wheelsTorqueRatio[i] = torqueableTyreRate * 2.0f;
+            }
+            else
+            {
+                transmission->m_wheelsTorqueRatio[i] = torqueableTyreRate * 3.0f;
+            }
+        }
+        else
+        {
+            transmission->m_wheelsTorqueRatio[i] = 0.0f;
         }
     }
     /*
@@ -327,24 +475,27 @@ Vehicle::Vehicle(const std::string& vehicleTypeName, const irr::core::vector3df&
     suspension->m_wheelParams.setSize(hkVehicle->m_data->m_numWheels);
     suspension->m_wheelSpringParams.setSize(hkVehicle->m_data->m_numWheels);
 
+    modifySuspensionSpring(suspensionSpringModifier);
+    modifySuspensionDamper(suspensionDamperModifier);
+
     const hkVector4 downDirection(0.0f, -1.0f, 0.0f);
-    const hkVector4 downDirectionp(0.0f, -1.0f, 0.1f);
-    const hkVector4 downDirectionm(0.0f, -1.0f, -0.1f);
+    const hkVector4 downDirectionp(0.0f, -1.0f, 0.5f);
+    const hkVector4 downDirectionm(0.0f, -1.0f, -0.5f);
     for (unsigned int i = 0; i < tyres.size(); i++)
     {
-        suspension->m_wheelParams[i].m_length = tyres[i]->tyreType->suspensionLength;
-        suspension->m_wheelSpringParams[i].m_strength = tyres[i]->tyreType->suspensionSpring;
-        suspension->m_wheelSpringParams[i].m_dampingCompression = tyres[i]->tyreType->suspensionDamper;
-        suspension->m_wheelSpringParams[i].m_dampingRelaxation = tyres[i]->tyreType->suspensionDamper;
+        //suspension->m_wheelParams[i].m_length = tyres[i]->tyreType->suspensionLength;
+        //suspension->m_wheelSpringParams[i].m_strength = tyres[i]->tyreType->suspensionSpring;
+        //suspension->m_wheelSpringParams[i].m_dampingCompression = tyres[i]->tyreType->suspensionDamper;
+        //suspension->m_wheelSpringParams[i].m_dampingRelaxation = tyres[i]->tyreType->suspensionDamper;
         suspension->m_wheelParams[i].m_hardpointChassisSpace.set(tyres[i]->tyreType->localPos.X, -0.05f, tyres[i]->tyreType->localPos.Z); 
         /*
-        if (m_tires[i]->tirePosition.Z > 0.0f)
+        if (tyres[i]->tyreType->localPos.Z > 0.0f)
         {
-            suspension.m_wheelParams[i].m_directionChassisSpace = downDirectionp;
+            suspension->m_wheelParams[i].m_directionChassisSpace = downDirectionp;
         }
         else
         {
-            suspension.m_wheelParams[i].m_directionChassisSpace = downDirectionm;
+            suspension->m_wheelParams[i].m_directionChassisSpace = downDirectionm;
         }
         */
         suspension->m_wheelParams[i].m_directionChassisSpace = downDirection;
@@ -551,6 +702,31 @@ void Vehicle::handleUpdatePos(bool phys)
                 }
             }
         }
+
+        /*
+            Debug
+        */
+        /*
+        hkpVehicleTransmission::TransmissionOutput to;
+        memset(&to, 0, sizeof(to));
+        to.m_numWheelsTramsmittedTorque = 4;
+        to.m_wheelsTransmittedTorque = new hkReal[to.m_numWheelsTramsmittedTorque];
+        memset(to.m_wheelsTransmittedTorque, 0, sizeof(hkReal)*to.m_numWheelsTramsmittedTorque);
+        hkVehicle->m_transmission->calcTransmission(0.1f, hkVehicle, to);
+        printf("TransmissionOutput:\n");
+        printf("\tm_transmissionRPM:            %f\n", to.m_transmissionRPM);
+        printf("\tm_mainTransmittedTorque:      %f\n", to.m_mainTransmittedTorque);
+        printf("\tm_numWheelsTramsmittedTorque: %hhu\n", to.m_numWheelsTramsmittedTorque);
+        for (char i = 0; i < to.m_numWheelsTramsmittedTorque; i++)
+        {
+            printf("\t\t%hhu: %f\n", i, to.m_wheelsTransmittedTorque[i]);
+        }
+        printf("\tm_isReversing (bool):         %u\n", to.m_isReversing);
+        printf("\tm_currentGear:                %hhu\n", to.m_currentGear);
+        printf("\tm_delayed (bool):             %u\n", to.m_delayed);
+        printf("\tm_clutchDelayCountdown:       %f\n", to.m_clutchDelayCountdown);
+        delete [] to.m_wheelsTransmittedTorque;
+        */
     }
     else
     {
@@ -587,16 +763,29 @@ void Vehicle::reset(const irr::core::vector3df& pos)
         if (rot.Y < 0) rot.Y+=360.f;
     }
     rot.Z = rot.X = 0.f;
-    dprintf(MY_DEBUG_NOTE, "reset car:  mod rot: %f %f %f\n", rot.X, rot.Y, rot.Z);
+    dprintf(MY_DEBUG_NOTE, "reset car:  mod rot: %f %f %f, action-world: %p\n", rot.X, rot.Y, rot.Z, hkVehicle->getWorld());
     matrix.setTranslation(pos);
     // vector3df(0.f, rot.Y, 0.f)
     matrix.setRotationDegrees(rot);
     //hkBody->setLinearVelocity(hkVector4());
-    //hkBody->activate();
+    hkBody->activate();
+    
+    //hkVehicle->
     hkBody->applyLinearImpulse(/*hkVector4(-hkBody->getLinearVelocity()(0), -hkBody->getLinearVelocity()(1), -hkBody->getLinearVelocity()(2))*/hkVector4(0.0f, 1.0f, 0.0f));
     updateToMatrix();
 }
 
+int Vehicle::getGear() const
+{
+    if (((VehicleTransmission*)hkVehicle->m_transmission)->manual)
+    {
+        return ((VehicleTransmission*)hkVehicle->m_transmission)->gear;
+    }
+    else
+    {
+        return hkVehicle->m_currentGear+1;
+    }
+}
 float Vehicle::getAngle() const
 {
     irr::core::vector3df rot = matrix.getRotationDegrees();
@@ -625,6 +814,16 @@ const irr::core::matrix4& Vehicle::getViewDest(unsigned int num) const
     return vehicleType->viewDest[num];
 }
 
+bool Vehicle::getGearShifting() const
+{
+    return ((VehicleTransmission*)hkVehicle->m_transmission)->manual;
+}
+
+bool Vehicle::getGearShiftingSequential() const
+{
+    return ((VehicleTransmission*)hkVehicle->m_transmission)->sequential;
+}
+
 void Vehicle::updateToMatrix()
 {
     const irr::core::vector3df pos = matrix.getTranslation();
@@ -646,6 +845,7 @@ void Vehicle::setSteer(float value)
 void Vehicle::setTorque(float value)
 {
     hkpVehicleDriverInputAnalogStatus* deviceStatus = (hkpVehicleDriverInputAnalogStatus*)hkVehicle->m_deviceStatus;
+    if (((VehicleTransmission*)hkVehicle->m_transmission)->manual && ((VehicleTransmission*)hkVehicle->m_transmission)->gear < 0) value *= -1.0f;
     deviceStatus->m_positionY = hkMath::clamp(value, -1.0f, 1.0f);
 }
 
@@ -653,6 +853,76 @@ void Vehicle::setHandbrake(float value)
 {
     hkpVehicleDriverInputAnalogStatus* deviceStatus = (hkpVehicleDriverInputAnalogStatus*)hkVehicle->m_deviceStatus;
     deviceStatus->m_handbrakeButtonPressed = value > 0.1f;
+}
+
+void Vehicle::setGearShifting(bool manual, bool sequential)
+{
+    ((VehicleTransmission*)hkVehicle->m_transmission)->manual = manual;
+    ((VehicleTransmission*)hkVehicle->m_transmission)->gear = 0;
+}
+
+void Vehicle::setGear(char gear)
+{
+    if (gear >= -1 && gear <= ((VehicleTransmission*)hkVehicle->m_transmission)->m_gearsRatio.getSize())
+    {
+        ((VehicleTransmission*)hkVehicle->m_transmission)->gear = gear;
+    }
+    else
+    {
+        ((VehicleTransmission*)hkVehicle->m_transmission)->gear = 0;
+    }
+}
+
+void Vehicle::incGear()
+{
+    if (((VehicleTransmission*)hkVehicle->m_transmission)->gear+1 <= ((VehicleTransmission*)hkVehicle->m_transmission)->m_gearsRatio.getSize())
+    {
+        ((VehicleTransmission*)hkVehicle->m_transmission)->gear++;
+    }
+}
+
+void Vehicle::decGear()
+{
+    if (((VehicleTransmission*)hkVehicle->m_transmission)->gear-1 >= -1)
+    {
+        ((VehicleTransmission*)hkVehicle->m_transmission)->gear--;
+    }
+}
+
+void Vehicle::modifySuspensionSpring(float suspensionSpringModifier)
+{
+    if (suspensionSpringModifier < -20.f) suspensionSpringModifier = -20.f;
+    if (suspensionSpringModifier > 20.f) suspensionSpringModifier = 20.f;
+    this->suspensionSpringModifier = suspensionSpringModifier;
+    for (unsigned int i = 0; i < tyres.size(); i++)
+    {
+        ((hkpVehicleDefaultSuspension*)hkVehicle->m_suspension)->m_wheelSpringParams[i].m_strength = 
+            tyres[i]->tyreType->suspensionSpring = 30.f + suspensionSpringModifier;
+
+        float suspensionLengthModifier = ((suspensionSpringModifier) * 0.015f);
+        if (suspensionLengthModifier > (tyres[i]->tyreType->suspensionLength*0.25f)) suspensionLengthModifier = (tyres[i]->tyreType->suspensionLength*0.25f);
+        ((hkpVehicleDefaultSuspension*)hkVehicle->m_suspension)->m_wheelParams[i].m_length =
+            tyres[i]->tyreType->suspensionLength - suspensionLengthModifier;
+
+        tyres[i]->tyreType->suspensionDamper = (tyres[i]->tyreType->suspensionSpring * (30.f - suspensionDamperModifier)) / 100.f;
+        ((hkpVehicleDefaultSuspension*)hkVehicle->m_suspension)->m_wheelSpringParams[i].m_dampingCompression = 
+            ((hkpVehicleDefaultSuspension*)hkVehicle->m_suspension)->m_wheelSpringParams[i].m_dampingRelaxation = 
+            tyres[i]->tyreType->suspensionDamper;
+    }
+}
+
+void Vehicle::modifySuspensionDamper(float suspensionDamperModifier)
+{
+    if (suspensionDamperModifier < -20.f) suspensionDamperModifier = -20.f;
+    if (suspensionDamperModifier > 20.f) suspensionDamperModifier = 20.f;
+    this->suspensionDamperModifier = suspensionDamperModifier;
+    for (unsigned int i = 0; i < tyres.size(); i++)
+    {
+        tyres[i]->tyreType->suspensionDamper = (tyres[i]->tyreType->suspensionSpring * (30.f - suspensionDamperModifier)) / 100.f;
+        ((hkpVehicleDefaultSuspension*)hkVehicle->m_suspension)->m_wheelSpringParams[i].m_dampingCompression = 
+            ((hkpVehicleDefaultSuspension*)hkVehicle->m_suspension)->m_wheelSpringParams[i].m_dampingRelaxation = 
+            tyres[i]->tyreType->suspensionDamper;
+    }
 }
 
 void Vehicle::pause()

@@ -97,6 +97,27 @@ EventReceiver::EventReceiver()
     keyNameMap["look_right"] = LOOK_RIGHT;
     kp.keyLongName = "Look right";
     keyMap[LOOK_RIGHT] = kp;
+    keyNameMap["gear_1"] = GEAR_1;
+    kp.keyLongName = "First gear";
+    keyMap[GEAR_1] = kp;
+    keyNameMap["gear_2"] = GEAR_2;
+    kp.keyLongName = "Second gear";
+    keyMap[GEAR_2] = kp;
+    keyNameMap["gear_3"] = GEAR_3;
+    kp.keyLongName = "Third gear";
+    keyMap[GEAR_3] = kp;
+    keyNameMap["gear_4"] = GEAR_4;
+    kp.keyLongName = "Fourth gear";
+    keyMap[GEAR_4] = kp;
+    keyNameMap["gear_5"] = GEAR_5;
+    kp.keyLongName = "Fifth gear";
+    keyMap[GEAR_5] = kp;
+    keyNameMap["gear_6"] = GEAR_6;
+    kp.keyLongName = "Sixth gear";
+    keyMap[GEAR_6] = kp;
+    keyNameMap["gear_r"] = GEAR_R;
+    kp.keyLongName = "Reverse gear";
+    keyMap[GEAR_R] = kp;
 
     kp.continous = false;
     keyNameMap["physics"] = PHYSICS;
@@ -135,6 +156,12 @@ EventReceiver::EventReceiver()
     keyNameMap["dec_fps_speed"] = DEC_FPS_SPEED;
     kp.keyLongName = "Decrease FPS camera movement speed";
     keyMap[DEC_FPS_SPEED] = kp;
+    keyNameMap["gear_up"] = GEAR_UP;
+    kp.keyLongName = "Gear up (if sequential)";
+    keyMap[GEAR_UP] = kp;
+    keyNameMap["gear_down"] = GEAR_DOWN;
+    kp.keyLongName = "Gear down (if sequential)";
+    keyMap[GEAR_DOWN] = kp;
 #ifdef DETECT_MEM_LEAKS
     keyNameMap["print_mem_leaks"] = PRINT_MEM_LEAKS;
     kp.keyLongName = "Print memory leaks";
@@ -491,6 +518,12 @@ void EventReceiver::checkEvents()
             Player::getInstance()->getVehicle()->setTorque(0);
         }
 
+        if (IS_PRESSED(CLUTCH) && (perc = getPercentage(CLUTCH, joystickState)) > Settings::getInstance()->joystickDeadZone)
+        {
+            //dprintf(MY_DEBUG_NOTE, "accelerate pressed: %f\n", perc);
+            Player::getInstance()->getVehicle()->setClutch(perc);
+        }
+
         if (IS_PRESSED(LEFT) && (perc = getPercentage(LEFT, joystickState)) > Settings::getInstance()->joystickDeadZone)
         {
             //dprintf(MY_DEBUG_NOTE, "left pressed: %f\n", perc);
@@ -515,6 +548,62 @@ void EventReceiver::checkEvents()
         else
         {
             Player::getInstance()->getVehicle()->setHandbrake(0);
+        }
+
+        if (Settings::getInstance()->manualGearShifting)
+        {
+            if (Settings::getInstance()->sequentialGearShifting)
+            {
+                if (IS_PRESSED(GEAR_UP) && getPressed(GEAR_UP))
+                {
+                    Player::getInstance()->getVehicle()->incGear();
+                }
+                if (IS_PRESSED(GEAR_DOWN) && getPressed(GEAR_DOWN))
+                {
+                    Player::getInstance()->getVehicle()->decGear();
+                }
+            }
+            else
+            {
+                if (IS_PRESSED(GEAR_1))
+                {
+                    Player::getInstance()->getVehicle()->setGear(1);
+                }
+                else
+                if (IS_PRESSED(GEAR_2))
+                {
+                    Player::getInstance()->getVehicle()->setGear(2);
+                }
+                else
+                if (IS_PRESSED(GEAR_3))
+                {
+                    Player::getInstance()->getVehicle()->setGear(3);
+                }
+                else
+                if (IS_PRESSED(GEAR_4))
+                {
+                    Player::getInstance()->getVehicle()->setGear(4);
+                }
+                else
+                if (IS_PRESSED(GEAR_5))
+                {
+                    Player::getInstance()->getVehicle()->setGear(5);
+                }
+                else
+                if (IS_PRESSED(GEAR_6))
+                {
+                    Player::getInstance()->getVehicle()->setGear(6);
+                }
+                else
+                if (IS_PRESSED(GEAR_R))
+                {
+                    Player::getInstance()->getVehicle()->setGear(-1);
+                }
+                else
+                {
+                    Player::getInstance()->getVehicle()->setGear(0);
+                }
+            }
         }
 
         if (IS_PRESSED(PHYSICS))

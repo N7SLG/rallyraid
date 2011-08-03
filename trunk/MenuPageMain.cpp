@@ -90,7 +90,7 @@ MenuPageMain::MenuPageMain()
     havok_image->setUseAlphaChannel(true);
     havok_image->setImage(havok_logo);
 
-    TheGame::getInstance()->getEnv()->addStaticText(L"Build: 143",
+    TheGame::getInstance()->getEnv()->addStaticText(L"Build: 145",
         irr::core::recti(irr::core::position2di(window->getRelativePosition().getSize().Width - 60, window->getRelativePosition().getSize().Height - 20), havok_logo->getOriginalSize()),
         false, false, window, 0, false);
 
