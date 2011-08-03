@@ -44,7 +44,9 @@ Settings::Settings()
       vsync(false),
       scanForJoystick(true),
       shadowMapSize(2048),
-      joystickDeadZone(0.01f)
+      joystickDeadZone(0.01f),
+      manualGearShifting(false),
+      sequentialGearShifting(true)
 {
     read();
 }
@@ -147,6 +149,12 @@ void Settings::read()
             } else if (keyName == "joystick_dead_zone")
             {
                 joystickDeadZone = StringConverter::parseFloat(valName, 0.01f);
+            } else if (keyName == "manual_gear_shifting")
+            {
+                manualGearShifting = StringConverter::parseBool(valName, false);
+            } else if (keyName == "sequential_gear_shifting")
+            {
+                sequentialGearShifting = StringConverter::parseBool(valName, true);
             }
         }
     }
@@ -186,6 +194,8 @@ void Settings::write()
     ret = fprintf(f, "scan_for_joystick=%s\n", scanForJoystick?"yes":"no");
     ret = fprintf(f, "shadow_map_size=%u\n", shadowMapSize);
     ret = fprintf(f, "joystick_dead_zone=%f\n", joystickDeadZone);
+    ret = fprintf(f, "manual_gear_shifting=%s\n", manualGearShifting?"yes":"no");
+    ret = fprintf(f, "sequential_gear_shifting=%s\n", sequentialGearShifting?"yes":"no");
 
     fclose(f);
 }

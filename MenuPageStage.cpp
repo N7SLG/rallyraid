@@ -340,6 +340,7 @@ void MenuPageStage::open()
     assert(selectedStage);
     itinerIt = selectedStage->getItinerPointList().begin();
     stageImageQuad->getMaterial().setTexture(0, selectedStage->getImage());
+    roadBookScrollBar->setPos(0);
     int size = (int)selectedStage->getItinerPointList().size();
     if (size <= 6)
     {

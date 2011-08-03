@@ -44,6 +44,8 @@ public:
     bool                    scanForJoystick;
     unsigned int            shadowMapSize;
     float                   joystickDeadZone;
+    bool                    manualGearShifting;
+    bool                    sequentialGearShifting;
 };
 
 #endif // SETTINGS_H
