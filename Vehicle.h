@@ -23,6 +23,7 @@ class VehicleType;
 class VehicleTypeTyre;
 class MySound;
 class Smoke;
+class VehicleCollisionListener;
 
 
 // -------------------------------------------------------
@@ -111,6 +112,7 @@ private:
 
 private:
     VehicleType*                vehicleType;
+    VehicleCollisionListener*   collisionListener;
 
     irr::core::matrix4          matrix;
     irr::scene::ISceneNode*     node;
@@ -132,6 +134,8 @@ private:
     friend class FrictionMapVehicleRaycastWheelCollide;
     friend class VehicleTyre;
     friend class VehicleTransmission;
+    friend class VehicleCollisionListener;
 };
+
 
 #endif // VEHICLE_H

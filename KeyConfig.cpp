@@ -341,7 +341,14 @@ KeyConfigJoystickButton::~KeyConfigJoystickButton()
 
 float KeyConfigJoystickButton::getPercentage(OIS::Keyboard* keyboard, const OIS::JoyStickState& joystickState)
 {
-    return KeyConfig::getPercentage(joystickState.mButtons[key]);
+    if (key < joystickState.mButtons.size())
+    {
+        return KeyConfig::getPercentage(joystickState.mButtons[key]);
+    }
+    else
+    {
+        return 0.0f;
+    }
 }
 
 void KeyConfigJoystickButton::writeToFile(FILE* f, const std::string& prefix)
@@ -436,7 +443,14 @@ KeyConfigJoystickAxis::~KeyConfigJoystickAxis()
 
 float KeyConfigJoystickAxis::getPercentage(OIS::Keyboard* keyboard, const OIS::JoyStickState& joystickState)
 {
-    return KeyConfigJoystickAxis::getPercentage(joystickState.mAxes[key].abs);
+    if (key < joystickState.mAxes.size())
+    {
+        return KeyConfigJoystickAxis::getPercentage(joystickState.mAxes[key].abs);
+    }
+    else
+    {
+        return 0.0f;
+    }
 }
 
 float KeyConfigJoystickAxis::getPercentage(int state)

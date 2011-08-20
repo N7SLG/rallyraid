@@ -13,11 +13,11 @@ VehicleTypeTyre::VehicleTypeTyre(unsigned int id)
       texture(0),
       scale(),
       localPos(),
-      mass(10.f),
-      friction(1.2f),
-      suspensionLength(0.2f),
-      suspensionSpring(50.f),
-      suspensionDamper(0.4f),
+      mass(30.f),
+      friction(0.8f),
+      suspensionLength(0.42f),
+      suspensionSpring(30.f),
+      suspensionDamper(9.0f),
       steerable(false),
       torqueable(true),
       handbrakeable(false)
@@ -181,19 +181,19 @@ bool VehicleType::read(const std::string& vehicleTypeFilename)
                     StringConverter::parseFloat3(valueName, currentTyre->localPos.X, currentTyre->localPos.Y, currentTyre->localPos.Z);
                 } else if (keyName == "mass")
                 {
-                    currentTyre->mass = StringConverter::parseFloat(valueName, 10.f);
+                    currentTyre->mass = StringConverter::parseFloat(valueName, 30.f);
                 } else if (keyName == "friction")
                 {
-                    currentTyre->friction = StringConverter::parseFloat(valueName, 1.2f);
+                    currentTyre->friction = StringConverter::parseFloat(valueName, 0.8f);
                 } else if (keyName == "suspension_length")
                 {
-                    currentTyre->suspensionLength = StringConverter::parseFloat(valueName, 0.2f);
+                    currentTyre->suspensionLength = StringConverter::parseFloat(valueName, 0.42f);
                 } else if (keyName == "suspension_spring")
                 {
-                    currentTyre->suspensionSpring = StringConverter::parseFloat(valueName, 50.0f);
+                    currentTyre->suspensionSpring = StringConverter::parseFloat(valueName, 30.0f);
                 } else if (keyName == "suspension_damper")
                 {
-                    currentTyre->suspensionDamper = StringConverter::parseFloat(valueName, 0.4f);
+                    currentTyre->suspensionDamper = StringConverter::parseFloat(valueName, 9.0f);
                 } else if (keyName == "steerable")
                 {
                     currentTyre->steerable = StringConverter::parseBool(valueName, false);

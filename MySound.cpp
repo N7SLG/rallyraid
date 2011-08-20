@@ -51,7 +51,7 @@ MySoundEngine::MySoundEngine()
     listenerPos = irr::core::vector3df(0.f,0.f,0.f);
     listenerVel = irr::core::vector3df(0.f,0.f,0.f);
     listenerDir = irr::core::vector3df(0.f,0.f,-1.f);
-    listenerUp = irr::core::vector3df(0.f,1.f,0.f);;
+    listenerUp = irr::core::vector3df(0.f,1.f,0.f);
 
     updateListener();
     //assert(0);
@@ -78,7 +78,7 @@ MySoundEngine::~MySoundEngine()
 //#endif
 }
     
-MySound* MySoundEngine::play3D(const std::string& soundFileName, irr::core::vector3df pos, bool playLooped,
+MySound* MySoundEngine::play3D(const std::string& soundFileName, const irr::core::vector3df& pos, bool playLooped,
                                bool startPaused, bool track)
 {
     if (this==0 || !initialized) return 0;
@@ -136,29 +136,6 @@ MySound* MySoundEngine::play3D(const std::string& soundFileName, irr::core::vect
     return sound;
 }
 
-MySound* MySoundEngine::play2D(const std::string& soundFileName, bool playLooped,
-                               bool startPaused, bool track)
-{
-    return play3D(soundFileName, listenerPos, playLooped, startPaused, track);
-}
-
-void MySoundEngine::setListenerPosition(const irr::core::vector3df &pos, const irr::core::vector3df &lookdir,
-                                        const irr::core::vector3df &upVector,
-                                        const irr::core::vector3df &velPerSecond)
-{
-    listenerPos = pos;
-    listenerVel = velPerSecond;
-    listenerDir = lookdir;
-    listenerUp = upVector;
-    
-    updateListener();
-}
-
-irr::core::vector3df MySoundEngine::getListenerPosition() const
-{
-    return listenerPos;
-}
-        
 void MySoundEngine::updateListener()
 {
     ALfloat ListenerOri[] = { listenerDir.X, listenerDir.Y, listenerDir.Z, listenerUp.X, listenerUp.Y, listenerUp.Z};
@@ -168,11 +145,11 @@ void MySoundEngine::updateListener()
     alGetError();
 }
 
+const irr::core::vector3df MySound::zeroVector;
 
-MySound::MySound(unsigned int newBuffer, bool plooped, irr::core::vector3df &pos) : 
-        initialized(false), paused(true), looped(plooped), maxDistance(1000.0f), minDistance(1.0f), volume(1.0f),
-        playbackSpeed(1.0f), buffer(newBuffer), isStopped(true), soundSourcePos(pos)
-        
+MySound::MySound(unsigned int newBuffer, bool plooped, const irr::core::vector3df& pos)
+    : initialized(false), paused(true), looped(plooped), maxDistance(1000.0f), minDistance(1.0f), volume(1.0f),
+      playbackSpeed(1.0f), buffer(newBuffer), isStopped(true), soundSourcePos(pos)
 {
     alGenSources(1, &source);
     
@@ -224,24 +201,12 @@ void MySound::setVolume(float newVolume)
     alGetError();
 }
 
-float MySound::getVolume() const
-{
-    if (!this || !initialized) return 0.f;
-    return volume;
-}
-
 void MySound::setPlaybackSpeed(float newPlaybackSpeed)
 {
     if (!this || !initialized) return;
     playbackSpeed = newPlaybackSpeed;
     alSourcef (source, AL_PITCH,    playbackSpeed     );
     alGetError();
-}
-
-float MySound::getPlaybackSpeed() const
-{
-    if (!this || !initialized) return 0.f;
-    return playbackSpeed;
 }
 
 void MySound::setIsLooped(bool newLoop)
@@ -252,13 +217,7 @@ void MySound::setIsLooped(bool newLoop)
     alGetError();
 }
 
-bool MySound::isLooped() const
-{
-    if (!this || !initialized) return false;
-    return looped;
-}
-
-void MySound::setPosition(irr::core::vector3df &newPos)
+void MySound::setPosition(const irr::core::vector3df& newPos)
 {
     if (!this || !initialized) return;
     soundSourcePos = newPos;
@@ -266,32 +225,12 @@ void MySound::setPosition(irr::core::vector3df &newPos)
     alGetError();
 }
 
-void MySound::setPosition(irr::core::vector3df newPos)
-{
-    if (!this || !initialized) return;
-    soundSourcePos = newPos;
-    alSourcefv(source, AL_POSITION, &soundSourcePos.X);
-    alGetError();
-}
-
-irr::core::vector3df MySound::getPosition() const
-{
-    if (!this || !initialized) return irr::core::vector3df();
-    return soundSourcePos;
-}
-
-void MySound::setVelocity(irr::core::vector3df &newVelocity)
+void MySound::setVelocity(const irr::core::vector3df& newVelocity)
 {
     if (!this || !initialized) return;
     soundSourceVel = newVelocity;
     alSourcefv(source, AL_VELOCITY, &soundSourceVel.X);
     alGetError();
-}
-
-irr::core::vector3df MySound::getVelocity() const
-{
-    if (!this || !initialized) return irr::core::vector3df();
-    return soundSourceVel;
 }
 
 void MySound::setMaxDistance(float newMaxDistance)
@@ -301,25 +240,12 @@ void MySound::setMaxDistance(float newMaxDistance)
     alSourcef (source, AL_MAX_DISTANCE, maxDistance);
 }
 
-float MySound::getMaxDistance() const
-{
-    if (!this || !initialized) return 0.f;
-    return maxDistance;
-}
-
 void MySound::setMinDistance(float newMinDistance)
 {
     if (!this || !initialized) return;
     minDistance = newMinDistance;
     alSourcef (source, AL_REFERENCE_DISTANCE, minDistance);
 }
-
-float MySound::getMinDistance() const
-{
-    if (!this || !initialized) return 0.f;
-    return minDistance;
-}
-
 
 void MySound::play()
 {
@@ -362,10 +288,4 @@ void MySound::setIsPaused(bool newPaused)
         alSourcePause(source);
 
     alGetError();
-}
-
-bool MySound::isPaused() const
-{
-    if (!this || !initialized) return false;
-    return paused;
 }

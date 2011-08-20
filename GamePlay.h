@@ -25,27 +25,27 @@ public:
     CompetitorResult(Competitor* competitor)
         : competitor(competitor),
           stageTime(0),
-          stagePenalityTime(0),
+          stagePenaltyTime(0),
           globalTime(0),
-          globalPenalityTime(0)
+          globalPenaltyTime(0)
     {
     }
 
-    CompetitorResult(Competitor* competitor, unsigned int stageTime, unsigned int stagePenalityTime,
-        unsigned int globalTime, unsigned int globalPenalityTime)
+    CompetitorResult(Competitor* competitor, unsigned int stageTime, unsigned int stagePenaltyTime,
+        unsigned int globalTime, unsigned int globalPenaltyTime)
         : competitor(competitor),
           stageTime(stageTime),
-          stagePenalityTime(stagePenalityTime),
+          stagePenaltyTime(stagePenaltyTime),
           globalTime(globalTime),
-          globalPenalityTime(globalPenalityTime)
+          globalPenaltyTime(globalPenaltyTime)
     {
     }
 
     Competitor*     competitor;
     unsigned int    stageTime;
-    unsigned int    stagePenalityTime;
+    unsigned int    stagePenaltyTime;
     unsigned int    globalTime;
-    unsigned int    globalPenalityTime;
+    unsigned int    globalPenaltyTime;
 };
 typedef std::list<CompetitorResult*> competitorResultList_t;
 

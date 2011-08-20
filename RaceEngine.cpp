@@ -57,11 +57,11 @@ Starter::Starter(Stage* stage,
                  unsigned int startingCD,
                  unsigned int place,
                  unsigned int globalTime,
-                 unsigned int globalPenalityTime
+                 unsigned int globalPenaltyTime
 )
     : stage(stage), raceEngine(raceEngine),
       competitor(competitor), startingCD(startingCD),
-      startTime(0), finishTime(0), penalityTime(0),
+      startTime(0), finishTime(0), penaltyTime(0),
       prevPoint(stage->getAIPointList().begin()),
       nextPoint(stage->getAIPointList().begin()),
       nextPointNum(0), currentPos(),
@@ -69,7 +69,7 @@ Starter::Starter(Stage* stage,
       forBigResetCnt(0), forNonResetCnt(500),
       currentRand(0.f), nameText(0), nameTextOffsetObject(0),
       passedDistance(0.f), distanceStep(0.f), stageRand(0.f),
-      globalTime(globalTime), globalPenalityTime(globalPenalityTime)
+      globalTime(globalTime), globalPenaltyTime(globalPenaltyTime)
 {
     const static float placeHardening[3] = {20.f, 8.f, 4.f};
     irr::core::stringw namePlusCar = L"";
@@ -130,7 +130,7 @@ bool Starter::update(unsigned int currentTime, const irr::core::vector3df& apos,
 
     if (!competitor->getAi())
     {
-        Player::getInstance()->setStageTime((currentTime - startTime) + penalityTime);
+        Player::getInstance()->setStageTime((currentTime - startTime) + penaltyTime);
         if (!stage->getAIPointList().empty())
         {
             irr::core::vector3df cp(OffsetManager::getInstance()->getOffset()+Player::getInstance()->getVehicleMatrix().getTranslation());
@@ -140,7 +140,7 @@ bool Starter::update(unsigned int currentTime, const irr::core::vector3df& apos,
             {
                 finishTime = currentTime - startTime;
                 globalTime += finishTime;
-                globalPenalityTime += penalityTime;
+                globalPenaltyTime += penaltyTime;
         
                 unsigned int position = raceEngine->insertIntoFinishedState(this);
                 irr::core::stringw str = L"";
@@ -149,7 +149,7 @@ bool Starter::update(unsigned int currentTime, const irr::core::vector3df& apos,
                 str += L" ";
                 str += competitor->getName().c_str();
                 str += L" finished the stage, time: ";
-                WStringConverter::addTimeToStr(str, finishTime+penalityTime);
+                WStringConverter::addTimeToStr(str, finishTime+penaltyTime);
                 str += L",  position: ";
                 str += position;
                 MessageManager::getInstance()->addText(str.c_str(), 2);
@@ -208,7 +208,7 @@ bool Starter::update(unsigned int currentTime, const irr::core::vector3df& apos,
                 dprintf(MY_DEBUG_INFO, "-------------\nreset AI car %d\nnrc: %u\nbrc: %u\n------------\n", competitor->getNum(), forNonResetCnt, forBigResetCnt);
                 if (forNonResetCnt >= 500)
                 {
-                    penalityTime += RESET_PENALITY/2;
+                    penaltyTime += RESET_PENALTY/2;
                     cp += irr::core::vector3df(3.f, 3.f, 3.f); // we don't know why stop: tree or felt over
                     forBigResetCnt++;
                     if (forBigResetCnt >= 2)
@@ -219,7 +219,7 @@ bool Starter::update(unsigned int currentTime, const irr::core::vector3df& apos,
                 }
                 else
                 {
-                    penalityTime += RESET_PENALITY;
+                    penaltyTime += RESET_PENALTY;
                     cp = nextPointPos;
                     cp.Y += 3.0f;
                 }
@@ -241,16 +241,16 @@ bool Starter::update(unsigned int currentTime, const irr::core::vector3df& apos,
         if (vehicle->getDemagePer() > 20.f)
         {
             float demage = vehicle->getDemagePer();
-            int penality = (int)(3.f*demage);
+            int penalty = (int)(3.f*demage);
             for (int i = 0; i < 4; i++) 
             {
                 if (!vehicle->isTyreConnected(i))
                 {
-                    penality += 15;
+                    penalty += 15;
                 }
             }
-            dprintf(MY_DEBUG_INFO, "------------\nrepair AI car %d, penality: %d\n------------\n", competitor->num, penality);
-            competitor->lastPenalityTime += penality;
+            dprintf(MY_DEBUG_INFO, "------------\nrepair AI car %d, penalty: %d\n------------\n", competitor->num, penalty);
+            competitor->lastPenaltyTime += penalty;
             vehicle->repair();
         }
         */
@@ -446,7 +446,7 @@ void Starter::goToNextPoint(unsigned int currentTime, bool camActive)
         // no more point finish the stage
         finishTime = currentTime - startTime;
         globalTime += finishTime;
-        globalPenalityTime += penalityTime;
+        globalPenaltyTime += penaltyTime;
         
         unsigned int position = raceEngine->insertIntoFinishedState(this);
         if (camActive)
@@ -457,7 +457,7 @@ void Starter::goToNextPoint(unsigned int currentTime, bool camActive)
             str += L" ";
             str += competitor->getName().c_str();
             str += L" finished the stage, time: ";
-            WStringConverter::addTimeToStr(str, finishTime+penalityTime);
+            WStringConverter::addTimeToStr(str, finishTime+penaltyTime);
             str += L",  position: ";
             str += position;
             MessageManager::getInstance()->addText(str.c_str(), 2);
@@ -535,7 +535,7 @@ RaceEngine::RaceEngine(StageState* stageState,
             }
         }
 #endif
-        Starter* starter = new Starter(stage, this, (*it)->competitor, startCD, i, (*it)->globalTime, (*it)->globalPenalityTime);
+        Starter* starter = new Starter(stage, this, (*it)->competitor, startCD, i, (*it)->globalTime, (*it)->globalPenaltyTime);
         starters.push_back(starter);
     }
 }
@@ -674,7 +674,7 @@ unsigned int RaceEngine::insertIntoFinishedState(Starter* starter)
     */
     //assert(0 && "nyi");
     CompetitorResult* competitorResult = new CompetitorResult(starter->competitor,
-        starter->finishTime, starter->penalityTime, starter->globalTime, starter->globalPenalityTime);
+        starter->finishTime, starter->penaltyTime, starter->globalTime, starter->globalPenaltyTime);
     return GamePlay::getInstance()->competitorFinished(competitorResult);
 }
 
@@ -715,11 +715,11 @@ bool RaceEngine::save(const std::string& filename)
                       i,
                       (*it)->competitor->getNum(),
                       (*it)->globalTime,
-                      (*it)->globalPenalityTime,
+                      (*it)->globalPenaltyTime,
                       (*it)->startingCD,
                       (*it)->startTime,
                       (*it)->finishTime,
-                      (*it)->penalityTime,
+                      (*it)->penaltyTime,
                       (*it)->nextPointNum,
                       (*it)->currentPos.X,
                       (*it)->currentPos.Y,
@@ -811,11 +811,11 @@ bool RaceEngine::load(const std::string& filename, Race* race)
         }
         ret = fscanf_s(f, "%u %u %u %u %u %u %u %f %f %f %f\n",
                       &starter->globalTime,
-                      &starter->globalPenalityTime,
+                      &starter->globalPenaltyTime,
                       &starter->startingCD,
                       &starter->startTime,
                       &starter->finishTime,
-                      &starter->penalityTime,
+                      &starter->penaltyTime,
                       &starter->nextPointNum,
                       &starter->currentPos.X,
                       &starter->currentPos.Y,

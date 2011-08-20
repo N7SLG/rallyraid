@@ -25,7 +25,7 @@ public:
             unsigned int startingCD,
             unsigned int place,
             unsigned int globalTime,
-            unsigned int globalPenalityTime);
+            unsigned int globalPenaltyTime);
     ~Starter();
     
     bool update(unsigned int currentTime, const irr::core::vector3df& apos, bool camActive);
@@ -39,7 +39,7 @@ public:
     unsigned int startingCD;
     unsigned int startTime;
     unsigned int finishTime;
-    unsigned int penalityTime;
+    unsigned int penaltyTime;
     //int nextPoint;
     AIPoint::AIPointList_t::const_iterator prevPoint;
     AIPoint::AIPointList_t::const_iterator nextPoint;
@@ -60,7 +60,7 @@ public:
     float distanceStep;
     float stageRand;
     unsigned int globalTime;
-    unsigned int globalPenalityTime;
+    unsigned int globalPenaltyTime;
 };
 
 class RaceEngine

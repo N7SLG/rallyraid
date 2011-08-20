@@ -34,16 +34,17 @@ public:
     MySoundEngine();
     ~MySoundEngine();
     
-    MySound* play3D(const std::string& soundFileName, irr::core::vector3df pos, bool playLooped=false,
-                      bool startPaused=false, bool track=false);
-    MySound* play2D(const std::string& soundFileName, bool playLooped=false,
-                      bool startPaused=false, bool track=false);
-    void setListenerPosition(const irr::core::vector3df &pos, const irr::core::vector3df &lookdir,
-                             const irr::core::vector3df &upVector=irr::core::vector3df(0, 1, 0),
-                             const irr::core::vector3df &velPerSecond=irr::core::vector3df(0, 0, 0)
-                             );
+    MySound* play3D(const std::string& soundFileName, const irr::core::vector3df& pos, bool playLooped = false,
+                    bool startPaused = false, bool track = false);
+    MySound* play2D(const std::string& soundFileName, bool playLooped = false,
+                    bool startPaused = false, bool track = false); // inline
+    void setListenerPosition(const irr::core::vector3df& pos,
+                             const irr::core::vector3df& lookdir,
+                             const irr::core::vector3df& upVector = irr::core::vector3df(0, 1, 0),
+                             const irr::core::vector3df& velPerSecond = irr::core::vector3df(0, 0, 0)
+                             ); // inline
 
-    irr::core::vector3df getListenerPosition() const;
+    const irr::core::vector3df& getListenerPosition() const; // inline
     
 private:
     typedef std::map<std::string, unsigned int> bufferList_t;
@@ -62,39 +63,61 @@ private:
     ALCcontext* pContext;  
 };
 
+inline MySound* MySoundEngine::play2D(const std::string& soundFileName, bool playLooped,
+                               bool startPaused, bool track)
+{
+    return play3D(soundFileName, listenerPos, playLooped, startPaused, track);
+}
+
+inline void MySoundEngine::setListenerPosition(const irr::core::vector3df& pos,
+                                        const irr::core::vector3df& lookdir,
+                                        const irr::core::vector3df& upVector,
+                                        const irr::core::vector3df& velPerSecond)
+{
+    listenerPos = pos;
+    listenerVel = velPerSecond;
+    listenerDir = lookdir;
+    listenerUp = upVector;
+    
+    updateListener();
+}
+
+inline const irr::core::vector3df& MySoundEngine::getListenerPosition() const
+{
+    return listenerPos;
+}
 
 class MySound
 {
 public:
-    MySound(unsigned int newBuffer, bool plooped, irr::core::vector3df &pos);
+    MySound(unsigned int newBuffer, bool plooped, const irr::core::vector3df& pos);
     ~MySound();
     
     void setVolume(float newVolume);
-    float getVolume() const;
+    float getVolume() const; // inline
 
     void setPlaybackSpeed(float newPlaybackSpeed);
-    float getPlaybackSpeed() const;
+    float getPlaybackSpeed() const; // inline
     
     void setIsLooped(bool newLoop);
-    bool isLooped() const;
+    bool isLooped() const; // inline
     
-    void setPosition(irr::core::vector3df &newPos);
-    void setPosition(irr::core::vector3df newPos);
-    irr::core::vector3df getPosition() const;
+    void setPosition(const irr::core::vector3df& newPos);
+    const irr::core::vector3df& getPosition() const; // inline
     
-    void setVelocity(irr::core::vector3df &newVelocity);
-    irr::core::vector3df getVelocity() const;
+    void setVelocity(const irr::core::vector3df& newVelocity);
+    const irr::core::vector3df& getVelocity() const; // inline
     
     void setMaxDistance(float newMaxDistance);
-    float getMaxDistance() const;
+    float getMaxDistance() const; // inline
     void setMinDistance(float newMinDistance);
-    float getMinDistance() const;
+    float getMinDistance() const; // inline
     
     void play();
     void stop();
     
     void setIsPaused(bool newPaused);
-    bool isPaused() const;
+    bool isPaused() const; // inline
     
 private:
     
@@ -112,7 +135,57 @@ private:
     float minDistance;
     bool looped;
     bool isStopped;
+
+    static const irr::core::vector3df zeroVector;
     
 };
+
+inline float MySound::getVolume() const
+{
+    if (!this || !initialized) return 0.f;
+    return volume;
+}
+
+inline float MySound::getPlaybackSpeed() const
+{
+    if (!this || !initialized) return 0.f;
+    return playbackSpeed;
+}
+
+inline bool MySound::isLooped() const
+{
+    if (!this || !initialized) return false;
+    return looped;
+}
+
+inline const irr::core::vector3df& MySound::getPosition() const
+{
+    if (!this || !initialized) return zeroVector;
+    return soundSourcePos;
+}
+
+inline const irr::core::vector3df& MySound::getVelocity() const
+{
+    if (!this || !initialized) return zeroVector;
+    return soundSourceVel;
+}
+
+inline float MySound::getMaxDistance() const
+{
+    if (!this || !initialized) return 0.f;
+    return maxDistance;
+}
+
+inline float MySound::getMinDistance() const
+{
+    if (!this || !initialized) return 0.f;
+    return minDistance;
+}
+
+inline bool MySound::isPaused() const
+{
+    if (!this || !initialized) return false;
+    return paused;
+}
 
 #endif // MYSOUND_H
