@@ -12,6 +12,7 @@
 #include "WayPointManager.h"
 #include "WStringConverter.h"
 #include "ShadowRenderer.h"
+#include "Settings.h"
 
 
 // normalize angle between 0 and 360
@@ -454,7 +455,7 @@ void Hud::setVisible(bool newVisible)
     speedText->setVisible(visible);
     stageTimeText->setVisible(visible);
     gearText->setVisible(visible);
-    editorText->setVisible(TheGame::getInstance()->getEditorMode() && visible);
+    editorText->setVisible(Settings::getInstance()->editorMode && visible);
 
     updateRoadBook();
 }

@@ -59,9 +59,6 @@ public:
     bool                            getInGame(); // inline
     void                            setInGame(bool val); // inline
 
-    bool                            getEditorMode(); // inline
-    void                            setEditorMode(bool val); // inline
-
     float                           getFPSSpeed();
     void                            setFPSSpeed(float speed);
     void                            incFPSSpeed();
@@ -123,7 +120,6 @@ private:
     irr::core::vector3df            cameraDirection;
     float                           cameraAngle;
     bool                            inGame;
-    bool                            editorMode;
     unsigned int                    editorSeconds;
     unsigned int                    editorLastTick;
 
@@ -193,16 +189,6 @@ inline bool TheGame::getInGame()
 inline void TheGame::setInGame(bool val)
 {
     inGame = val;
-}
-
-inline bool TheGame::getEditorMode()
-{
-    return editorMode;
-}
-
-inline void TheGame::setEditorMode(bool val)
-{
-    editorMode = val;
 }
 
 #endif // THEGAME_H

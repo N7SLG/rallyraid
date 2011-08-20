@@ -46,6 +46,7 @@ public:
     float                   joystickDeadZone;
     bool                    manualGearShifting;
     bool                    sequentialGearShifting;
+    bool                    editorMode;
 };
 
 #endif // SETTINGS_H

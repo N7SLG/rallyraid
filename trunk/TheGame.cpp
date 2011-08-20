@@ -96,7 +96,6 @@ TheGame::TheGame()
       cameraDirection(),
       cameraAngle(0.0f),
       inGame(true),
-      editorMode(true),
       editorSeconds(0),
       editorLastTick(0),
       skydome(0)
@@ -124,7 +123,7 @@ TheGame::TheGame()
     {
         terminate = false;
 
-        device->setWindowCaption(L"Rally Raid 2012");
+        device->setWindowCaption(L"Rally Raid 1.0");
 
         dprintf(MY_DEBUG_NOTE, "Initialize Irrlicht members\n");
         driver = device->getVideoDriver();
@@ -474,7 +473,7 @@ void TheGame::loop()
                     //lastSlowTick += slowStep_ms;
                     lastSlowTick = tick;// + slowStep_ms;
                     
-                    if (editorMode)
+                    if (Settings::getInstance()->editorMode)
                     {
                         unsigned int mtick = tick / 1000;
                         if (mtick != editorLastTick)
@@ -579,7 +578,7 @@ void TheGame::loop()
             smgr->drawAll();
             //printf("menu and env render\n");
             messageManager->updateText(tick);
-            if (editorMode)
+            if (Settings::getInstance()->editorMode)
             {
                 MenuPageEditor::render();
             }
@@ -659,6 +658,8 @@ void TheGame::doFewSteps(unsigned int stepCnt)
 
 void TheGame::switchCamera()
 {
+    device->getCursorControl()->setPosition((int)(driver->getScreenSize().Width / 2), (int)(driver->getScreenSize().Height / 2));
+
     irr::core::vector3df pos = camera->getPosition();
     irr::core::vector3df tar = camera->getTarget();
     camera = ((camera == fix_camera) ? fps_camera : fix_camera);

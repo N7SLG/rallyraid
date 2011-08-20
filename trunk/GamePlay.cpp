@@ -17,6 +17,7 @@
 #include "ConfigDirectory.h"
 #include "Hud.h"
 #include "error.h"
+#include "Settings.h"
 #include <assert.h>
 
 
@@ -112,7 +113,7 @@ void GamePlay::startNewGame(Race* race, VehicleType* vehicleType)
 
         raceState.push_back(stageState);
 
-        if (TheGame::getInstance()->getEditorMode()==false)
+        if (Settings::getInstance()->editorMode == false)
         {
             raceEngine = new RaceEngine(stageState, raceState.size());
             clearCompetitorResultList(stageState->competitorResultListStage);
@@ -169,7 +170,7 @@ bool GamePlay::goToNextStage()
 
         raceState.push_back(stageState);
 
-        if (TheGame::getInstance()->getEditorMode()==false)
+        if (Settings::getInstance()->editorMode == false)
         {
             raceEngine = new RaceEngine(stageState, raceState.size());
             clearCompetitorResultList(stageState->competitorResultListStage);
@@ -187,7 +188,7 @@ bool GamePlay::goToNextStage()
 
 bool GamePlay::loadGame(const std::string& saveName)
 {
-    assert(TheGame::getInstance()->getEditorMode()==false);
+    assert(Settings::getInstance()->editorMode == false);
 
     dprintf(MY_DEBUG_NOTE, "GamePlay::loadGame(): load save game: %s\n", saveName.c_str());
 
@@ -237,7 +238,7 @@ bool GamePlay::loadGame(const std::string& saveName)
 
 bool GamePlay::saveGame(const std::string& saveName)
 {
-    assert(TheGame::getInstance()->getEditorMode()==false);
+    assert(Settings::getInstance()->editorMode == false);
 
     dprintf(MY_DEBUG_NOTE, "GamePlay::saveGame(): save game: %s\n", saveName.c_str());
 

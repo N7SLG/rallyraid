@@ -69,13 +69,13 @@ MenuPageMain::MenuPageMain()
         MI_BUTTONOPTIONS,
         L"Options");
 
-    checkBoxEditor = TheGame::getInstance()->getEnv()->addCheckBox(TheGame::getInstance()->getEditorMode(),
+    checkBoxEditor = TheGame::getInstance()->getEnv()->addCheckBox(Settings::getInstance()->editorMode,
         irr::core::recti(10,window->getRelativePosition().getSize().Height-30,150,window->getRelativePosition().getSize().Height-10),
         window,
         MI_CBEDITORMODE,
         L"Editor Mode");
 
-    staticTextGameName = TheGame::getInstance()->getEnv()->addStaticText(L"Rally Raid 2012",
+    staticTextGameName = TheGame::getInstance()->getEnv()->addStaticText(L"Rally Raid",
         irr::core::recti(window->getRelativePosition().getSize().Width/2 - 400,54,window->getRelativePosition().getSize().Width/2 + 400,88),
         false, false, window, 0, false);
     staticTextGameName->setOverrideFont(FontManager::getInstance()->getFont(FontManager::FONT_SPECIAL18));
@@ -90,8 +90,8 @@ MenuPageMain::MenuPageMain()
     havok_image->setUseAlphaChannel(true);
     havok_image->setImage(havok_logo);
 
-    TheGame::getInstance()->getEnv()->addStaticText(L"Build: 146",
-        irr::core::recti(irr::core::position2di(window->getRelativePosition().getSize().Width - 60, window->getRelativePosition().getSize().Height - 20), havok_logo->getOriginalSize()),
+    TheGame::getInstance()->getEnv()->addStaticText(L"Version: 1.0 - Build: 147",
+        irr::core::recti(irr::core::position2di(window->getRelativePosition().getSize().Width - 110, window->getRelativePosition().getSize().Height - 20), havok_logo->getOriginalSize()),
         false, false, window, 0, false);
 
     // ----------------------------
@@ -243,7 +243,7 @@ bool MenuPageMain::OnEvent(const irr::SEvent &event)
                 {
                     case MI_CBEDITORMODE:
                         dprintf(MY_DEBUG_INFO, "set editor mode to: %u\n", checkBoxEditor->isChecked());
-                        TheGame::getInstance()->setEditorMode(checkBoxEditor->isChecked());
+                        Settings::getInstance()->editorMode = checkBoxEditor->isChecked();
                         break;
                 }
                 break;
