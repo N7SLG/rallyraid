@@ -4,7 +4,7 @@
 #include "StringConverter.h"
 
 Settings* Settings::settings = 0;
-const std::string Settings::settingsFilename = "data/Dakar2012_settings.cfg";
+const std::string Settings::settingsFilename = "data/settings.cfg";
 
 void Settings::initialize()
 {
@@ -46,7 +46,8 @@ Settings::Settings()
       shadowMapSize(2048),
       joystickDeadZone(0.01f),
       manualGearShifting(false),
-      sequentialGearShifting(true)
+      sequentialGearShifting(true),
+      editorMode(false)
 {
     read();
 }
@@ -156,6 +157,9 @@ void Settings::read()
             } else if (keyName == "sequential_gear_shifting")
             {
                 sequentialGearShifting = StringConverter::parseBool(valName, true);
+            } else if (keyName == "editor_mode")
+            {
+                editorMode = StringConverter::parseBool(valName, false);
             }
         }
     }
@@ -197,6 +201,7 @@ void Settings::write()
     ret = fprintf(f, "joystick_dead_zone=%f\n", joystickDeadZone);
     ret = fprintf(f, "manual_gear_shifting=%s\n", manualGearShifting?"yes":"no");
     ret = fprintf(f, "sequential_gear_shifting=%s\n", sequentialGearShifting?"yes":"no");
+    ret = fprintf(f, "editor_mode=%s\n", editorMode?"yes":"no");
 
     fclose(f);
 }

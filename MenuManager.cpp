@@ -31,6 +31,7 @@ public:
 private:
     virtual bool OnEvent(const irr::SEvent &event)
     {
+        //printf("empty event: %u\n", event.EventType);
         if (event.EventType == irr::EET_GUI_EVENT && (int)event.GUIEvent.EventType == 0)
         {
             //if (firstAction)
@@ -141,6 +142,7 @@ void MenuManager::refreshEventReceiver()
 void MenuManager::clearEventReceiver()
 {
     TheGame::getInstance()->getEnv()->setUserEventReceiver(eer);
+    TheGame::getInstance()->getDevice()->getCursorControl()->setPosition((int)(TheGame::getInstance()->getScreenSize().Width / 2), (int)(TheGame::getInstance()->getScreenSize().Height / 2));
     menuInput = false;
     TheGame::getInstance()->getCamera()->setInputReceiverEnabled(true);
 }

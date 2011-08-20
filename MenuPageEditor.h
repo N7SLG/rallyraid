@@ -12,6 +12,7 @@ public:
     {
         MI_WINDOW = MAX_MENU_ITEMS * MenuManager::MP_EDITOR,
         MI_BUTTONREFRESH,
+        MI_BUTTONACTION,
         MI_BUTTONCREATEROAD,
         MI_BUTTONACTIVATE,
         MI_BUTTONRESET,
@@ -92,6 +93,8 @@ public:
     virtual ~MenuPageEditor();
     void refreshSelected();
     void refreshItinerGD();
+    void refreshAction();
+    void activateAction();
 
     // mouse button hit
     static void action();
@@ -153,6 +156,7 @@ private:
     irr::gui::IGUIImage*    itinerImage2;
     irr::gui::IGUIImage*    objectImage;
     irr::gui::IGUIImage*    objectImage2;
+    irr::gui::IGUIButton*   buttonAction;
 
     Action                  currentAction;
     irr::video::SMaterial   material;

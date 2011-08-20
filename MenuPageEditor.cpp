@@ -69,6 +69,7 @@ MenuPageEditor::MenuPageEditor()
       itinerImage2(0),
       objectImage(0),
       objectImage2(0),
+      buttonAction(0),
       currentAction(A_None),
       material(),
       lastTick(0),
@@ -92,6 +93,12 @@ MenuPageEditor::MenuPageEditor()
         window,
         MI_BUTTONREFRESH,
         L"Refresh");
+
+    buttonAction = TheGame::getInstance()->getEnv()->addButton(
+        irr::core::recti(44,22,84,42),
+        window,
+        MI_BUTTONACTION,
+        L"action");
 /*
     TheGame::getInstance()->getEnv()->addButton(
         irr::core::recti(44,22,84,42),
@@ -528,6 +535,10 @@ bool MenuPageEditor::OnEvent(const irr::SEvent &event)
                         refresh();
                         return true;
                         break;
+                    case MI_BUTTONACTION:
+                        buttonAction->setText(L"ACTION");
+                        MenuManager::getInstance()->clearEventReceiver();
+                        break;
                     case MI_BUTTONCREATEROAD:
                     {
                         dprintf(MY_DEBUG_NOTE, "editor::newRoad\n");
@@ -758,6 +769,7 @@ void MenuPageEditor::close()
 void MenuPageEditor::refresh()
 {
     refreshSelected();
+    refreshAction();
     refreshTiles();
     refreshObjectWire();
     refreshObjectWireTiles();
@@ -902,6 +914,26 @@ void MenuPageEditor::refreshSelected()
         str = L"none";
     }
     tableSelected->setCellText(i, 1, str.c_str());
+}
+
+void MenuPageEditor::refreshAction()
+{
+    tableAction->setSelected((int)currentAction);
+    buttonAction->setText(L"action");
+}
+
+void MenuPageEditor::activateAction()
+{
+    //TheGame::getInstance()->getEnv()->setFocus(buttonAction);
+    /*
+    irr::SEvent event;
+    event.EventType = irr::EET_MOUSE_INPUT_EVENT;
+    event.MouseInput.Event = irr::EMIE_LMOUSE_PRESSED_DOWN;
+    event.MouseInput.X = buttonAction->getAbsolutePosition().UpperLeftCorner.X + 1;
+    event.MouseInput.Y = buttonAction->getAbsolutePosition().UpperLeftCorner.Y + 1;
+
+    buttonAction->OnEvent(event);
+    */
 }
 
 void MenuPageEditor::refreshTiles()

@@ -10,6 +10,7 @@
 #include "MenuManager.h"
 #include "TheEarth.h"
 #include "MenuPageOptionsKB.h"
+#include "MenuPageEditor.h"
 #include "Hud.h"
 #include "Settings.h"
 
@@ -29,7 +30,7 @@
 #include <vld.h>
 #endif // DETECT_MEM_LEAKS
 
-const std::string EventReceiver::keyMappingFilename = "data/Dakar2012_keymapping.cfg";
+const std::string EventReceiver::keyMappingFilename = "data/keymapping.cfg";
 
 EventReceiver::EventReceiver()
     : inputManager(0),
@@ -468,10 +469,13 @@ void EventReceiver::checkEvents()
     
     if (MenuManager::getInstance()->getMenuInput())
     {
+        /*
         if (IS_PRESSED(SWITCH_INPUT))
         {
             MenuManager::getInstance()->clearEventReceiver();
+            MenuPageEditor::menuPageEditor->activateAction();
         }
+        */
     }
     else
     {
@@ -646,7 +650,7 @@ void EventReceiver::checkEvents()
 
         if (IS_PRESSED(OPEN_EDITOR))
         {
-            if (TheGame::getInstance()->getEditorMode())
+            if (Settings::getInstance()->editorMode)
             {
                 MenuManager::getInstance()->open(MenuManager::MP_EDITOR);
             }
@@ -663,6 +667,7 @@ void EventReceiver::checkEvents()
         if (IS_PRESSED(SWITCH_INPUT))
         {
             MenuManager::getInstance()->refreshEventReceiver();
+            MenuPageEditor::menuPageEditor->refreshAction();
         }
 
         if (IS_PRESSED(INC_FPS_SPEED))
