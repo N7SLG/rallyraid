@@ -6,9 +6,10 @@
 #include <irrlicht.h>
 
 
-WayPoint::WayPoint(const irr::core::vector3df& apos, unsigned int num)
+WayPoint::WayPoint(const irr::core::vector3df& apos, unsigned int num, WayPoint::Type type)
     : ObjectWireGlobalObject(0, apos),
-      num(num)
+      num(num),
+      type(type)
 {
 }
 

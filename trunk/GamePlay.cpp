@@ -163,7 +163,7 @@ bool GamePlay::goToNextStage()
              it++)
         {
             CompetitorResult* competitorResult = new CompetitorResult(
-                (*it)->competitor, 0, 0, (*it)->globalTime, (*it)->globalPenalityTime);
+                (*it)->competitor, 0, 0, (*it)->globalTime, (*it)->globalPenaltyTime);
             stageState->competitorResultListStage.push_back(competitorResult);
         }
 
@@ -357,7 +357,7 @@ unsigned int GamePlay::competitorFinished(CompetitorResult* competitorResult)
              it != stageState->competitorResultListStage.end();
              it++, insertPos++)
         {
-            if (((*it)->stageTime+(*it)->stagePenalityTime) > (competitorResult->stageTime+competitorResult->stagePenalityTime))
+            if (((*it)->stageTime+(*it)->stagePenaltyTime) > (competitorResult->stageTime+competitorResult->stagePenaltyTime))
             {
                 stageState->competitorResultListStage.insert(it, competitorResult);
                 inserted = true;
@@ -382,7 +382,7 @@ unsigned int GamePlay::competitorFinished(CompetitorResult* competitorResult)
              it != stageState->competitorResultListOverall.end();
              it++)
         {
-            if (((*it)->globalTime+(*it)->globalPenalityTime) > (competitorResult->globalTime+competitorResult->globalPenalityTime))
+            if (((*it)->globalTime+(*it)->globalPenaltyTime) > (competitorResult->globalTime+competitorResult->globalPenaltyTime))
             {
                 stageState->competitorResultListOverall.insert(it, competitorResult);
                 inserted = true;
@@ -595,8 +595,8 @@ void GamePlay::refreshLoadableGames()
     unsigned int num = 0;
     unsigned int stageTime = 0;
     unsigned int globalTime = 0;
-    unsigned int stagePenalityTime = 0;
-    unsigned int globalPenalityTime = 0;
+    unsigned int stagePenaltyTime = 0;
+    unsigned int globalPenaltyTime = 0;
 
     ret = fscanf_s(f, "%lu\n", &numOfComps);
     if (ret < 1)
@@ -608,7 +608,7 @@ void GamePlay::refreshLoadableGames()
 
     for (unsigned int i = 0; i < numOfComps; i++)
     {
-        ret = fscanf_s(f, "%u %u %u %u %u\n", &num, &stageTime, &globalTime, &stagePenalityTime, &globalPenalityTime);
+        ret = fscanf_s(f, "%u %u %u %u %u\n", &num, &stageTime, &globalTime, &stagePenaltyTime, &globalPenaltyTime);
         if (ret < 5)
         {
             printf("stage state unable to read competitor list\n");
@@ -631,7 +631,7 @@ void GamePlay::refreshLoadableGames()
             fclose(f);
             return false;
         }
-        CompetitorResult* competitorResult = new CompetitorResult(competitor, stageTime, stagePenalityTime, globalTime, globalPenalityTime);
+        CompetitorResult* competitorResult = new CompetitorResult(competitor, stageTime, stagePenaltyTime, globalTime, globalPenaltyTime);
 
         competitorResultList.push_back(competitorResult);
     }
@@ -648,7 +648,7 @@ void GamePlay::refreshLoadableGames()
          it++)
     {
         ret = fprintf(f, "%u %u %u %u %u\n", (*it)->competitor->getNum(), (*it)->stageTime, (*it)->globalTime,
-            (*it)->stagePenalityTime, (*it)->globalPenalityTime);
+            (*it)->stagePenaltyTime, (*it)->globalPenaltyTime);
     }
     return true;
 }

@@ -322,7 +322,7 @@ void MenuPageInGame::refreshCompetitors(StageState* stageState)
         //tableStages->setCellData(i, 0, (void*)(*it));
 
         str = L"";
-        WStringConverter::addTimeToStr(str, (*it)->stageTime + (*it)->stagePenalityTime);
+        WStringConverter::addTimeToStr(str, (*it)->stageTime + (*it)->stagePenaltyTime);
         tableCompetitors->setCellText(i, 1, str.c_str());
 
         str = L"";
@@ -352,7 +352,7 @@ void MenuPageInGame::refreshCompetitors(StageState* stageState)
         //tableStages->setCellData(i, 0, (void*)(*it));
 
         str = L"";
-        WStringConverter::addTimeToStr(str, (*it)->stageTime + (*it)->stagePenalityTime);
+        WStringConverter::addTimeToStr(str, (*it)->stageTime + (*it)->stagePenaltyTime);
         tableCompetitorsG->setCellText(i, 1, str.c_str());
 
         str = L"";

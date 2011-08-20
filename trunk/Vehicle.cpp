@@ -9,11 +9,141 @@
 #include "Shaders.h"
 #include "TheEarth.h"
 #include "TheGame.h"
+#include "Settings.h"
 
 #include <Physics/Vehicle/WheelCollide/RayCast/hkpVehicleRayCastWheelCollide.h>
 #include <Physics/Vehicle/hkpVehicleInstance.h>
 #include <Physics/Collide/Query/CastUtil/hkpWorldRayCastOutput.h>
+#include <Physics/Dynamics/Collide/ContactListener/hkpContactListener.h>
 
+// -------------------------------------------------------
+//                   Collision handler
+// -------------------------------------------------------
+
+class VehicleCollisionListener : public hkReferencedObject, public hkpContactListener
+{
+public:
+    VehicleCollisionListener(Vehicle* vehicle)
+        : vehicle(vehicle), hitSound(0), hitSoundGround(0), lastTick(0)
+    {
+        hitSound = MySoundEngine::getInstance()->play3D("data/sounds/puff_02.wav", irr::core::vector3df(), false, true, true);
+        if (hitSound)
+        {
+            hitSound->setVolume(0.2f);
+            hitSound->setMinDistance(3.0f);
+        }
+        hitSoundGround = MySoundEngine::getInstance()->play3D("data/sounds/puff.wav", irr::core::vector3df(), false, true, true);
+        if (hitSoundGround)
+        {
+            hitSoundGround->setVolume(0.2f);
+            hitSoundGround->setMinDistance(3.0f);
+        }
+    }
+    
+    virtual ~VehicleCollisionListener()
+    {
+        if (hitSound)
+        {
+            delete hitSound;
+            hitSound = 0;
+        }
+        if (hitSoundGround)
+        {
+            delete hitSoundGround;
+            hitSoundGround = 0;
+        }
+    }
+    
+private:
+    virtual void contactPointCallback( const hkpContactPointEvent& event ) 
+    {
+        assert(event.m_source != hkpCollisionEvent::SOURCE_WORLD && "Do not add this listener to the world.");
+
+        unsigned int tick = TheGame::getInstance()->getTick();
+
+        if (tick - lastTick < 500) return;
+        lastTick = tick;
+        
+        irr::core::vector3df point(event.m_contactPoint->getPosition()(0),
+            event.m_contactPoint->getPosition()(1),
+            event.m_contactPoint->getPosition()(2));
+        irr::core::vector3df normal(event.m_contactPoint->getNormal()(0),
+            event.m_contactPoint->getNormal()(1),
+            event.m_contactPoint->getNormal()(2));
+        float fourth = event.m_contactPoint->getPosition()(3);
+        float distance = event.m_contactPoint->getNormal()(3);
+
+        dprintf(MY_DEBUG_NOTE, "Vehicle collision:\n" \
+            "\tpoint: %f %f %f\n" \
+            "\tnormal: %f %f %f\n" \
+            "\tfourth: %f\n" \
+            "\tdistance: %f\n" \
+            "\tsource: %u\n"
+            , point.X, point.Y, point.Z
+            , normal.X, normal.Y, normal.Z,
+            fourth,
+            distance,
+            event.m_source
+            );
+
+        assert(event.m_source == hkpCollisionEvent::SOURCE_A);
+
+        hkpRigidBody* body = event.getBody(event.m_source);
+        assert(vehicle->hkBody == body);
+
+        hkpRigidBody* otherBody = event.getBody(1-event.m_source);
+
+        float speed = vehicle->getSpeed();
+        MySound* sound = hitSound;
+        bool playSound = true;
+        if (otherBody->hasProperty(hk::materialType::vehicleId))
+        {
+            // the other object is also a vehicle: do not play sound for both only the lowest
+            if (body > otherBody)
+            {
+                playSound = false;
+            }
+        } else if (otherBody->hasProperty(hk::materialType::terrainId))
+        {
+            sound = hitSoundGround;
+        }
+        
+        if (playSound && sound)
+        {
+            // play sound
+            float soundVolume = speed / 100.f;
+            if (soundVolume > 1.0f) soundVolume = 1.0f;
+            sound->setVolume(soundVolume);
+            sound->setPosition(point);
+            sound->play();
+        }
+
+        // call vehicle collision
+        irr::core::matrix4 mat = vehicle->matrix;
+        mat.makeInverse();
+        irr::core::vector3df localPoint;
+        irr::core::vector3df localNormal;
+
+        mat.transformVect(localPoint, point);
+        mat.setTranslation(irr::core::vector3df());
+        mat.transformVect(localNormal, normal);
+
+        dprintf(MY_DEBUG_NOTE, "local collision data:\n" \
+            "\tpoint: %f %f %f\n" \
+            "\tnormal: %f, %f, %f\n" \
+            "\tspeed: %f\n"
+            , localPoint.X, localPoint.Y, localPoint.Z
+            , localNormal.X, localNormal.Y, localNormal.Z,
+            speed
+            );
+    }
+
+private:
+    Vehicle*        vehicle;
+    MySound*        hitSound;
+    MySound*        hitSoundGround;
+    unsigned int    lastTick;
+};
 
 // -------------------------------------------------------
 //                   Friction helper
@@ -225,6 +355,7 @@ VehicleTyre::~VehicleTyre()
 Vehicle::Vehicle(const std::string& vehicleTypeName, const irr::core::vector3df& apos, const irr::core::vector3df& rotation,
     bool manual, bool sequential, float suspensionSpringModifier, float suspensionDamperModifier)
     : vehicleType(0),
+      collisionListener(0),
       matrix(),
       node(0),
       hkBody(0),
@@ -339,9 +470,9 @@ Vehicle::Vehicle(const std::string& vehicleTypeName, const irr::core::vector3df&
     // setupComponent( *hkVehicle->m_data, *static_cast< hkpVehicleDefaultAnalogDriverInput* >(hkVehicle->m_driverInput) );
     // ------------------------------------------------
     hkpVehicleDefaultAnalogDriverInput* driverInput = static_cast< hkpVehicleDefaultAnalogDriverInput* >(hkVehicle->m_driverInput);
-    driverInput->m_slopeChangePointX = 0.8f;
-    driverInput->m_initialSlope = 0.7f;
-    driverInput->m_deadZone = 0.0f;
+    driverInput->m_slopeChangePointX = 0.99f;
+    driverInput->m_initialSlope = 1.0f;
+    driverInput->m_deadZone = Settings::getInstance()->joystickDeadZone*Settings::getInstance()->joystickDeadZone;//0.0f;
     driverInput->m_autoReverse = true;
 
     // ------------------------------------------------
@@ -464,7 +595,7 @@ Vehicle::Vehicle(const std::string& vehicleTypeName, const irr::core::vector3df&
     {
         brake->m_wheelBrakingProperties[i].m_maxBreakingTorque = vehicleType->maxBrakeForce;
         brake->m_wheelBrakingProperties[i].m_isConnectedToHandbrake = tyres[i]->tyreType->handbrakeable;
-        brake->m_wheelBrakingProperties[i].m_minPedalInputToBlock = 0.9f;
+        brake->m_wheelBrakingProperties[i].m_minPedalInputToBlock = 0.1f;
     }
     brake->m_wheelsMinTimeToBlock = 1000.0f;
     
@@ -577,12 +708,23 @@ Vehicle::Vehicle(const std::string& vehicleTypeName, const irr::core::vector3df&
     }
     VehicleManager::getInstance()->addVehicle(this);
     memset(smokes, 0, MAX_SMOKES*sizeof(Smoke*));
+    
+    collisionListener = new VehicleCollisionListener(this);
+    hkBody->addContactListener(collisionListener);
     //assert(0);
 }
 
 Vehicle::~Vehicle()
 {
     dprintf(MY_DEBUG_NOTE, "Vehicle::~Vehicle(): %p\n", this);
+    
+    if (collisionListener)
+    {
+        hkBody->removeContactListener(collisionListener);
+        collisionListener->removeReference();
+        collisionListener = 0;
+    }
+    
     vehicleType = 0;
     node = 0;
     hkBody = 0;

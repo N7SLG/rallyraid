@@ -96,6 +96,7 @@ bool WayPointManager::update(const irr::core::vector3df& newPos, bool force)
     while (seci.hasMoreElements())
     {
         irr::core::vector3df apos;
+        unsigned int type = (unsigned int)WayPoint::Hidden;
 
         secName = seci.peekNextKey();
         dprintf(MY_DEBUG_NOTE, "\tSection: %s\n", secName.c_str());
@@ -110,12 +111,16 @@ bool WayPointManager::update(const irr::core::vector3df& newPos, bool force)
             if (keyName == "pos")
             {
                 StringConverter::parseFloat3(valName, apos.X, apos.Y, apos.Z);
+            } else if (keyName == "type")
+            {
+                type = StringConverter::parseUnsignedInt(valName, (unsigned int)WayPoint::Hidden);
+                if (type >= (unsigned int)WayPoint::NumberOfTypes) type = (unsigned int)WayPoint::Hidden;
             }
         }
 
         if (!secName.empty())
         {
-            WayPoint* wayPoint = new WayPoint(apos, num);
+            WayPoint* wayPoint = new WayPoint(apos, num, (WayPoint::Type)type);
             wayPointList.push_back(wayPoint);
             num++;
         }
@@ -169,6 +174,7 @@ bool WayPointManager::update(const irr::core::vector3df& newPos, bool force)
         fprintf_s(f, "[%s%u]\n", fillZero, id);
 
         fprintf_s(f, "pos=%f %f %f\n", (*it)->getPos().X, (*it)->getPos().Y, (*it)->getPos().Z);
+        fprintf_s(f, "type=%u\n", (*it)->getType());
 
         id++;
     }

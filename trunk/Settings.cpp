@@ -107,6 +107,7 @@ void Settings::read()
             } else if (keyName == "difficulty")
             {
                 difficulty = StringConverter::parseUnsignedInt(valName, 2);
+                if (difficulty > 4) difficulty = 4;
             } else if (keyName == "navigation_assistant")
             {
                 navigationAssistant = StringConverter::parseBool(valName, true);

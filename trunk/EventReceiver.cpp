@@ -500,40 +500,40 @@ void EventReceiver::checkEvents()
 
         // other
         float perc = 0.f;
-        if (IS_PRESSED(ACCELERATE) && (perc = getPercentage(ACCELERATE, joystickState)) > Settings::getInstance()->joystickDeadZone)
-        {
-            //dprintf(MY_DEBUG_NOTE, "accelerate pressed: %f\n", perc);
-            Player::getInstance()->setFirstPressed();
-            Player::getInstance()->getVehicle()->setTorque(-1.0f*perc);
-        }
-        else
-        if (IS_PRESSED(BRAKE) && (perc = getPercentage(BRAKE, joystickState)) > Settings::getInstance()->joystickDeadZone)
+        if (IS_PRESSED(BRAKE) && (perc = getPercentage(BRAKE, joystickState))/* > Settings::getInstance()->joystickDeadZone*/)
         {
             //dprintf(MY_DEBUG_NOTE, "brake pressed: %f\n", perc);
             Player::getInstance()->setFirstPressed();
-            Player::getInstance()->getVehicle()->setTorque(perc);
+            Player::getInstance()->getVehicle()->setTorque(perc*perc);
+        }
+        else
+        if (IS_PRESSED(ACCELERATE) && (perc = getPercentage(ACCELERATE, joystickState))/* > Settings::getInstance()->joystickDeadZone*/)
+        {
+            //dprintf(MY_DEBUG_NOTE, "accelerate pressed: %f\n", perc);
+            Player::getInstance()->setFirstPressed();
+            Player::getInstance()->getVehicle()->setTorque(-1.0f*perc*perc);
         }
         else
         {
             Player::getInstance()->getVehicle()->setTorque(0);
         }
 
-        if (IS_PRESSED(CLUTCH) && (perc = getPercentage(CLUTCH, joystickState)) > Settings::getInstance()->joystickDeadZone)
+        if (IS_PRESSED(CLUTCH) && (perc = getPercentage(CLUTCH, joystickState))/* > Settings::getInstance()->joystickDeadZone*/)
         {
             //dprintf(MY_DEBUG_NOTE, "accelerate pressed: %f\n", perc);
-            Player::getInstance()->getVehicle()->setClutch(perc);
+            Player::getInstance()->getVehicle()->setClutch(perc*perc);
         }
 
-        if (IS_PRESSED(LEFT) && (perc = getPercentage(LEFT, joystickState)) > Settings::getInstance()->joystickDeadZone)
+        if (IS_PRESSED(LEFT) && (perc = getPercentage(LEFT, joystickState))/* > Settings::getInstance()->joystickDeadZone*/)
         {
             //dprintf(MY_DEBUG_NOTE, "left pressed: %f\n", perc);
-            Player::getInstance()->getVehicle()->setSteer(-1.0f*perc);
+            Player::getInstance()->getVehicle()->setSteer(-1.0f*perc*perc);
         }
         else
-        if (IS_PRESSED(RIGHT) && (perc = getPercentage(RIGHT, joystickState)) > Settings::getInstance()->joystickDeadZone)
+        if (IS_PRESSED(RIGHT) && (perc = getPercentage(RIGHT, joystickState))/* > Settings::getInstance()->joystickDeadZone*/)
         {
             //dprintf(MY_DEBUG_NOTE, "right pressed: %f\n", perc);
-            Player::getInstance()->getVehicle()->setSteer(perc);
+            Player::getInstance()->getVehicle()->setSteer(perc*perc);
         }
         else
         {
