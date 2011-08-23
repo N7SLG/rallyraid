@@ -47,6 +47,13 @@ MenuPageOptions::MenuPageOptions()
         0,
         MI_WINDOW);
 
+    irr::gui::IGUIStaticText* warningText = TheGame::getInstance()->getEnv()->addStaticText(L"(*) Changing this item only will take effect after save and restart",
+        irr::core::recti(irr::core::position2di(PADDING, window->getRelativePosition().getSize().Height-22), irr::core::dimension2di(300, 20)),
+        false,
+        false,
+        window);
+    warningText->setTextAlignment(irr::gui::EGUIA_UPPERLEFT, irr::gui::EGUIA_CENTER);
+
     TheGame::getInstance()->getEnv()->addButton(
         irr::core::recti(irr::core::position2di(window->getRelativePosition().getSize().Width-82, window->getRelativePosition().getSize().Height-22), irr::core::dimension2du(80, 20)),
         window,
@@ -66,7 +73,7 @@ MenuPageOptions::MenuPageOptions()
     irr::gui::IGUITab* tabGeneral = tc->addTab(L"General", 0);
 
     unsigned int line = PADDING;
-    TheGame::getInstance()->getEnv()->addStaticText(L"Driver Type",
+    TheGame::getInstance()->getEnv()->addStaticText(L"Driver Type (*)",
         irr::core::recti(irr::core::position2di(PADDING, line), irr::core::dimension2di(FTW, 16)),
         false,
         false,
@@ -80,7 +87,7 @@ MenuPageOptions::MenuPageOptions()
     comboBoxDriverType->addItem(L"OpenGL");
     
     line += 20;
-    TheGame::getInstance()->getEnv()->addStaticText(L"Resolution",
+    TheGame::getInstance()->getEnv()->addStaticText(L"Resolution (*)",
         irr::core::recti(irr::core::position2di(PADDING, line), irr::core::dimension2di(FTW, 16)),
         false,
         false,
@@ -111,7 +118,7 @@ MenuPageOptions::MenuPageOptions()
     }
 
     line += 20;
-    TheGame::getInstance()->getEnv()->addStaticText(L"Full Screen",
+    TheGame::getInstance()->getEnv()->addStaticText(L"Full Screen (*)",
         irr::core::recti(irr::core::position2di(PADDING, line), irr::core::dimension2di(FTW, 16)),
         false,
         false,
@@ -123,7 +130,7 @@ MenuPageOptions::MenuPageOptions()
         MI_CBFULLSCREEN);
 
     line += 20;
-    TheGame::getInstance()->getEnv()->addStaticText(L"Vsync",
+    TheGame::getInstance()->getEnv()->addStaticText(L"Vsync (*)",
         irr::core::recti(irr::core::position2di(PADDING, line), irr::core::dimension2di(FTW, 16)),
         false,
         false,

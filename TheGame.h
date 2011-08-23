@@ -63,6 +63,7 @@ public:
     void                            setFPSSpeed(float speed);
     void                            incFPSSpeed();
     void                            decFPSSpeed();
+    void                            resetMouseCursor(bool onlyFPS = true);
 
 private:
     TheGame();

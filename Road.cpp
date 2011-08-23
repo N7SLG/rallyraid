@@ -20,7 +20,9 @@ Road::Road(const std::string& roadFilename, bool& ret, bool global, bool read)
       roadType(0),
       loaded(false),
       global(global),
-      roadPointVector()
+      roadPointVector(),
+      firstSaved(-1),
+      lastSaved(-1)
 {
     ret = readHeader();
     if (ret && read)
@@ -39,7 +41,9 @@ Road::Road(const std::string&   roadFilename,
       roadDataFilename(roadDataFilename),
       roadType(roadType),
       global(global),
-      roadPointVector()
+      roadPointVector(),
+      firstSaved(-1),
+      lastSaved(-1)
 {
 }
 
@@ -158,6 +162,7 @@ bool Road::readData()
         i++;
     }
     fclose(f);
+    refreshFirstLast();
     return true;
 }
 
@@ -178,8 +183,8 @@ bool Road::writeData()
         ret = fprintf(f, "%lf %lf %lf %d %x\n",
             roadPointVector[i].p.X, roadPointVector[i].p.Y, roadPointVector[i].p.Z, roadPointVector[i].radius, roadPointVector[i].color.color);
     }
-
     fclose(f);
+    refreshFirstLast();
     return true;
 }
 
@@ -295,6 +300,7 @@ void Road::removeRoadPoint()
     {
         roadPointVector.pop_back();
     }
+    refreshFirstLast(0, -1);
 }
 
 void Road::removeRoadPointBegin()
@@ -308,6 +314,7 @@ void Road::removeRoadPointBegin()
     {
         roadPointVector.erase(roadPointVector.begin());
     }
+    refreshFirstLast(-1);
 }
 
 
@@ -341,14 +348,15 @@ void Road::addRoadPointBegin(const vector3dd& pos)
     roadPoint.radius = RoadManager::getInstance()->editorRadius;
 
     roadPointVector.insert(roadPointVector.begin(), roadPoint);
+    refreshFirstLast(1);
 }
 
 void Road::editorRender(bool editorRoad)
 {
     irr::video::IVideoDriver* driver = TheGame::getInstance()->getDriver();
 
-    unsigned int step = 50;
-    if (editorRoad) step = 10;
+    unsigned int step = 31;
+    if (editorRoad) step = 7;
     unsigned int i = 0;
     const unsigned int lastIndex = roadPointVector.size() - 1;
 
@@ -356,7 +364,7 @@ void Road::editorRender(bool editorRoad)
          it != roadPointVector.end();
          it++)
     {
-        if (i == 0 || i == lastIndex || (i % step) == 0)
+        if (i == 0 || i == lastIndex || (i & step) == 0)
         {
             irr::core::vector3df renderPos = irr::core::vector3df((float)(it->p.X - (double)OffsetManager::getInstance()->getOffset().X),
                 (float)(it->p.Y - (double)OffsetManager::getInstance()->getOffset().Y),
@@ -364,10 +372,18 @@ void Road::editorRender(bool editorRoad)
 
             irr::core::vector3df min = renderPos;
             irr::core::vector3df max = renderPos;
-            irr::video::SColor color(255, 0, 0, 255);
+            irr::video::SColor color(255, 0, 0, 0);
             max.Y += 8.f;
 
-            if (editorRoad) color.setRed(255);
+            if (firstSaved <= (int)i && (int)i <= lastSaved)
+            {
+                color.setBlue(255);
+                if (editorRoad) color.setRed(255);
+            }
+            else
+            {
+                if (editorRoad) color.setRed(100);
+            }
             if (i == lastIndex)
             {
                 color.setRed(255);
@@ -378,4 +394,67 @@ void Road::editorRender(bool editorRoad)
         }
         i++;
     }
+}
+
+void Road::refreshFirstLast(int firstOffset, int lastOffset)
+{
+    unsigned long pointNum = roadPointVector.size();
+    if (firstOffset < 0)
+    {
+        assert(firstOffset == -1);
+        assert(lastOffset == 0);
+        if (lastSaved != -1)
+        {
+            lastSaved += firstOffset;
+        }
+        if (firstSaved > 0 || firstSaved > lastSaved)
+        {
+            firstSaved += firstOffset;
+        }
+    }
+    else
+    if (firstOffset > 0)
+    {
+        assert(firstOffset == 1);
+        assert(lastOffset == 0);
+        if (lastSaved != -1)
+        {
+            lastSaved += firstOffset;
+        }
+        if (firstSaved != -1)
+        {
+            firstSaved += firstOffset;
+        }
+    }
+    else
+    if (lastOffset != 0)
+    {
+        assert(firstOffset == 0);
+        assert(lastOffset < 0);
+
+        if (lastSaved >= (int)pointNum)
+        {
+            lastSaved = pointNum - 1;
+        }
+        if (firstSaved >= (int)pointNum)
+        {
+            firstSaved = pointNum - 1;
+        }
+    }
+    else
+    {
+        assert(firstOffset == 0);
+        assert(lastOffset == 0);
+        if (pointNum > 0)
+        {
+            firstSaved = 0;
+            lastSaved = pointNum-1;
+        }
+        else
+        {
+            firstSaved = -1;
+            lastSaved = -1;
+        }
+    }
+    printf("refreshFirstLast: %d - %d\n", firstSaved, lastSaved);
 }

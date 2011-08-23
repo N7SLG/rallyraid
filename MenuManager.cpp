@@ -142,7 +142,7 @@ void MenuManager::refreshEventReceiver()
 void MenuManager::clearEventReceiver()
 {
     TheGame::getInstance()->getEnv()->setUserEventReceiver(eer);
-    TheGame::getInstance()->getDevice()->getCursorControl()->setPosition((int)(TheGame::getInstance()->getScreenSize().Width / 2), (int)(TheGame::getInstance()->getScreenSize().Height / 2));
+    TheGame::getInstance()->resetMouseCursor();
     menuInput = false;
     TheGame::getInstance()->getCamera()->setInputReceiverEnabled(true);
 }

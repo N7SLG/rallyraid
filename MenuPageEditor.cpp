@@ -74,7 +74,7 @@ MenuPageEditor::MenuPageEditor()
       material(),
       lastTick(0),
       doRender(true),
-      renderAllRoads(true)
+      renderAllRoads(false)
 {
     menuPageEditor = this;
     material.MaterialType = irr::video::EMT_SOLID;
@@ -123,6 +123,12 @@ MenuPageEditor::MenuPageEditor()
         window,
         MI_BUTTONRELOAD,
         L"reload");
+
+    TheGame::getInstance()->getEnv()->addButton(
+        irr::core::recti(232,22,280,42),
+        window,
+        MI_BUTTONJUMPEND,
+        L"jump end");
 
     irr::gui::IGUITabControl* tc = TheGame::getInstance()->getEnv()->addTabControl(
         irr::core::recti(irr::core::position2di(2, 44), irr::core::dimension2di(window->getRelativePosition().getSize().Width - 4, window->getRelativePosition().getSize().Height - 46)),
@@ -517,6 +523,7 @@ bool MenuPageEditor::OnEvent(const irr::SEvent &event)
                 {
                     case MI_WINDOW:
                         //dprintf(MY_DEBUG_NOTE, "event on close editor window\n");
+                        TheGame::getInstance()->resetMouseCursor();
                         MenuManager::getInstance()->close();
                         return true;
                         break;
@@ -586,6 +593,7 @@ bool MenuPageEditor::OnEvent(const irr::SEvent &event)
                                 RaceManager::getInstance()->getCurrentStage(),
                                 VehicleTypeManager::getInstance()->getVehicleType(Player::getInstance()->getCompetitor()->getVehicleTypeName()),
                                 irr::core::vector3df((float)resetX*TILE_SIZE_F+TILE_HSIZE_F,(float)TheEarth::getInstance()->getEarthHeight(resetX, -resetZ)+(float)resetY,(float)resetZ*TILE_SIZE_F-TILE_HSIZE_F),
+                                Player::getInstance()->getSavedRot(),
                                 true);
                         }
                         else
@@ -602,8 +610,26 @@ bool MenuPageEditor::OnEvent(const irr::SEvent &event)
                         GamePlay::getInstance()->startStage(
                             RaceManager::getInstance()->getCurrentStage(),
                             VehicleTypeManager::getInstance()->getVehicleType(Player::getInstance()->getCompetitor()->getVehicleTypeName()),
-                            TheGame::getInstance()->getCamera()->getPosition()+OffsetManager::getInstance()->getOffset(),
+                            /*TheGame::getInstance()->getCamera()->getPosition()+OffsetManager::getInstance()->getOffset()*/
+                            Player::getInstance()->getSavedPos(),
+                            Player::getInstance()->getSavedRot(),
                             true);
+                        return true;
+                        break;
+                    }
+                    case MI_BUTTONJUMPEND:
+                    {
+                        if (RaceManager::getInstance()->editorStage && !RaceManager::getInstance()->editorStage->itinerPointList.empty())
+                        {
+                            ItinerPoint* ip = RaceManager::getInstance()->editorStage->itinerPointList.back();
+                            MenuManager::getInstance()->close();
+                            GamePlay::getInstance()->startStage(
+                                RaceManager::getInstance()->getCurrentStage(),
+                                VehicleTypeManager::getInstance()->getVehicleType(Player::getInstance()->getCompetitor()->getVehicleTypeName()),
+                                ip->getPos(),
+                                Player::getInstance()->getSavedRot(),
+                                true);
+                        }
                         return true;
                         break;
                     }

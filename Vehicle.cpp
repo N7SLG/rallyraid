@@ -59,6 +59,8 @@ private:
     {
         assert(event.m_source != hkpCollisionEvent::SOURCE_WORLD && "Do not add this listener to the world.");
 
+        if (event.m_source != hkpCollisionEvent::SOURCE_A) return;
+
         unsigned int tick = TheGame::getInstance()->getTick();
 
         if (tick - lastTick < 500) return;
@@ -370,7 +372,8 @@ Vehicle::Vehicle(const std::string& vehicleTypeName, const irr::core::vector3df&
       physUpdates(0),
       clutch(0.0f),
       suspensionSpringModifier(suspensionSpringModifier),
-      suspensionDamperModifier(suspensionDamperModifier)
+      suspensionDamperModifier(suspensionDamperModifier),
+      nameText(0)
 {
     dprintf(MY_DEBUG_NOTE, "Vehicle::Vehicle(): %p, [%s]\n", this, vehicleTypeName.c_str());
     vehicleType = VehicleTypeManager::getInstance()->getVehicleType(vehicleTypeName);
@@ -792,6 +795,12 @@ void Vehicle::handleUpdatePos(bool phys)
         lastPos = newPos;
         node->setPosition(newPos);
         node->setRotation(matrix.getRotationDegrees());
+        if (nameText)
+        {
+            irr::core::vector3df textPos = newPos;
+            textPos.Y += 5.0f;
+            nameText->setPosition(textPos);
+        }
         
         linearVelocity.X = hkLV(0);
         linearVelocity.Y = hkLV(1);

@@ -104,6 +104,8 @@ public:
     void pause();
     void resume();
 
+    void setNameText(irr::scene::ITextSceneNode* nameText) {this->nameText = nameText;}
+
 private:
     virtual void handleUpdatePos(bool phys);
     void updateToMatrix();
@@ -129,6 +131,7 @@ private:
     float                       clutch;
     float                       suspensionSpringModifier;
     float                       suspensionDamperModifier;
+    irr::scene::ITextSceneNode* nameText;
 
 
     friend class FrictionMapVehicleRaycastWheelCollide;
@@ -136,6 +139,5 @@ private:
     friend class VehicleTransmission;
     friend class VehicleCollisionListener;
 };
-
 
 #endif // VEHICLE_H

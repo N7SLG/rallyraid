@@ -646,23 +646,27 @@ void TheGame::resetTick()
 void TheGame::doFewSteps(unsigned int stepCnt)
 {
     const float step_sec = 1.f / (float)Settings::getInstance()->targetFps;
-    for (;stepCnt > 0; stepCnt--)
+    unsigned int falseTick = 0;
+    for (;stepCnt > 0; stepCnt--, falseTick+=1000)
     {
         offsetManager->update(offsetManager->getOffset()+camera->getPosition());
         objectWire->update(offsetManager->getOffset()+camera->getPosition());
         hk::step(step_sec);
         OffsetObject::updateDynamicToPhys();
-        if (stepCnt == 1) handleUpdatePos(true); // update the camera to the player position
+        gamePlay->update(falseTick, offsetManager->getOffset()+camera->getPosition(), true);
+        if (stepCnt == 1)
+        {
+            handleUpdatePos(true); // update the camera to the player position
+        }
     }
 }
 
 void TheGame::switchCamera()
 {
-    device->getCursorControl()->setPosition((int)(driver->getScreenSize().Width / 2), (int)(driver->getScreenSize().Height / 2));
-
     irr::core::vector3df pos = camera->getPosition();
     irr::core::vector3df tar = camera->getTarget();
     camera = ((camera == fix_camera) ? fps_camera : fix_camera);
+    resetMouseCursor();
     smgr->setActiveCamera(camera);
     camera->setPosition(pos);
     camera->setTarget(tar);
@@ -716,6 +720,13 @@ void TheGame::decFPSSpeed()
 }
 
 
+void TheGame::resetMouseCursor(bool onlyFPS)
+{
+    if (!onlyFPS || (onlyFPS && camera == fps_camera))
+    {
+        device->getCursorControl()->setPosition((int)(driver->getScreenSize().Width / 2), (int)(driver->getScreenSize().Height / 2));
+    }
+}
 
 void TheGame::handleUpdatePos(bool phys)
 {

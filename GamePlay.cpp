@@ -226,7 +226,7 @@ bool GamePlay::loadGame(const std::string& saveName)
     if (ret)
     {
         VehicleType* vehicleType = VehicleTypeManager::getInstance()->getVehicleType(Player::getInstance()->getCompetitor()->getVehicleTypeName());
-        startStage(stage, vehicleType);
+        startStage(stage, vehicleType, Player::getInstance()->getSavedPos(), Player::getInstance()->getSavedRot(), true);
     }
     else
     {
@@ -272,11 +272,11 @@ bool GamePlay::saveGame(const std::string& saveName)
     return ret;
 }
 
-void GamePlay::startStage(Stage* stage, VehicleType* vehicleType, const irr::core::vector3df& initPos, bool forceReload)
+void GamePlay::startStage(Stage* stage, VehicleType* vehicleType, const irr::core::vector3df& initPos, const irr::core::vector3df& initRot, bool forceReload)
 {
     irr::core::vector3df initialPos(initPos);
+    irr::core::vector3df initialRot(initRot);
     irr::core::vector3df initialDir(1.f, 0.f, 0.f);
-    float deg = 0.f;
     
     dprintf(MY_DEBUG_INFO, "GamePlay::startGame(): stage: %p, vehicleType: %p\n", stage, vehicleType);
     assert(vehicleType);
@@ -297,11 +297,15 @@ void GamePlay::startStage(Stage* stage, VehicleType* vehicleType, const irr::cor
                 initialDir.normalize();
                 
                 irr::core::vector2df toDeg(initialDir.X, initialDir.Z);
-                deg = (float)toDeg.getAngle();
+                initialRot = irr::core::vector3df(0.0f, (float)toDeg.getAngle(), 0.0f);
             }
             
             initialPos.Y += 2.5f;
         }
+    }
+    else
+    {
+        initialDir = initialRot.rotationToDirection(initialDir);
     }
 
     ObjectWire::getInstance()->reset();
@@ -316,7 +320,7 @@ void GamePlay::startStage(Stage* stage, VehicleType* vehicleType, const irr::cor
     currentStage = stage;
 
     TheEarth::getInstance()->createFirst(initialPos, initialDir);
-    Player::getInstance()->initializeVehicle(vehicleType->getName(), initialPos+initialDir, irr::core::vector3df(0.f, deg, 0.f), currentStage);
+    Player::getInstance()->initializeVehicle(vehicleType->getName(), initialPos+initialDir, initialRot, currentStage);
 
     Hud::getInstance()->updateRoadBook();
 
@@ -324,14 +328,16 @@ void GamePlay::startStage(Stage* stage, VehicleType* vehicleType, const irr::cor
     TheGame::getInstance()->resetTick();
 }
 
-void GamePlay::update(unsigned int tick, const irr::core::vector3df& apos)
+void GamePlay::update(unsigned int tick, const irr::core::vector3df& apos, bool force)
 {
+    //printf("GamePlay::update(): raceEngine: %p, playerstarter: %p, time: %u\n",
+    //    raceEngine, Player::getInstance()->getStarter(), Player::getInstance()->getStarter() ? Player::getInstance()->getStarter()->startTime : 0);
     if (raceEngine)
     {
         //assert(Player::getInstance()->getStarter()!=0);
         if (Player::getInstance()->getStarter() == 0 ||
             Player::getInstance()->getStarter()->startTime==0 ||
-            (Player::getInstance()->getStarter()->startTime!=0 && Player::getInstance()->getFirstPressed()))
+            (Player::getInstance()->getStarter()->startTime!=0 && (Player::getInstance()->getFirstPressed() || force)))
         {
             raceEngine->update(tick, apos, RaceEngine::InTheMiddle);
         }
@@ -364,10 +370,10 @@ unsigned int GamePlay::competitorFinished(CompetitorResult* competitorResult)
                 inserted = true;
                 break;
             }
-            if (!inserted)
-            {
-                stageState->competitorResultListStage.push_back(competitorResult);
-            }
+        }
+        if (!inserted)
+        {
+            stageState->competitorResultListStage.push_back(competitorResult);
         }
     }
 
@@ -389,10 +395,10 @@ unsigned int GamePlay::competitorFinished(CompetitorResult* competitorResult)
                 inserted = true;
                 break;
             }
-            if (!inserted)
-            {
-                stageState->competitorResultListOverall.push_back(competitorResult);
-            }
+        }
+        if (!inserted)
+        {
+            stageState->competitorResultListOverall.push_back(competitorResult);
         }
     }
 
@@ -430,13 +436,15 @@ void GamePlay::refreshLoadableGames()
             printf("stage state file unable to open: %s\n", SAVE_STATE(saveName).c_str());
             continue;
         }
-        rc = fscanf_s(f, "%s\n", raceName);
+
+        rc = fscanf_s(f, "%s\n", raceName, 255);
         if (rc < 1)
         {
             printf("stage state unable to read race name: %s\n", SAVE_STATE(saveName).c_str());
             fclose(f);
             continue;
         }
+
         Race* race = RaceManager::getInstance()->getRace(raceName);
         if (race == 0)
         {
@@ -475,7 +483,7 @@ void GamePlay::refreshLoadableGames()
         return false;
     }
     
-    ret = fscanf_s(f, "%s\n", raceName);
+    ret = fscanf_s(f, "%s\n", raceName, 255);
     if (ret < 1)
     {
         printf("stage state unable to read race name: %s\n", filename.c_str());
@@ -500,7 +508,7 @@ void GamePlay::refreshLoadableGames()
 
     for (unsigned int i = 0; i < numOfStages; i++)
     {
-        ret = fscanf_s(f, "%s\n%s\n", stageName, dayName);
+        ret = fscanf_s(f, "%s\n%s\n", stageName, 255, dayName, 255);
         if (ret < 2)
         {
             printf("stage state unable to read stage and day name: %s\n", filename.c_str());
@@ -661,19 +669,22 @@ void GamePlay::refreshLoadableGames()
          it++)
     {
         clearCompetitorResultList((*it)->competitorResultListStage);
-        clearCompetitorResultList((*it)->competitorResultListOverall);
+        clearCompetitorResultList((*it)->competitorResultListOverall, false);
         delete (*it);
     }
     stageStateList.clear();
 }
 
-/* static */ void GamePlay::clearCompetitorResultList(competitorResultList_t& competitorResultList)
+/* static */ void GamePlay::clearCompetitorResultList(competitorResultList_t& competitorResultList, bool doDelete)
 {
-    for (competitorResultList_t::const_iterator it = competitorResultList.begin(); 
-         it != competitorResultList.end();
-         it++)
+    if (doDelete)
     {
-        delete (*it);
+        for (competitorResultList_t::const_iterator it = competitorResultList.begin(); 
+             it != competitorResultList.end();
+             it++)
+        {
+            delete (*it);
+        }
     }
     competitorResultList.clear();
 }

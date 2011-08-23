@@ -54,6 +54,7 @@ private:
     // only called by the addFarPoint
     void addRoadPoint(const vector3dd& pos);
     void addRoadPointBegin(const vector3dd& pos);
+    void refreshFirstLast(int firstOffset = 0, int lastOffset = 0);
 
 private:
     std::string             roadFilename;
@@ -65,6 +66,8 @@ private:
     bool                    global;
 
     roadPointVector_t       roadPointVector;
+    int                     firstSaved;
+    int                     lastSaved;
 
 
     friend class RoadManager;
