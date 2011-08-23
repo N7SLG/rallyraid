@@ -10,6 +10,7 @@
 #include "RaceManager.h"
 #include "Stage.h"
 #include "WayPointManager.h"
+#include "OffsetManager.h"
 //#include <assert.h>
 
 //class VehicleType;
@@ -86,6 +87,9 @@ public:
     bool addPassedWayPointNum(unsigned int wpNum); // inline
     bool isPassedWayPointNum(unsigned int wpNum); // inline
 
+    const irr::core::vector3df& getSavedPos(); // inline
+    const irr::core::vector3df& getSavedRot(); // inline
+
 private:
     Vehicle*        vehicle;
     Competitor*     competitor;
@@ -102,6 +106,9 @@ private:
     unsigned int    savedStageTime;
     float           suspensionSpringModifier;
     float           suspensionDamperModifier;
+    bool            loaded;
+    irr::core::vector3df savedPos;
+    irr::core::vector3df savedRot;
 
     ItinerManager::itinerPointList_t::const_iterator prevItinerIt;
     ItinerManager::itinerPointList_t::const_iterator currItinerIt;
@@ -262,6 +269,8 @@ inline void Player::update()
     float vehicleDistance = vehicle->getDistance();
     distance += vehicleDistance - lastVehicleDistance;
     lastVehicleDistance = vehicleDistance;
+    savedPos = vehicle->getMatrix().getTranslation() + OffsetManager::getInstance()->getOffset();
+    savedRot = vehicle->getMatrix().getRotationDegrees();
 }
 
 inline void Player::stepItiner()
@@ -367,6 +376,16 @@ inline void Player::setSuspensionDamperModifier(float suspensionDamperModifier)
     {
         vehicle->modifySuspensionDamper(suspensionDamperModifier);
     }
+}
+
+inline const irr::core::vector3df& Player::getSavedPos()
+{
+    return savedPos;
+}
+
+inline const irr::core::vector3df& Player::getSavedRot()
+{
+    return savedRot;
 }
 
 #endif // PLAYER_H

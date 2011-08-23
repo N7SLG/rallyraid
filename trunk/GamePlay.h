@@ -84,13 +84,16 @@ public:
     bool saveGame(const std::string& saveName);
 
     // called by the TheGame::loop()
-    void update(unsigned int tick, const irr::core::vector3df& apos);
+    void update(unsigned int tick, const irr::core::vector3df& apos, bool force = false);
 
     unsigned int competitorFinished(CompetitorResult* competitorResult);
 
 private:
     //irr::core::vector3df(4190225.f, 215.f, -6401350.f)
-    void startStage(Stage* stage, VehicleType* vehicleType, const irr::core::vector3df& initPos = irr::core::vector3df(4190225.f, 195.f, -6401350.f), bool forceReload = false);
+    void startStage(Stage* stage, VehicleType* vehicleType,
+        const irr::core::vector3df& initPos = irr::core::vector3df(4190225.f, 195.f, -6401350.f),
+        const irr::core::vector3df& initRot = irr::core::vector3df(0.0f, 0.0f, 0.0f),
+        bool forceReload = false);
     
     void refreshLoadableGames();
 
@@ -101,7 +104,7 @@ private:
     static bool writeCompetitorResultList(FILE* f, const competitorResultList_t& competitorResultList);
 
     static void clearStageStateList(stageStateList_t& stageStateList);
-    static void clearCompetitorResultList(competitorResultList_t& competitorResultList);
+    static void clearCompetitorResultList(competitorResultList_t& competitorResultList, bool doDelete = true);
 
 private:
     Race*               currentRace;
@@ -110,10 +113,10 @@ private:
     RaceEngine*         raceEngine;
 
 
-  typedef std::map<std::string, std::string> loadableGames_t;
+    typedef std::map<std::string, std::string> loadableGames_t;
     loadableGames_t     loadableGames;
-    
-  
+
+
     friend class MenuPageEditor;
     friend class MenuPageEditorRoad;
     friend class MenuPageEditorRace;

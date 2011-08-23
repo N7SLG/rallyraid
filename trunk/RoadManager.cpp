@@ -271,7 +271,7 @@ bool RoadManager::readRoadRoadChunk(const std::string& fileName, roadRoadChunkLi
     
     while (true)
     {
-        ret = fscanf_s(f, "%s %u %u\n", roadName, &first, &second);
+        ret = fscanf_s(f, "%s %u %u\n", roadName, 255, &first, &second);
         if (ret < 3 )
         {
             break;

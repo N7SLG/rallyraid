@@ -90,7 +90,7 @@ MenuPageMain::MenuPageMain()
     havok_image->setUseAlphaChannel(true);
     havok_image->setImage(havok_logo);
 
-    TheGame::getInstance()->getEnv()->addStaticText(L"Version: 1.0 - Build: 147",
+    TheGame::getInstance()->getEnv()->addStaticText(L"Version: 1.0 - Build: 148",
         irr::core::recti(irr::core::position2di(window->getRelativePosition().getSize().Width - 110, window->getRelativePosition().getSize().Height - 20), havok_logo->getOriginalSize()),
         false, false, window, 0, false);
 

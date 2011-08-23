@@ -17,6 +17,7 @@ public:
         MI_BUTTONACTIVATE,
         MI_BUTTONRESET,
         MI_BUTTONRELOAD,
+        MI_BUTTONJUMPEND,
         MI_TABCONTROL,
 
         MI_TABSELECTED,

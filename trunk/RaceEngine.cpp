@@ -64,18 +64,19 @@ Starter::Starter(Stage* stage,
       startTime(0), finishTime(0), penaltyTime(0),
       prevPoint(stage->getAIPointList().begin()),
       nextPoint(stage->getAIPointList().begin()),
-      nextPointNum(0), currentPos(),
-      crashed(false), visible(false), vehicle(0), forResetCnt(0),
+      prevPointNum(0), nextPointNum(0), currentPos(),
+      visible(false), vehicle(0), forResetCnt(0),
       forBigResetCnt(0), forNonResetCnt(500),
       currentRand(0.f), nameText(0), nameTextOffsetObject(0),
       passedDistance(0.f), distanceStep(0.f), stageRand(0.f),
-      globalTime(globalTime), globalPenaltyTime(globalPenaltyTime)
+      globalTime(globalTime), globalPenaltyTime(globalPenaltyTime),
+      crashedForever(false), crashTime(0), lastCrashUpdate(0)
 {
     const static float placeHardening[3] = {20.f, 8.f, 4.f};
     irr::core::stringw namePlusCar = L"";
     namePlusCar += (competitor->getName() + " (" + competitor->getVehicleTypeName() + ")").c_str();
     nameText = TheGame::getInstance()->getSmgr()->addTextSceneNode(
-        /*env->getBuiltInFont()*/ FontManager::getInstance()->getFont(FontManager::FONT_SPECIAL14),
+        /*env->getBuiltInFont()*/ FontManager::getInstance()->getFont(FontManager::FONT_NORMALBOLD),
         namePlusCar.c_str(),
         irr::video::SColor(255, 255, 255, 0));
     //nameText->setMaterialType((video::E_MATERIAL_TYPE)myMaterialType_transp_road);
@@ -136,7 +137,7 @@ bool Starter::update(unsigned int currentTime, const irr::core::vector3df& apos,
             irr::core::vector3df cp(OffsetManager::getInstance()->getOffset()+Player::getInstance()->getVehicleMatrix().getTranslation());
             float distToFinish = cp.getDistanceFrom(stage->getAIPointList().back()->getPos());
 
-            if (distToFinish < 5.f)
+            if (distToFinish < 32.f)
             {
                 finishTime = currentTime - startTime;
                 globalTime += finishTime;
@@ -165,6 +166,29 @@ bool Starter::update(unsigned int currentTime, const irr::core::vector3df& apos,
             switchToNotVisible();
             return true;
         }
+        
+        if (crashedForever || crashTime)
+        {
+            vehicle->setHandbrake(1.0f);
+            vehicle->setSteer(0.0f);
+            vehicle->setTorque(0.0f);
+            
+            if (crashTime && lastCrashUpdate != currentTime)
+            {
+                lastCrashUpdate = currentTime;
+                crashTime--;
+            }
+            
+            return true;
+        }
+        else
+        {
+            if ((currentTime % competitor->getNum()) == 0)
+            {
+                generateRandomFailure(camActive);
+            }
+        }
+        
         // base calculation
         irr::core::vector3df cp(OffsetManager::getInstance()->getOffset()+vehicle->getMatrix().getTranslation());
         currentPos = cp;
@@ -174,6 +198,7 @@ bool Starter::update(unsigned int currentTime, const irr::core::vector3df& apos,
         float distToNextPoint = currentPos.getDistanceFrom(nextPointPos);
         if (distToNextPoint < REACHED_POINT_DIST)
         {
+            passedDistance = (*nextPoint)->getGlobalDistance();
             goToNextPoint(currentTime, camActive);
             if (finishTime)
             {
@@ -338,7 +363,7 @@ bool Starter::update(unsigned int currentTime, const irr::core::vector3df& apos,
         }
         vehicle->setHandbrake(brake);
         vehicle->setSteer(steer);
-        vehicle->setTorque(torque);
+        vehicle->setTorque(-torque);
         passedDistance += distanceStep/10.f;
     }
     else // not visible or there is no free pool vehicle
@@ -349,6 +374,28 @@ bool Starter::update(unsigned int currentTime, const irr::core::vector3df& apos,
             if (visible)
             {
                 return true;
+            }
+        }
+        
+        if (crashedForever || crashTime)
+        {
+            if (crashTime && lastCrashUpdate != currentTime)
+            {
+                lastCrashUpdate = currentTime;
+                crashTime--;
+            }
+            if (crashedForever)
+            {
+                return camActive;
+            }
+            
+            return true;
+        }
+        else
+        {
+            if ((currentTime % competitor->getNum()) == 0)
+            {
+                generateRandomFailure(camActive);
             }
         }
         
@@ -383,7 +430,7 @@ void Starter::switchToVisible()
     vehicle = new Vehicle(competitor->getVehicleTypeName(),
         irr::core::vector3df(currentPos.X, currentPos.Y+1.7f, currentPos.Z),
         irr::core::vector3df(0.f, rot, 0.f));
-    //vehicle->setNameText(nameText);
+    vehicle->setNameText(nameText);
     raceEngine->addUpdater(this);
     if (Settings::getInstance()->showNames)
     {
@@ -427,6 +474,7 @@ void Starter::goToNextPoint(unsigned int currentTime, bool camActive)
         {
             passedDistance = (*nextPoint)->getGlobalDistance();
             prevPoint = nextPoint;
+            prevPointNum = nextPointNum;
             nextPoint++;
             nextPointNum++;
         }
@@ -436,6 +484,7 @@ void Starter::goToNextPoint(unsigned int currentTime, bool camActive)
                    passedDistance > (*nextPoint)->getGlobalDistance())
             {
                 prevPoint = nextPoint;
+                prevPointNum = nextPointNum;
                 nextPoint++;
                 nextPointNum++;
             }
@@ -488,6 +537,29 @@ void Starter::calculateTo(const irr::core::vector3df& nextPointPos)
     }
 }
 
+void Starter::generateRandomFailure(bool camActive)
+{
+    const unsigned int limit = 101 - competitor->getStrength();
+    const unsigned int value = rand() % 10000;
+
+    dprintf(MY_DEBUG_NOTE, "Starter::generateRandomFailure(): num: %u, limit: %u, value: %u\n",
+        competitor->getNum(), limit, value);
+
+    if (value < limit)
+    {
+        const unsigned int time = rand() % 1830;
+        dprintf(MY_DEBUG_NOTE, "Starter::generateRandomFailure(): time: %u\n", time);
+        if (time > 1800)
+        {
+            crashedForever = true;
+        }
+        else
+        {
+            crashTime = time + 60; // wait at least for 60 secs
+        }
+    }
+}
+
 RaceEngine::RaceEngine(StageState* stageState,
                        int stageNum)
     : stage(stageState->stage),
@@ -497,11 +569,10 @@ RaceEngine::RaceEngine(StageState* stageState,
 {
     unsigned int i = 0;
     for (competitorResultList_t::const_iterator it = stageState->competitorResultListStage.begin();
-         it != stageState->competitorResultListStage.begin();
+         it != stageState->competitorResultListStage.end();
          it++, i++)
     {
         unsigned int startCD = START_SECS;
-#ifndef USE_EDITOR
         if (stageNum == 0)
         {
             if (i < 19)
@@ -534,7 +605,6 @@ RaceEngine::RaceEngine(StageState* stageState,
                 startCD = 30;
             }
         }
-#endif
         Starter* starter = new Starter(stage, this, (*it)->competitor, startCD, i, (*it)->globalTime, (*it)->globalPenaltyTime);
         starters.push_back(starter);
     }
@@ -566,6 +636,8 @@ bool RaceEngine::update(unsigned int tick, const irr::core::vector3df& apos, Upd
     const unsigned int ctick = tick/100;
     int updates = 0;
     
+    //printf("raceupdate: raceFinished: %u\n", raceFinished);
+
     if (raceFinished) return false;
     
     if (mtick != lastMTick || when != InTheMiddle)
@@ -588,6 +660,8 @@ bool RaceEngine::update(unsigned int tick, const irr::core::vector3df& apos, Upd
             }
 */
 //            if (when == AtTheEnd) device->sleep(100);
+            //printf("%u: startcd: %u, startTime: %u, finsishTime: %u\n",
+            //    (*it)->competitor->getNum(), (*it)->startingCD, (*it)->startTime, (*it)->finishTime);
             if ((*it)->startingCD > 0)
             {
                 updates++;
@@ -595,7 +669,7 @@ bool RaceEngine::update(unsigned int tick, const irr::core::vector3df& apos, Upd
                 if ((*it)->startingCD==0)
                 {
                     (*it)->startTime = currentTime;
-                    if ((*it)->competitor->getAi())
+                    if (!(*it)->competitor->getAi())
                     {
                         return false;
                     }
@@ -634,12 +708,15 @@ bool RaceEngine::update(unsigned int tick, const irr::core::vector3df& apos, Upd
     {
         for (starterSet_t::const_iterator it = cupdaters.begin();
              it != cupdaters.end();
-             it++)
+             )
         {
+            starterSet_t::const_iterator nextIt = it;
+            nextIt++;
             if ((*it)->visible)
             {
                 (*it)->update(currentTime, apos, when == InTheMiddle);
             }
+            it = nextIt;
         }
         lastCTick = ctick;
     }
@@ -711,7 +788,7 @@ bool RaceEngine::save(const std::string& filename)
          it != starters.end();
          it++, i++)
     {
-        ret = fprintf(f, "starter[%u]: %u %u %u %u %u %u %u %u %u %f %f %f %f\n",
+        ret = fprintf(f, "starter[%u]: %u %u %u %u %u %u %u %u %u %f %f %f %f %f %u %u\n",
                       i,
                       (*it)->competitor->getNum(),
                       (*it)->globalTime,
@@ -720,13 +797,17 @@ bool RaceEngine::save(const std::string& filename)
                       (*it)->startTime,
                       (*it)->finishTime,
                       (*it)->penaltyTime,
+                      (*it)->prevPointNum,
                       (*it)->nextPointNum,
                       (*it)->currentPos.X,
                       (*it)->currentPos.Y,
                       (*it)->currentPos.Z,
-                      (*it)->passedDistance
+                      (*it)->passedDistance,
+                      (*it)->distanceStep,
+                      (*it)->crashedForever,
+                      (*it)->crashTime
                       );
-        if (ret < 13)
+        if (ret < 17)
         {
             printf("error writing save file ret %d errno %d\n", ret, errno);
             fclose(f);
@@ -809,20 +890,24 @@ bool RaceEngine::load(const std::string& filename, Race* race)
             fclose(f);
             return false;
         }
-        ret = fscanf_s(f, "%u %u %u %u %u %u %u %f %f %f %f\n",
+        ret = fscanf_s(f, "%u %u %u %u %u %u %u %u %f %f %f %f %f %u %u\n",
                       &starter->globalTime,
                       &starter->globalPenaltyTime,
                       &starter->startingCD,
                       &starter->startTime,
                       &starter->finishTime,
                       &starter->penaltyTime,
+                      &starter->prevPointNum,
                       &starter->nextPointNum,
                       &starter->currentPos.X,
                       &starter->currentPos.Y,
                       &starter->currentPos.Z,
-                      &starter->passedDistance
+                      &starter->passedDistance,
+                      &starter->distanceStep,
+                      &starter->crashedForever,
+                      &starter->crashTime
                       );
-        if (ret < 11)
+        if (ret < 15)
         {
             printf("error reading save file ret %d errno %d\n", ret, errno);
             fclose(f);
@@ -830,17 +915,33 @@ bool RaceEngine::load(const std::string& filename, Race* race)
         }
 
         unsigned int npn = 0;
+        unsigned int ppn = 0;
         AIPoint::AIPointList_t::const_iterator aiit = stage->getAIPointList().begin();
+        for (;
+             aiit != stage->getAIPointList().end() && ppn < starter->prevPointNum;
+             aiit++, ppn++)
+        {
+        }
+        starter->prevPoint = aiit;
+
+        aiit = stage->getAIPointList().begin();
         for (;
              aiit != stage->getAIPointList().end() && npn < starter->nextPointNum;
              aiit++, npn++)
         {
         }
         starter->nextPoint = aiit;
-        starters.push_back(starter);
         //printf("starter->finishTime: %u\n", starter->finishTime);
         //if (starter->finishTime!=0) insertIntoFinishedState(starter->competitor);
-        if ((starter->finishTime)!=0) insertIntoFinishedState(starter);
+        if ((starter->finishTime)!=0)
+        {
+            assert(0);
+            insertIntoFinishedState(starter);
+        }
+        else
+        {
+            starters.push_back(starter);
+        }
     }
     fclose(f);
     return true;

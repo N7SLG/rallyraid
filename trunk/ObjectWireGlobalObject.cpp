@@ -95,5 +95,5 @@ void ObjectWireGlobalObject::editorRender(bool last)
     if (last) color.setGreen(0);
 
     driver->draw3DBox(irr::core::aabbox3df(min, max), color);
-    //driver->draw3DLine(min, max, color);
+    // not used: driver->draw3DLine(min, max, color);
 }

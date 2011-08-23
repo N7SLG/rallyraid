@@ -28,12 +28,33 @@ public:
             unsigned int globalPenaltyTime);
     ~Starter();
     
+    /*
+        update the starter
+        
+        currentTime is in seconds
+        apos is the player absolute position
+        camActive if the player plays the game, and not we are at the begin or at the end
+        
+        return true if further updates are required later
+    */
     bool update(unsigned int currentTime, const irr::core::vector3df& apos, bool camActive);
+    
+    // turn the starter to visible
     void switchToVisible();
+    
+    // turn the starter to invisible
     void switchToNotVisible();
+    
+    // if the starter reaches a AI point then call this, and will switch to the next
     void goToNextPoint(unsigned int currentTime, bool camActive);
+    
+    // calculate the distanceStep
     void calculateTo(const irr::core::vector3df& nextPointPos);
+    
+    // generate random failure
+    void generateRandomFailure(bool camActive);
 
+public:
     Stage* stage;
     Competitor* competitor;
     unsigned int startingCD;
@@ -43,9 +64,9 @@ public:
     //int nextPoint;
     AIPoint::AIPointList_t::const_iterator prevPoint;
     AIPoint::AIPointList_t::const_iterator nextPoint;
+    unsigned int prevPointNum;
     unsigned int nextPointNum;
     irr::core::vector3df currentPos;
-    bool crashed;
     bool visible;
     Vehicle* vehicle;
     RaceEngine* raceEngine;
@@ -61,6 +82,9 @@ public:
     float stageRand;
     unsigned int globalTime;
     unsigned int globalPenaltyTime;
+    bool crashedForever;
+    unsigned int crashTime;
+    unsigned int lastCrashUpdate;
 };
 
 class RaceEngine
