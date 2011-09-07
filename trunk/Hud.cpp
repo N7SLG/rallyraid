@@ -18,7 +18,7 @@
 // normalize angle between 0 and 360
 static float normalizeAngle(float &angle)
 {
-    while (angle > 360.f) angle -= 360.f;
+    while (angle >= 360.f) angle -= 360.f;
     while (angle < 0.f) angle += 360.f;
     return angle;
 }
@@ -439,7 +439,7 @@ void Hud::setVisible(bool newVisible)
     
     visible = newVisible;
     
-    miniMapQuad->setVisible(visible);
+    miniMapQuad->setVisible(Settings::getInstance()->editorMode && visible);
     compassQuad->setVisible(visible);
     compassWPQuad->setVisible(WayPointManager::getInstance()->getShowCompass() && visible);
     tripMasterQuad->setVisible(visible);
@@ -548,12 +548,17 @@ void Hud::preRender(float p_angle)
       
     str = L"Time: ";
     WStringConverter::addTimeToStr(str, Player::getInstance()->getStageTime());
+    if (Player::getInstance()->getStagePenaltyTime())
+    {
+        str += L", Penalty: ";
+        WStringConverter::addTimeToStr(str, Player::getInstance()->getStagePenaltyTime());
+    }
     stageTimeText->setText(str.c_str());
 
     bool showWPCompass = WayPointManager::getInstance()->getShowCompass();
     if (showWPCompass)
     {
-        compassWPQuad->rotate(WayPointManager::getInstance()->getAngle());
+        compassWPQuad->rotate(WayPointManager::getInstance()->getAngle()-p_angle-90.f);
     }
     compassWPQuad->setVisible(showWPCompass);
 

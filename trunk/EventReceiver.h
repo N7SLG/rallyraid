@@ -107,6 +107,7 @@ private:
     KeyConfig*          test_kc;
     keyNameMap_t        keyNameMap;
     KeyProperty         keyMap[NUMBER_OF_KEYNAMES];
+    float               lastSteer;
 
 
     friend class MenuPageOptions;

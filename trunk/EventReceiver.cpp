@@ -39,7 +39,8 @@ EventReceiver::EventReceiver()
       joystick(0),
       deadZone(0.01f),
       test_kc(0),
-      keyNameMap()
+      keyNameMap(),
+      lastSteer(0.0f)
 {
     inputManager = OIS::InputManager::createInputSystem(TheGame::getInstance()->getWindowId());
 
@@ -528,26 +529,51 @@ void EventReceiver::checkEvents()
             Player::getInstance()->getVehicle()->setClutch(perc*perc);
         }
 
+        const float steerRatePressed = Settings::getInstance()->steerRatePressed; // 0.2f
+        float steerRate = Settings::getInstance()->steerRate; // 0.5f
+        float desiredSteer = 0.0f;
+        perc = 0.0f;
         if (IS_PRESSED(LEFT) && (perc = getPercentage(LEFT, joystickState))/* > Settings::getInstance()->joystickDeadZone*/)
         {
             //dprintf(MY_DEBUG_NOTE, "left pressed: %f\n", perc);
-            Player::getInstance()->getVehicle()->setSteer(-1.0f*perc*perc);
+            //Player::getInstance()->getVehicle()->setSteer(-1.0f*perc*perc);
+            desiredSteer = -1.0f*perc*perc;
         }
         else
         if (IS_PRESSED(RIGHT) && (perc = getPercentage(RIGHT, joystickState))/* > Settings::getInstance()->joystickDeadZone*/)
         {
             //dprintf(MY_DEBUG_NOTE, "right pressed: %f\n", perc);
-            Player::getInstance()->getVehicle()->setSteer(perc*perc);
+            //Player::getInstance()->getVehicle()->setSteer(perc*perc);
+            desiredSteer = perc*perc;
         }
         else
         {
-            Player::getInstance()->getVehicle()->setSteer(0);
+            //Player::getInstance()->getVehicle()->setSteer(0.0f);
         }
+        if (perc*perc > Settings::getInstance()->joystickDeadZone)
+        {
+            steerRate = steerRatePressed;
+        }
+        //printf("steer rate: %f\n", steerRate);
+        if (lastSteer + steerRate < desiredSteer)
+        {
+            lastSteer += steerRate;
+        }
+        else if (lastSteer - steerRate > desiredSteer)
+        {
+            lastSteer -= steerRate;
+        }
+        else
+        {
+            lastSteer = desiredSteer;
+        }
+
+        Player::getInstance()->getVehicle()->setSteer(lastSteer);
 
         if (IS_PRESSED(HANDBRAKE))
         {
             //dprintf(MY_DEBUG_NOTE, "brake pressed\n");
-            Player::getInstance()->getVehicle()->setHandbrake(1);
+            Player::getInstance()->getVehicle()->setHandbrake(1.0f);
         }
         else
         {

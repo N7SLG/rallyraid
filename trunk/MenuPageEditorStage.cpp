@@ -43,7 +43,8 @@ MenuPageEditorStage::MenuPageEditorStage()
       editBoxStageTime(0),
       editBoxImage(0),
       editBoxHMHeight(0),
-      editBoxHMRadius(0)
+      editBoxHMRadius(0),
+      comboBoxWPType(0)
 {
     window = TheGame::getInstance()->getEnv()->addWindow(
         irr::core::recti(TheGame::getInstance()->getScreenSize().Width-350, 50, TheGame::getInstance()->getScreenSize().Width-10, TheGame::getInstance()->getScreenSize().Height-150),
@@ -207,8 +208,15 @@ MenuPageEditorStage::MenuPageEditorStage()
     // ----------------------------
     irr::gui::IGUITab* tabWP = tc->addTab(L"WP", MI_TABWP);
 
+    comboBoxWPType = TheGame::getInstance()->getEnv()->addComboBox(
+        irr::core::recti(irr::core::position2di(0, 0), irr::core::dimension2di(tabWP->getRelativePosition().getSize().Width, 20)),
+        tabWP,
+        MI_COMBOBOXWPTYPE);
+    comboBoxWPType->addItem(L"hidden");
+
     tableWP = TheGame::getInstance()->getEnv()->addTable(
-        irr::core::recti(irr::core::position2di(0, 0), tabWP->getRelativePosition().getSize()),
+        irr::core::recti(irr::core::position2di(0, 1*22), irr::core::dimension2di(tabWP->getRelativePosition().getSize().Width, tabWP->getRelativePosition().getSize().Height-(1*22))),
+        //irr::core::recti(irr::core::position2di(0, 0), tabWP->getRelativePosition().getSize()),
         tabWP,
         MI_TABLEWP,
         true);
@@ -216,6 +224,7 @@ MenuPageEditorStage::MenuPageEditorStage()
     tableWP->addColumn(L"#");
     tableWP->addColumn(L"X");
     tableWP->addColumn(L"Y");
+    tableWP->addColumn(L"type");
 
     // ----------------------------
     // HeightManager tab
@@ -412,6 +421,17 @@ bool MenuPageEditorStage::OnEvent(const irr::SEvent &event)
                         WStringConverter::toFloat(editBoxHMRadius->getText(), RaceManager::getInstance()->editorStage->editorHeightModifier.radius);
                         break;
                 }
+                break;
+            }
+            case irr::gui::EGET_COMBO_BOX_CHANGED:
+            {
+                switch (id)
+                {
+                    case MI_COMBOBOXWPTYPE:
+                        WayPointManager::getInstance()->editorWayPointType = WayPoint::Hidden + comboBoxWPType->getSelected();
+                        return true;
+                        break;
+                };
                 break;
             }
         };
@@ -675,6 +695,8 @@ void MenuPageEditorStage::refreshAI()
 
 void MenuPageEditorStage::refreshWP()
 {
+    comboBoxWPType->setSelected(WayPointManager::getInstance()->editorWayPointType - WayPoint::Hidden);
+
     // ----------------------------
     // WP
     // ----------------------------
@@ -700,6 +722,17 @@ void MenuPageEditorStage::refreshWP()
         str = L"";
         str += (*wpit)->getPos().Z;
         tableWP->setCellText(i, 2, str.c_str());
+
+        switch ((*wpit)->getType())
+        {
+        case WayPoint::Hidden:
+            str = L"hidden";
+            break;
+        default:
+            str = L"unknown";
+            break;
+        }
+        tableWP->setCellText(i, 3, str.c_str());
     }
 }
 

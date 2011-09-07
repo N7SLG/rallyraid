@@ -47,6 +47,8 @@ public:
     bool                    manualGearShifting;
     bool                    sequentialGearShifting;
     bool                    editorMode;
+    float                   steerRate;
+    float                   steerRatePressed;
 };
 
 #endif // SETTINGS_H

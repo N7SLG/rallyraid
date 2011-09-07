@@ -646,14 +646,19 @@ void TheGame::resetTick()
 void TheGame::doFewSteps(unsigned int stepCnt)
 {
     const float step_sec = 1.f / (float)Settings::getInstance()->targetFps;
-    unsigned int falseTick = 0;
-    for (;stepCnt > 0; stepCnt--, falseTick+=1000)
+    unsigned int gpu = 0;
+    unsigned int falseTick = 1000;
+    for (;stepCnt > 0; stepCnt--, gpu++)
     {
         offsetManager->update(offsetManager->getOffset()+camera->getPosition());
         objectWire->update(offsetManager->getOffset()+camera->getPosition());
         hk::step(step_sec);
         OffsetObject::updateDynamicToPhys();
-        gamePlay->update(falseTick, offsetManager->getOffset()+camera->getPosition(), true);
+        if (gpu < 2)
+        {
+            gamePlay->update(falseTick, offsetManager->getOffset()+camera->getPosition(), true);
+            falseTick+=100;
+        }
         if (stepCnt == 1)
         {
             handleUpdatePos(true); // update the camera to the player position

@@ -11,6 +11,7 @@ public:
     enum Type
     {
         Hidden,
+       // this must be the first, because the editor use this
         NumberOfTypes
     };
 

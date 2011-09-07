@@ -1140,37 +1140,40 @@ void TheEarth::registerVisual()
 
 void TheEarth::refreshMiniMap()
 {
-    irr::core::dimension2di currentPos(abs(lastCenterPosi.X / TILE_SIZE), abs(lastCenterPosi.Z / TILE_SIZE));
-
-    if (currentPos != lastMiniMapPos)
+    if (Settings::getInstance()->editorMode)
     {
-        lastMiniMapPos = currentPos;
-        irr::core::dimension2di generateFrom(currentPos.Width - MINIMAP_HSIZE, currentPos.Height - MINIMAP_HSIZE);
+        irr::core::dimension2di currentPos(abs(lastCenterPosi.X / TILE_SIZE), abs(lastCenterPosi.Z / TILE_SIZE));
 
-        if (generateFrom.Width < 0) generateFrom.Width = 0;
-        if (generateFrom.Height < 0) generateFrom.Height = 0;
-        if (generateFrom.Width + MINIMAP_SIZE > (int)xsize) generateFrom.Width = xsize - MINIMAP_SIZE;
-        if (generateFrom.Height + MINIMAP_SIZE > (int)ysize) generateFrom.Height = ysize - MINIMAP_SIZE;
-
-        irr::video::SColor color;
-
-        for (int x = generateFrom.Width; x < generateFrom.Width + MINIMAP_SIZE; x++)
+        if (currentPos != lastMiniMapPos)
         {
-            for (int y = generateFrom.Height; y < generateFrom.Height + MINIMAP_SIZE; y++)
-            {
-                color = getEarthTexture(x, y);
-                if (x == currentPos.Width || y == currentPos.Height)
-                //if (x == generateFrom.Width+MINIMAP_SIZE-1 || y == generateFrom.Height+MINIMAP_SIZE-1)
-                {
-                    color.setRed(255);
-                }
-                miniMap->setPixel(x - generateFrom.Width, y - generateFrom.Height, color);
-            }
-        }
+            lastMiniMapPos = currentPos;
+            irr::core::dimension2di generateFrom(currentPos.Width - MINIMAP_HSIZE, currentPos.Height - MINIMAP_HSIZE);
 
-        char miniMapName[255];
-        sprintf_s(miniMapName, "minimap_%d_%d", currentPos.Width, currentPos.Height);
-        miniMapTexture = TheGame::getInstance()->getDriver()->addTexture(miniMapName, miniMap);
+            if (generateFrom.Width < 0) generateFrom.Width = 0;
+            if (generateFrom.Height < 0) generateFrom.Height = 0;
+            if (generateFrom.Width + MINIMAP_SIZE > (int)xsize) generateFrom.Width = xsize - MINIMAP_SIZE;
+            if (generateFrom.Height + MINIMAP_SIZE > (int)ysize) generateFrom.Height = ysize - MINIMAP_SIZE;
+
+            irr::video::SColor color;
+
+            for (int x = generateFrom.Width; x < generateFrom.Width + MINIMAP_SIZE; x++)
+            {
+                for (int y = generateFrom.Height; y < generateFrom.Height + MINIMAP_SIZE; y++)
+                {
+                    color = getEarthTexture(x, y);
+                    if (x == currentPos.Width || y == currentPos.Height)
+                    //if (x == generateFrom.Width+MINIMAP_SIZE-1 || y == generateFrom.Height+MINIMAP_SIZE-1)
+                    {
+                        color.setRed(255);
+                    }
+                    miniMap->setPixel(x - generateFrom.Width, y - generateFrom.Height, color);
+                }
+            }
+
+            char miniMapName[255];
+            sprintf_s(miniMapName, "minimap_%d_%d", currentPos.Width, currentPos.Height);
+            miniMapTexture = TheGame::getInstance()->getDriver()->addTexture(miniMapName, miniMap);
+        }
     }
 }
 

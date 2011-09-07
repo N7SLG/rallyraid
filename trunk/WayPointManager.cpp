@@ -10,6 +10,8 @@
 #include "ObjectWire.h"
 #include "MessageManager.h"
 #include "Player.h"
+#include "RaceManager.h"
+#include "Stage.h"
 #include <assert.h>
 
 
@@ -35,7 +37,8 @@ WayPointManager* WayPointManager::wayPointManager = 0;
 WayPointManager::WayPointManager()
     : activeWayPointSet(),
       showCompass(false),
-      angle(0.f)
+      angle(0.f),
+      editorWayPointType(WayPoint::Hidden)
 {
 }
 
@@ -65,8 +68,12 @@ bool WayPointManager::update(const irr::core::vector3df& newPos, bool force)
                     irr::core::stringw str;
                     str += L"You have just passed the ";
                     str += wpNum;
-                    str += L". waypoint.";
-                    MessageManager::getInstance()->addText(str.c_str(), 3);
+                    str += L". waypoint. (";
+                    str += Player::getInstance()->getPassedWayPointsCount();
+                    str += L" / ";
+                    str += RaceManager::getInstance()->getCurrentStage()->getWayPointList().size();
+                    str += L")";
+                    MessageManager::getInstance()->addText(str.c_str(), 5);
                     return true;
                 }
                 assert(0);

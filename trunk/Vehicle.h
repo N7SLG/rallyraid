@@ -54,6 +54,28 @@ private:
 typedef std::vector<VehicleTyre*> tyreVector_t;
 
 
+class VehicleCollisionCB
+{
+protected:
+    virtual ~VehicleCollisionCB() {}
+
+    /*
+        called when the driven vehicle caused the collision and
+        result in penalty
+    */
+    virtual void handleHardCollision(float w) = 0;
+
+    /*
+        the vehicle participate in collision, but
+        not result in penalty
+    */
+    virtual void handleSoftCollision(float w) = 0;
+
+
+    friend class VehicleCollisionListener;
+};
+
+
 // -------------------------------------------------------
 //                       Vehicle
 // -------------------------------------------------------
@@ -69,6 +91,7 @@ public:
     ~Vehicle();
 
     void reset(const irr::core::vector3df& pos);
+    void addStartImpulse(float initialSpeed, const irr::core::vector3df& dir);
     float getAngle() const;
     int getGear() const;
     float getSpeed() const {return hkVehicle->calcKMPH();}
@@ -104,13 +127,15 @@ public:
     void pause();
     void resume();
 
-    void setNameText(irr::scene::ITextSceneNode* nameText) {this->nameText = nameText;}
+    void setNameText(irr::scene::ITextSceneNode* nameText) {this->nameText = nameText; updateNameTextPos();}
+    void setVehicleCollisionCB(VehicleCollisionCB* vehicleCollisionCB) {this->vehicleCollisionCB = vehicleCollisionCB;}
 
 private:
     virtual void handleUpdatePos(bool phys);
     void updateToMatrix();
     void addSmoke(const float speed, const irr::core::vector3df& pos, float offset);
     void updateSmoke();
+    void updateNameTextPos();
 
 private:
     VehicleType*                vehicleType;
@@ -132,6 +157,7 @@ private:
     float                       suspensionSpringModifier;
     float                       suspensionDamperModifier;
     irr::scene::ITextSceneNode* nameText;
+    VehicleCollisionCB*         vehicleCollisionCB;
 
 
     friend class FrictionMapVehicleRaycastWheelCollide;

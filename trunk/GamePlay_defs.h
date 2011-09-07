@@ -3,5 +3,6 @@
 #define GAMEPLAY_DEFS_H
 
 #define RESET_PENALTY 120
+#define COLLISION_PENALTY 120
 
 #endif // GAMEPLAY_DEFS_H

@@ -456,5 +456,5 @@ void Road::refreshFirstLast(int firstOffset, int lastOffset)
             lastSaved = -1;
         }
     }
-    printf("refreshFirstLast: %d - %d\n", firstSaved, lastSaved);
+    dprintf(MY_DEBUG_NOTE, "refreshFirstLast: %d - %d\n", firstSaved, lastSaved);
 }

@@ -47,7 +47,9 @@ Settings::Settings()
       joystickDeadZone(0.01f),
       manualGearShifting(false),
       sequentialGearShifting(true),
-      editorMode(false)
+      editorMode(false),
+      steerRate(1.0f),
+      steerRatePressed(0.1f)
 {
     read();
 }
@@ -160,6 +162,12 @@ void Settings::read()
             } else if (keyName == "editor_mode")
             {
                 editorMode = StringConverter::parseBool(valName, false);
+            } else if (keyName == "steer_rate")
+            {
+                steerRate = StringConverter::parseFloat(valName, 1.0f);
+            } else if (keyName == "steer_rate_pressed")
+            {
+                steerRatePressed = StringConverter::parseFloat(valName, 0.1f);
             }
         }
     }
@@ -202,6 +210,8 @@ void Settings::write()
     ret = fprintf(f, "manual_gear_shifting=%s\n", manualGearShifting?"yes":"no");
     ret = fprintf(f, "sequential_gear_shifting=%s\n", sequentialGearShifting?"yes":"no");
     ret = fprintf(f, "editor_mode=%s\n", editorMode?"yes":"no");
+    ret = fprintf(f, "steer_rate=%f\n", steerRate);
+    ret = fprintf(f, "steer_rate_pressed=%f\n", steerRatePressed);
 
     fclose(f);
 }
