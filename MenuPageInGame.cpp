@@ -87,7 +87,7 @@ MenuPageInGame::MenuPageInGame()
     // Stages
     // ----------------------------
     tableStages = TheGame::getInstance()->getEnv()->addTable(
-        irr::core::recti(irr::core::position2di(window->getRelativePosition().getSize().Width/4, (window->getRelativePosition().getSize().Height)/3), irr::core::dimension2di(window->getRelativePosition().getSize().Width/4-2,(window->getRelativePosition().getSize().Height*2)/3-2)),
+        irr::core::recti(irr::core::position2di(window->getRelativePosition().getSize().Width/6, (window->getRelativePosition().getSize().Height)/3), irr::core::dimension2di(window->getRelativePosition().getSize().Width/3-2,(window->getRelativePosition().getSize().Height*2)/3-2)),
         window,
         MI_TABLESTAGES,
         true);
@@ -99,7 +99,7 @@ MenuPageInGame::MenuPageInGame()
     // Competitors
     // ----------------------------
     irr::gui::IGUITabControl* tc = TheGame::getInstance()->getEnv()->addTabControl(
-        irr::core::recti(irr::core::position2di(window->getRelativePosition().getSize().Width/2+2, (window->getRelativePosition().getSize().Height)/3), irr::core::dimension2di(window->getRelativePosition().getSize().Width/4-2,(window->getRelativePosition().getSize().Height*2)/3-2)),
+        irr::core::recti(irr::core::position2di(window->getRelativePosition().getSize().Width/2+2, (window->getRelativePosition().getSize().Height)/3), irr::core::dimension2di(window->getRelativePosition().getSize().Width/3-2,(window->getRelativePosition().getSize().Height*2)/3-2)),
         window,
         true,
         true,

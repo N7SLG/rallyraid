@@ -41,6 +41,8 @@ public:
         MI_EBHMHEIGHT,
         MI_EBHMRADIUS,
 
+        MI_COMBOBOXWPTYPE,
+
         NUMBER_OF_MENUITEMS
     };
 
@@ -81,6 +83,7 @@ private:
     irr::gui::IGUIEditBox*  editBoxImage;
     irr::gui::IGUIEditBox*  editBoxHMHeight;
     irr::gui::IGUIEditBox*  editBoxHMRadius;
+    irr::gui::IGUIComboBox* comboBoxWPType;
 };
 
 #endif // MENUPAGEEDITORSTAGE_H

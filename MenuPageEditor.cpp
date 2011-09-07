@@ -610,8 +610,8 @@ bool MenuPageEditor::OnEvent(const irr::SEvent &event)
                         GamePlay::getInstance()->startStage(
                             RaceManager::getInstance()->getCurrentStage(),
                             VehicleTypeManager::getInstance()->getVehicleType(Player::getInstance()->getCompetitor()->getVehicleTypeName()),
-                            /*TheGame::getInstance()->getCamera()->getPosition()+OffsetManager::getInstance()->getOffset()*/
-                            Player::getInstance()->getSavedPos(),
+                            TheGame::getInstance()->getCamera()->getPosition()+OffsetManager::getInstance()->getOffset()
+                            /*Player::getInstance()->getSavedPos()*/,
                             Player::getInstance()->getSavedRot(),
                             true);
                         return true;
@@ -1542,7 +1542,7 @@ void MenuPageEditor::actionP()
                 {
                     MessageManager::getInstance()->addText(L"add waypoint", 1);
                     unsigned int num = RaceManager::getInstance()->editorStage->wayPointList.size() + 1;
-                    WayPoint* wpip = new WayPoint(apos, num);
+                    WayPoint* wpip = new WayPoint(apos, num, (WayPoint::Type)WayPointManager::getInstance()->editorWayPointType);
                     RaceManager::getInstance()->editorStage->wayPointList.push_back(wpip);
                 }
                 else

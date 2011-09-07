@@ -57,6 +57,9 @@ private:
     float               angle;
 
 
+    unsigned int        editorWayPointType;
+    
+    
     friend class MenuPageEditor;
     friend class MenuPageEditorDay;
     friend class MenuPageEditorStage;

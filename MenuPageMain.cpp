@@ -90,7 +90,7 @@ MenuPageMain::MenuPageMain()
     havok_image->setUseAlphaChannel(true);
     havok_image->setImage(havok_logo);
 
-    TheGame::getInstance()->getEnv()->addStaticText(L"Version: 1.0 - Build: 148",
+    TheGame::getInstance()->getEnv()->addStaticText(L"Version: 1.0 - Build: 157",
         irr::core::recti(irr::core::position2di(window->getRelativePosition().getSize().Width - 110, window->getRelativePosition().getSize().Height - 20), havok_logo->getOriginalSize()),
         false, false, window, 0, false);
 
@@ -98,7 +98,7 @@ MenuPageMain::MenuPageMain()
     // Races
     // ----------------------------
     tableRaces = TheGame::getInstance()->getEnv()->addTable(
-        irr::core::recti(irr::core::position2di(window->getRelativePosition().getSize().Width/4, (window->getRelativePosition().getSize().Height*2)/3), irr::core::dimension2di(window->getRelativePosition().getSize().Width/4-2,(window->getRelativePosition().getSize().Height)/3-2)),
+        irr::core::recti(irr::core::position2di(window->getRelativePosition().getSize().Width/6, (window->getRelativePosition().getSize().Height*2)/3), irr::core::dimension2di(window->getRelativePosition().getSize().Width/3-2,(window->getRelativePosition().getSize().Height)/3-2)),
         window,
         MI_TABLERACES,
         true);
@@ -107,7 +107,7 @@ MenuPageMain::MenuPageMain()
     tableRaces->setColumnWidth(0, tableRaces->getRelativePosition().getSize().Width-16);
 
     staticTextRaceData = TheGame::getInstance()->getEnv()->addStaticText(L"-",
-        irr::core::recti(irr::core::position2di(window->getRelativePosition().getSize().Width/4, (window->getRelativePosition().getSize().Height)/2), irr::core::dimension2di(window->getRelativePosition().getSize().Width/4-2,window->getRelativePosition().getSize().Height/6-4)),
+        irr::core::recti(irr::core::position2di(window->getRelativePosition().getSize().Width/6, (window->getRelativePosition().getSize().Height)/2), irr::core::dimension2di(window->getRelativePosition().getSize().Width/3-2,window->getRelativePosition().getSize().Height/6-4)),
         true,
         true,
         window,
@@ -119,7 +119,7 @@ MenuPageMain::MenuPageMain()
     // Vehicles
     // ----------------------------
     tableVehicles = TheGame::getInstance()->getEnv()->addTable(
-        irr::core::recti(irr::core::position2di(window->getRelativePosition().getSize().Width/2+2, (window->getRelativePosition().getSize().Height*2)/3), irr::core::dimension2di(window->getRelativePosition().getSize().Width/4-2,window->getRelativePosition().getSize().Height/3-2)),
+        irr::core::recti(irr::core::position2di(window->getRelativePosition().getSize().Width/2+2, (window->getRelativePosition().getSize().Height*2)/3), irr::core::dimension2di(window->getRelativePosition().getSize().Width/3-2,window->getRelativePosition().getSize().Height/3-2)),
         window,
         MI_TABLEVEHICLES,
         true);
@@ -128,7 +128,7 @@ MenuPageMain::MenuPageMain()
     tableVehicles->setColumnWidth(0, tableVehicles->getRelativePosition().getSize().Width-16);
 
     staticTextVehicleData = TheGame::getInstance()->getEnv()->addStaticText(L"-",
-        irr::core::recti(irr::core::position2di(window->getRelativePosition().getSize().Width/2+2, window->getRelativePosition().getSize().Height/2), irr::core::dimension2di(window->getRelativePosition().getSize().Width/4-2,window->getRelativePosition().getSize().Height/6-4)),
+        irr::core::recti(irr::core::position2di(window->getRelativePosition().getSize().Width/2+2, window->getRelativePosition().getSize().Height/2), irr::core::dimension2di(window->getRelativePosition().getSize().Width/3-2,window->getRelativePosition().getSize().Height/6-4)),
         true,
         true,
         window,
