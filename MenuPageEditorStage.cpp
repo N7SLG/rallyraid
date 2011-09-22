@@ -36,6 +36,7 @@ MenuPageEditorStage::MenuPageEditorStage()
       tableWP(0),
       tableHM(0),
       editBoxLongName(0),
+      editBoxDssAss(0),
       editBoxShortDescription(0),
       editBoxNewRoadFilename(0),
       editBoxNewRoadName(0),
@@ -77,26 +78,32 @@ MenuPageEditorStage::MenuPageEditorStage()
         window,
         MI_EBLONGNAME);
 
-    editBoxShortDescription = TheGame::getInstance()->getEnv()->addEditBox(L"short description",
+    editBoxDssAss = TheGame::getInstance()->getEnv()->addEditBox(L"dss - ass",
         irr::core::recti(irr::core::position2di(2, 66), irr::core::dimension2di(window->getRelativePosition().getSize().Width - 4, 20)),
+        true,
+        window,
+        MI_EBDSSASS);
+
+    editBoxShortDescription = TheGame::getInstance()->getEnv()->addEditBox(L"short description",
+        irr::core::recti(irr::core::position2di(2, 88), irr::core::dimension2di(window->getRelativePosition().getSize().Width - 4, 20)),
         true,
         window,
         MI_EBSHORTDESCRIPTION);
 
     editBoxStageTime = TheGame::getInstance()->getEnv()->addEditBox(L"1000",
-        irr::core::recti(irr::core::position2di(2, 88), irr::core::dimension2di(window->getRelativePosition().getSize().Width - 4, 20)),
+        irr::core::recti(irr::core::position2di(2, 110), irr::core::dimension2di(window->getRelativePosition().getSize().Width - 4, 20)),
         true,
         window,
         MI_EBSTAGETIME);
 
     editBoxImage = TheGame::getInstance()->getEnv()->addEditBox(L"",
-        irr::core::recti(irr::core::position2di(2, 110), irr::core::dimension2di(window->getRelativePosition().getSize().Width - 4, 20)),
+        irr::core::recti(irr::core::position2di(2, 132), irr::core::dimension2di(window->getRelativePosition().getSize().Width - 4, 20)),
         true,
         window,
         MI_EBIMAGE);
 
     irr::gui::IGUITabControl* tc = TheGame::getInstance()->getEnv()->addTabControl(
-        irr::core::recti(irr::core::position2di(2, 132), irr::core::dimension2di(window->getRelativePosition().getSize().Width - 4, window->getRelativePosition().getSize().Height - 134)),
+        irr::core::recti(irr::core::position2di(2, 154), irr::core::dimension2di(window->getRelativePosition().getSize().Width - 4, window->getRelativePosition().getSize().Height - 156)),
         window,
         true,
         true,
@@ -152,14 +159,14 @@ MenuPageEditorStage::MenuPageEditorStage()
 
     tableRoads->addColumn(L"#");
     tableRoads->addColumn(L"name");
-    tableRoads->setColumnWidth(1, 60);
+    tableRoads->setColumnWidth(1, 70);
     tableRoads->addColumn(L"type");
-    tableRoads->setColumnWidth(2, 60);
+    tableRoads->setColumnWidth(2, 70);
     tableRoads->addColumn(L"size");
     tableRoads->addColumn(L"loaded");
     tableRoads->setColumnWidth(4, 30);
-    tableRoads->addColumn(L"filename");
-    tableRoads->addColumn(L"data");
+    //tableRoads->addColumn(L"filename");
+    //tableRoads->addColumn(L"data");
 
     // ----------------------------
     // Itiner tab
@@ -199,9 +206,9 @@ MenuPageEditorStage::MenuPageEditorStage()
     tableAI->addColumn(L"X");
     tableAI->addColumn(L"Y");
     tableAI->addColumn(L"GD");
-    tableAI->setColumnWidth(3, 60);
+    tableAI->setColumnWidth(3, 70);
     tableAI->addColumn(L"LD");
-    tableAI->setColumnWidth(4, 60);
+    tableAI->setColumnWidth(4, 70);
 
     // ----------------------------
     // WP tab
@@ -212,7 +219,8 @@ MenuPageEditorStage::MenuPageEditorStage()
         irr::core::recti(irr::core::position2di(0, 0), irr::core::dimension2di(tabWP->getRelativePosition().getSize().Width, 20)),
         tabWP,
         MI_COMBOBOXWPTYPE);
-    comboBoxWPType->addItem(L"hidden");
+    comboBoxWPType->addItem(L"hidden - WPM");
+    comboBoxWPType->addItem(L"safety - WPS");
 
     tableWP = TheGame::getInstance()->getEnv()->addTable(
         irr::core::recti(irr::core::position2di(0, 1*22), irr::core::dimension2di(tabWP->getRelativePosition().getSize().Width, tabWP->getRelativePosition().getSize().Height-(1*22))),
@@ -310,6 +318,7 @@ bool MenuPageEditorStage::OnEvent(const irr::SEvent &event)
                     case MI_BUTTONSAVE:
                         dprintf(MY_DEBUG_NOTE, "editor::stage::save\n");
                         WStringConverter::toString(editBoxLongName->getText(), RaceManager::getInstance()->editorStage->stageLongName);
+                        WStringConverter::toString(editBoxDssAss->getText(), RaceManager::getInstance()->editorStage->dssAssName);
                         WStringConverter::toString(editBoxShortDescription->getText(), RaceManager::getInstance()->editorStage->shortDescription);
                         WStringConverter::toUnsignedInt(editBoxStageTime->getText(), RaceManager::getInstance()->editorStage->stageTime);
                         WStringConverter::toString(editBoxImage->getText(), RaceManager::getInstance()->editorStage->imageName);
@@ -429,6 +438,7 @@ bool MenuPageEditorStage::OnEvent(const irr::SEvent &event)
                 {
                     case MI_COMBOBOXWPTYPE:
                         WayPointManager::getInstance()->editorWayPointType = WayPoint::Hidden + comboBoxWPType->getSelected();
+                        MenuPageEditor::menuPageEditor->refreshSelected();
                         return true;
                         break;
                 };
@@ -517,6 +527,10 @@ void MenuPageEditorStage::refreshEditBoxes()
     editBoxLongName->setText(str.c_str());
 
     str = L"";
+    str += RaceManager::getInstance()->editorStage->getDssAss().c_str();
+    editBoxDssAss->setText(str.c_str());
+
+    str = L"";
     str += RaceManager::getInstance()->editorStage->getShortDescription().c_str();
     editBoxShortDescription->setText(str.c_str());
 
@@ -574,7 +588,7 @@ void MenuPageEditorStage::refreshRoads()
             str = L"true";
         }
         tableRoads->setCellText(i, 4, str.c_str());
-
+        /*
         str = L"";
         str += rit->second->roadFilename.c_str();
         tableRoads->setCellText(i, 5, str.c_str());
@@ -582,6 +596,7 @@ void MenuPageEditorStage::refreshRoads()
         str = L"";
         str += rit->second->roadDataFilename.c_str();
         tableRoads->setCellText(i, 6, str.c_str());
+        */
     }
 
 }
@@ -727,6 +742,9 @@ void MenuPageEditorStage::refreshWP()
         {
         case WayPoint::Hidden:
             str = L"hidden";
+            break;
+        case WayPoint::Safety:
+            str = L"safety";
             break;
         default:
             str = L"unknown";

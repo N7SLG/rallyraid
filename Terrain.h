@@ -48,6 +48,7 @@ protected:
     int                             offsetY;
     std::string                     prefix;
     irr::video::IImage*             image;
+    irr::video::ITexture*           texture;
     //bool                            skipUpdate;
     //volatile bool                   loading;
 };

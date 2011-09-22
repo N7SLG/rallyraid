@@ -56,6 +56,7 @@ public:
     int getCategory() {return category;}
     unsigned int getNum() {return num;}
     const std::string& getName() {return name;}
+    float getMass() {return mass;}
     
     // read mso object, which is my format can be edited by a simple text editor
     static irr::scene::SAnimatedMesh* readMySimpleObject(const std::string& meshFilename, float scale = 1.0f);

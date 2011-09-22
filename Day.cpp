@@ -16,9 +16,10 @@ Day::Day(Race* parent, const std::string& raceName, const std::string& dayName, 
       stageMap(),
       globalObjectList(),
       active(false),
-      roadMap()
+      roadMap(),
+      loaded(false)
 {
-    ret = read();
+    ret = readHeader();
 }
 
 Day::~Day()
@@ -36,7 +37,7 @@ Day::~Day()
     RoadManager::clearRoadMap(roadMap);
 }
     
-bool Day::read()
+bool Day::readHeader()
 {
     bool ret = readCfg();
     if (ret)
@@ -45,11 +46,21 @@ bool Day::read()
         if (ret)
         {
             readShortDescription();
-            readGlobalObjects();
-            RoadManager::readRoads(DAY_ROADS(raceName, dayName), roadMap, false, true);
         }
     }
     return ret;
+}
+
+bool Day::readData()
+{
+    if (loaded) return true;
+
+    loaded = true;
+
+    readGlobalObjects();
+    RoadManager::readRoads(DAY_ROADS(raceName, dayName), roadMap, false, true);
+
+    return true;
 }
 
 bool Day::readCfg()
@@ -130,6 +141,7 @@ void Day::readGlobalObjects()
 
 bool Day::write()
 {
+    if (!loaded) readData();
     bool ret = writeCfg();
     ret &= writeShortDescription();
     ret &= writeGlobalObjects();
@@ -166,6 +178,8 @@ bool Day::writeGlobalObjects()
 
 void Day::activate()
 {
+    if (!loaded) readData();
+
     RoadManager::getInstance()->addStageRoad(roadMap);
     
     if (active) return;

@@ -62,10 +62,12 @@ private:
     float                   maxSteerRate;
     irr::core::matrix4      viewPos[VIEW_SIZE];
     irr::core::matrix4      viewDest[VIEW_SIZE];
+    float                   mass;   // only used for info in the main menu
     
     static float            maxMaxBrakeForce;
     static float            maxMaxSpeed;
     static float            maxMaxTorque;
+    static float            maxMaxTorqueRate;
     static float            maxMaxSteerAngle;
     
 

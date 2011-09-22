@@ -65,6 +65,8 @@ public:
     void                            decFPSSpeed();
     void                            resetMouseCursor(bool onlyFPS = true);
 
+    void                            setTerminate(bool terminate = true); // inline
+
 private:
     TheGame();
     virtual ~TheGame();
@@ -192,4 +194,8 @@ inline void TheGame::setInGame(bool val)
     inGame = val;
 }
 
+inline void TheGame::setTerminate(bool terminate)
+{
+    this->terminate = terminate;
+}
 #endif // THEGAME_H

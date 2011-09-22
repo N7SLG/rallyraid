@@ -10,8 +10,8 @@ class WayPoint : public ObjectWireGlobalObject
 public:
     enum Type
     {
-        Hidden,
-       // this must be the first, because the editor use this
+        Hidden, // this must be the first, because the editor use this
+        Safety,
         NumberOfTypes
     };
 

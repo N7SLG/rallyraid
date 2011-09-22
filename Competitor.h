@@ -24,6 +24,7 @@ public:
     bool getAi(); // inline
     
     void setName(const std::string& name); // inline
+    void setCoName(const std::string& name); // inline
     void setTeamName(const std::string& teamName); // inline
     void setVehicleTypeName(const std::string& vehicleTypeName); // inline
 
@@ -75,6 +76,11 @@ inline bool Competitor::getAi()
 inline void Competitor::setName(const std::string& name)
 {
     this->name = name;
+}
+
+inline void Competitor::setCoName(const std::string& coName)
+{
+    this->coName = coName;
 }
 
 inline void Competitor::setTeamName(const std::string& teamName)

@@ -82,8 +82,10 @@ public:
 
     float getSuspensionSpringModifier() const; // inline
     float getSuspensionDamperModifier() const; // inline
+    float getBrakeBalance() const; // inline
     void setSuspensionSpringModifier(float suspensionSpringModifier); // inline
     void setSuspensionDamperModifier(float suspensionDamperModifier); // inline
+    void setBrakeBalance(float brakeBalance); // inline
 
     bool addPassedWayPointNum(unsigned int wpNum); // inline
     bool isPassedWayPointNum(unsigned int wpNum) const; // inline
@@ -114,6 +116,7 @@ private:
     unsigned int    savedStagePenaltyTime;
     float           suspensionSpringModifier;
     float           suspensionDamperModifier;
+    float           brakeBalance;
     bool            loaded;
     irr::core::vector3df savedPos;
     irr::core::vector3df savedRot;
@@ -382,6 +385,11 @@ inline float Player::getSuspensionDamperModifier() const
     return suspensionDamperModifier;
 }
 
+inline float Player::getBrakeBalance() const
+{
+    return brakeBalance;
+}
+
 inline void Player::setSuspensionSpringModifier(float suspensionSpringModifier)
 {
     this->suspensionSpringModifier = suspensionSpringModifier;
@@ -397,6 +405,15 @@ inline void Player::setSuspensionDamperModifier(float suspensionDamperModifier)
     if (vehicle)
     {
         vehicle->modifySuspensionDamper(suspensionDamperModifier);
+    }
+}
+
+inline void Player::setBrakeBalance(float brakeBalance)
+{
+    this->brakeBalance = brakeBalance;
+    if (vehicle)
+    {
+        vehicle->modifyBrakeBalance(brakeBalance);
     }
 }
 

@@ -33,6 +33,7 @@ public:
         MP_OPTIONS,
         MP_OPTIONSKB,
         MP_LOADSAVE,
+        MP_SETUP,
         NUMBER_OF_MENUPAGES
     };
 
@@ -44,6 +45,7 @@ public:
     void refreshEventReceiver();
     void clearEventReceiver();
     bool getMenuInput();    // inline
+    irr::IEventReceiver* getCurrentEventReceiver(); // inline
 
 public:
     
@@ -58,6 +60,7 @@ private:
     MenuPageBase*   menuPages[NUMBER_OF_MENUPAGES];
     bool            menuInput;
     EmptyEventReceiver* eer;
+    irr::IEventReceiver* currentEventReceiver;
 };
 
 
@@ -69,6 +72,11 @@ inline bool MenuManager::isInMenu()
 inline bool MenuManager::getMenuInput()
 {
     return menuInput;
+}
+
+inline irr::IEventReceiver* MenuManager::getCurrentEventReceiver()
+{
+    return currentEventReceiver;
 }
 
 #endif // MENUMANAGER_H

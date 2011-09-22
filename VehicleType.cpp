@@ -5,6 +5,8 @@
 #include "stdafx.h"
 #include "TheGame.h"
 #include "StringConverter.h"
+#include "ObjectPoolManager.h"
+#include "ObjectPool.h"
 
 
 VehicleTypeTyre::VehicleTypeTyre(unsigned int id)
@@ -31,6 +33,7 @@ VehicleTypeTyre::~VehicleTypeTyre()
 float VehicleType::maxMaxBrakeForce = 0.f;
 float VehicleType::maxMaxSpeed = 0.f;
 float VehicleType::maxMaxTorque = 0.f;
+float VehicleType::maxMaxTorqueRate = 0.f;
 float VehicleType::maxMaxSteerAngle = 0.f;
 
 VehicleType::VehicleType(const std::string& vehicleTypeName, const std::string& vehicleTypeFilename, bool& ret)
@@ -47,7 +50,8 @@ VehicleType::VehicleType(const std::string& vehicleTypeName, const std::string& 
       maxTorqueRate(200.0f),
       changeGearTime(20),
       maxSteerAngle(35.0f),
-      maxSteerRate(0.1f)
+      maxSteerRate(0.1f),
+      mass(2000.0f)
 {
     ret = read(vehicleTypeFilename);
 }
@@ -355,9 +359,16 @@ bool VehicleType::read(const std::string& vehicleTypeFilename)
             }
         }
     }
+
+    ObjectPoolManager::objectPoolMap_t::const_iterator opIt = ObjectPoolManager::getInstance()->getObjectPoolMap().find(objectName);
+    assert(opIt != ObjectPoolManager::getInstance()->getObjectPoolMap().end());
+    mass = opIt->second->getMass();
+    assert(mass > 0.001f);
+
     if (maxSpeed > maxMaxSpeed) maxMaxSpeed = maxSpeed;
-    if (maxBrakeForce > maxMaxBrakeForce) maxMaxBrakeForce = maxBrakeForce;
-    if (maxTorque > maxMaxTorque) maxMaxTorque = maxTorque;
+    if (maxBrakeForce/mass > maxMaxBrakeForce) maxMaxBrakeForce = maxBrakeForce/mass;
+    if (maxTorque/mass > maxMaxTorque) maxMaxTorque = maxTorque/mass;
+    if (maxTorqueRate/mass > maxMaxTorqueRate) maxMaxTorqueRate = maxTorqueRate/mass;
     if (maxSteerAngle > maxMaxSteerAngle) maxMaxSteerAngle = maxSteerAngle;
     return true;
 }

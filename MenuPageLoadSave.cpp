@@ -40,21 +40,21 @@ MenuPageLoadSave::MenuPageLoadSave()
     window->setImage(TheGame::getInstance()->getDriver()->getTexture("data/bg/3.jpg"));
 
     TheGame::getInstance()->getEnv()->addButton(
-        irr::core::recti(10,60,90,80),
+        irr::core::recti(10,60,140,80),
         window,
         MI_BUTTONBACK,
         L"Back");
 
     buttonLoadSave = TheGame::getInstance()->getEnv()->addButton(
-        irr::core::recti(10,90,90,110),
+        irr::core::recti(10,90,140,110),
         window,
         MI_BUTTONLOADSAVE,
         load?L"Load Game" : L"Save Game");
 
     staticTextName = TheGame::getInstance()->getEnv()->addStaticText(load ? L"Load Game" : L"Save Game",
-        irr::core::recti(window->getRelativePosition().getSize().Width/2 - 400,54,window->getRelativePosition().getSize().Width/2 + 400,88),
+        irr::core::recti(window->getRelativePosition().getSize().Width/2 - 400,54,window->getRelativePosition().getSize().Width/2 + 400,90),
         false, false, window, 0, false);
-    staticTextName->setOverrideFont(FontManager::getInstance()->getFont(FontManager::FONT_SPECIAL18));
+    staticTextName->setOverrideFont(FontManager::getInstance()->getFont(FontManager::FONT_VERDANA_22PX_BORDER/*SPECIAL18*/));
     staticTextName->setOverrideColor(irr::video::SColor(255, 255, 255, 255));
     staticTextName->setTextAlignment(irr::gui::EGUIA_CENTER, irr::gui::EGUIA_UPPERLEFT);
 

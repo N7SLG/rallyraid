@@ -19,6 +19,7 @@ public:
     {
         MI_WINDOW = MAX_MENU_ITEMS * MenuManager::MP_STAGE,
         MI_BUTTONSTART,
+        MI_BUTTONSETUP,
         MI_BUTTONBACK,
 
         MI_SCROLLROADBOOK,
@@ -47,6 +48,7 @@ private:
 
 private:
     irr::gui::IGUIImage*    window;
+    irr::gui::IGUIStaticText*   staticTextRaceName;
     irr::gui::IGUIStaticText*   staticTextStageName;
     irr::gui::IGUIStaticText*   staticTextStageDescription;
     ScreenQuad*             bgQuad;

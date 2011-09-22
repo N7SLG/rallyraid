@@ -52,6 +52,7 @@ Player::Player()
       savedStagePenaltyTime(0),
       suspensionSpringModifier(0.0f),
       suspensionDamperModifier(0.0f),
+      brakeBalance(0.2f),
       loaded(false),
       savedPos(),
       savedRot(),
@@ -77,7 +78,7 @@ void Player::initializeVehicle(const std::string& vehicleTypeName, const irr::co
     assert(vehicle == 0);
     competitor->setVehicleTypeName(vehicleTypeName);
     vehicle = new Vehicle(vehicleTypeName, apos, rotation, Settings::getInstance()->manualGearShifting,
-        Settings::getInstance()->sequentialGearShifting, suspensionSpringModifier, suspensionDamperModifier);
+        Settings::getInstance()->sequentialGearShifting, suspensionSpringModifier, suspensionDamperModifier, brakeBalance);
     recenterView = true;
     firstPressed = false;
     distance = savedDistance;
@@ -150,6 +151,10 @@ bool Player::save(const std::string& filename)
     for (unsigned int i = 0; i < nameToSave.length(); i++) if (nameToSave[i] == ' ') nameToSave[i] = '¤';
     ret = fprintf(f, "%s\n", nameToSave.c_str());
 
+    nameToSave = competitor->getCoName();
+    for (unsigned int i = 0; i < nameToSave.length(); i++) if (nameToSave[i] == ' ') nameToSave[i] = '¤';
+    ret = fprintf(f, "%s\n", nameToSave.c_str());
+
     nameToSave = competitor->getTeamName();
     for (unsigned int i = 0; i < nameToSave.length(); i++) if (nameToSave[i] == ' ') nameToSave[i] = '¤';
     ret = fprintf(f, "%s\n", nameToSave.c_str());
@@ -164,6 +169,7 @@ bool Player::save(const std::string& filename)
     ret = fprintf(f, "%u\n", stagePenaltyTime);
     ret = fprintf(f, "%f\n", suspensionSpringModifier);
     ret = fprintf(f, "%f\n", suspensionDamperModifier);
+    ret = fprintf(f, "%f\n", brakeBalance);
     ret = fprintf(f, "%f %f %f\n", savedPos.X, savedPos.Y, savedPos.Z);
     ret = fprintf(f, "%f %f %f\n", savedRot.X, savedRot.Y, savedRot.Z);
     ret = fprintf(f, "%f\n", savedSpeed);
@@ -187,6 +193,7 @@ bool Player::load(const std::string& filename, Stage* stage)
     FILE* f;
     int ret = 0;
     char name[256];
+    char coName[256];
     char teamName[256];
     char vehicleTypeName[256];
     unsigned int prevItinerNum = 0;
@@ -207,6 +214,14 @@ bool Player::load(const std::string& filename, Stage* stage)
     if (ret < 1)
     {
         printf("player file unable to read player name: %s\n", filename.c_str());
+        fclose(f);
+        return false;
+    }
+
+    ret = fscanf_s(f, "%s\n", coName, 255);
+    if (ret < 1)
+    {
+        printf("player file unable to read co-pilot name: %s\n", filename.c_str());
         fclose(f);
         return false;
     }
@@ -271,10 +286,10 @@ bool Player::load(const std::string& filename, Stage* stage)
         return false;
     }
 
-    ret = fscanf_s(f, "%f\n%f\n", &suspensionSpringModifier, &suspensionDamperModifier);
-    if (ret < 2)
+    ret = fscanf_s(f, "%f\n%f\n%f\n", &suspensionSpringModifier, &suspensionDamperModifier, &brakeBalance);
+    if (ret < 3)
     {
-        printf("player file unable to read suspension modifiers: %s\n", filename.c_str());
+        printf("player file unable to read suspension modifiers and brake balance: %s\n", filename.c_str());
         fclose(f);
         return false;
     }
@@ -327,6 +342,8 @@ bool Player::load(const std::string& filename, Stage* stage)
     fclose(f);
     for (unsigned int i = 0; i < strlen(name); i++) if (name[i] == '¤') name[i] = ' ';
     competitor->setName(name);
+    for (unsigned int i = 0; i < strlen(coName); i++) if (coName[i] == '¤') coName[i] = ' ';
+    competitor->setCoName(coName);
     for (unsigned int i = 0; i < strlen(teamName); i++) if (teamName[i] == '¤') teamName[i] = ' ';
     competitor->setTeamName(teamName);
     competitor->setVehicleTypeName(vehicleTypeName);

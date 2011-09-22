@@ -116,7 +116,7 @@ Starter::Starter(Stage* stage,
     irr::core::stringw namePlusCar = L"";
     namePlusCar += (competitor->getName() + " (" + VehicleTypeManager::getInstance()->getVehicleType(competitor->getVehicleTypeName())->getLongName() + ")").c_str();
     nameText = TheGame::getInstance()->getSmgr()->addTextSceneNode(
-        /*env->getBuiltInFont()*/ FontManager::getInstance()->getFont(FontManager::FONT_NORMALBOLD),
+        /*env->getBuiltInFont()*/ FontManager::getInstance()->getFont(FontManager::FONT_VERDANA_10PX),
         namePlusCar.c_str(),
         irr::video::SColor(255, 255, 255, 0));
     //nameText->setMaterialType((video::E_MATERIAL_TYPE)myMaterialType_transp_road);
@@ -866,6 +866,7 @@ bool RaceEngine::update(unsigned int tick, const irr::core::vector3df& apos, Upd
                     (*it)->startTime = currentTime;
                     if (!(*it)->competitor->getAi())
                     {
+                        (*it)->startTime++; // one sec need to the TheGame::doFewSteps(), which run for one sec virtually
                         return false;
                     }
                     (*it)->goToNextPoint(currentTime, when == InTheMiddle);

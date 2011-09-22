@@ -30,6 +30,11 @@
 #include "FontManager.h"
 
 
+#define PADDING                         (10)
+#define PADDING2                        (PADDING*2)
+#define RBSCROLLBAR_SIZE_Y              (20)
+#define RBSCROLLBAR_POS_Y               (window->getRelativePosition().getSize().Height - RBSCROLLBAR_SIZE_Y - PADDING)
+
 #define ROADBOOKBG_SIZE_X       (768)
 #define ROADBOOKBG_SIZE_Y       (128)
 #define ROADBOOKBG_HSIZE_X      (ROADBOOKBG_SIZE_X / 2)
@@ -58,15 +63,17 @@
 #define ROADBOOKENTRY_NOTE_POS_X(num)   (num*ROADBOOKBG_SIZE_Y+73) // +64
 #define ROADBOOKENTRY_NOTE_POS_Y        (56+28) // (64+32)
 
-#define ROADBOOKBG_POS_Y                (600)
-#define STAGEIMAGE_POS_Y                (140)
-#define STAGEIMAGE_SIZE_Y               (ROADBOOKBG_POS_Y-STAGEIMAGE_POS_Y)
+#define ROADBOOKBG_POS_Y                (RBSCROLLBAR_POS_Y - ROADBOOKBG_SIZE_Y)
+//#define STAGEIMAGE_POS_Y                (140)
+//#define STAGEIMAGE_SIZE_Y               (ROADBOOKBG_POS_Y-STAGEIMAGE_POS_Y)
+
 
 
 MenuPageStage* MenuPageStage::menuPageStage = 0;
 
 MenuPageStage::MenuPageStage()
     : window(0),
+      staticTextRaceName(0),
       staticTextStageName(0),
       staticTextStageDescription(0),
       bgQuad(0),
@@ -91,27 +98,39 @@ MenuPageStage::MenuPageStage()
     window->setImage(TheGame::getInstance()->getDriver()->getTexture("data/bg/transp.png"));
 
     TheGame::getInstance()->getEnv()->addButton(
-        irr::core::recti(10,60,90,80),
+        irr::core::recti(10,60,140,80),
         window,
         MI_BUTTONSTART,
-        L"Start The Game");
+        L"Start This Stage");
 
     TheGame::getInstance()->getEnv()->addButton(
-        irr::core::recti(10,90,90,110),
+        irr::core::recti(10,90,140,110),
+        window,
+        MI_BUTTONSETUP,
+        L"Setup");
+
+    TheGame::getInstance()->getEnv()->addButton(
+        irr::core::recti(10,120,140,140),
         window,
         MI_BUTTONBACK,
         L"Back To Main");
 
-    staticTextStageName = TheGame::getInstance()->getEnv()->addStaticText(L"",
-        irr::core::recti(120,54,1200,88),
+    staticTextRaceName = TheGame::getInstance()->getEnv()->addStaticText(L"",
+        irr::core::recti(160,54,window->getRelativePosition().getSize().Width-PADDING2,90),
         false, false, window, 0, false);
-    staticTextStageName->setOverrideFont(FontManager::getInstance()->getFont(FontManager::FONT_SPECIAL18));
+    staticTextRaceName->setOverrideFont(FontManager::getInstance()->getFont(FontManager::FONT_VERDANA_22PX_BORDER/*SPECIAL18*/));
+    staticTextRaceName->setOverrideColor(irr::video::SColor(255, 255, 255, 255));
+
+    staticTextStageName = TheGame::getInstance()->getEnv()->addStaticText(L"",
+        irr::core::recti(160,92,window->getRelativePosition().getSize().Width-PADDING2,128),
+        false, false, window, 0, false);
+    staticTextStageName->setOverrideFont(FontManager::getInstance()->getFont(FontManager::FONT_VERDANA_18PX_BORDER/*SPECIAL18*/));
     staticTextStageName->setOverrideColor(irr::video::SColor(255, 255, 255, 255));
 
     staticTextStageDescription = TheGame::getInstance()->getEnv()->addStaticText(L"",
-        irr::core::recti(120,88,1200,128),
-        false, true, window, 0, false);
-    staticTextStageDescription->setOverrideFont(FontManager::getInstance()->getFont(FontManager::FONT_NORMAL));
+        irr::core::recti(160,126,window->getRelativePosition().getSize().Width-PADDING2,166),
+        false, true, window, 0, true);
+    staticTextStageDescription->setOverrideFont(FontManager::getInstance()->getFont(FontManager::FONT_VERDANA_12PX));
     //staticTextStageDescription->setOverrideColor(irr::video::SColor(255, 255, 255, 255));
 
     bgQuad = new ScreenQuad(TheGame::getInstance()->getDriver(),
@@ -121,10 +140,11 @@ MenuPageStage::MenuPageStage()
     bgQuad->getMaterial().MaterialType = Shaders::getInstance()->materialMap["quad2d"];
     bgQuad->getMaterial().setTexture(0, TheGame::getInstance()->getDriver()->getTexture("data/bg/3.jpg"));
 
+    const int stageImageHeight = (ROADBOOKBG_POS_Y - PADDING) - (166 + PADDING);
+    const int stageImageHWidth = (stageImageHeight * 2) / 3;
     stageImageQuad = new ScreenQuad(TheGame::getInstance()->getDriver(),
-        irr::core::position2di(window->getRelativePosition().getSize().Width/2 - ROADBOOKBG_HSIZE_X,
-        STAGEIMAGE_POS_Y-10/*(window->getRelativePosition().getSize().Height/4)*/),
-        irr::core::dimension2du(ROADBOOKBG_SIZE_X, STAGEIMAGE_SIZE_Y/*window->getRelativePosition().getSize().Height/2*/), false);
+        irr::core::position2di(window->getRelativePosition().getSize().Width/2 - stageImageHWidth, 166 + PADDING),
+        irr::core::dimension2du(stageImageHWidth*2, stageImageHeight), false);
     stageImageQuad->getMaterial().MaterialType = Shaders::getInstance()->materialMap["quad2d"];
     stageImageQuad->getMaterial().setTexture(0, 0);
 
@@ -150,7 +170,7 @@ MenuPageStage::MenuPageStage()
             ROADBOOKBG_POS_Y/*(window->getRelativePosition().getSize().Height*3/4) + 10*/ + ROADBOOKENTRY_NUM_POS_Y),
             irr::core::dimension2di(ROADBOOKENTRY_NUM_SIZE_X, ROADBOOKENTRY_NUM_SIZE_Y)),
             false, false, window, -1, false);
-        roadBookEntries[i].numText->setOverrideFont(FontManager::getInstance()->getFont(FontManager::FONT_SMALL));
+        roadBookEntries[i].numText->setOverrideFont(FontManager::getInstance()->getFont(FontManager::FONT_VERDANA_8PX));
         roadBookEntries[i].numText->setTextAlignment(irr::gui::EGUIA_LOWERRIGHT, irr::gui::EGUIA_UPPERLEFT);
         //if (i!=1) roadBookEntries[i].numText->setOverrideColor(irr::video::SColor(255, 127, 127, 127));
 
@@ -159,7 +179,7 @@ MenuPageStage::MenuPageStage()
             ROADBOOKBG_POS_Y/*(window->getRelativePosition().getSize().Height*3/4) + 10*/ + ROADBOOKENTRY_GD_POS_Y),
             irr::core::dimension2di(ROADBOOKENTRY_GD_SIZE_X, ROADBOOKENTRY_GD_SIZE_Y)),
             false, false, window, -1, false);
-        roadBookEntries[i].globalDistanceText->setOverrideFont(FontManager::getInstance()->getFont(FontManager::FONT_EXTRALARGEBOLD));
+        roadBookEntries[i].globalDistanceText->setOverrideFont(FontManager::getInstance()->getFont(FontManager::FONT_VERDANA_14PX));
         roadBookEntries[i].globalDistanceText->setTextAlignment(irr::gui::EGUIA_LOWERRIGHT, irr::gui::EGUIA_UPPERLEFT);
         //if (i!=1) roadBookEntries[i].globalDistanceText->setOverrideColor(irr::video::SColor(255, 127, 127, 127));
 
@@ -168,7 +188,7 @@ MenuPageStage::MenuPageStage()
             ROADBOOKBG_POS_Y/*(window->getRelativePosition().getSize().Height*3/4) + 10*/ + ROADBOOKENTRY_LD_POS_Y),
             irr::core::dimension2di(ROADBOOKENTRY_LD_SIZE_X, ROADBOOKENTRY_LD_SIZE_Y)),
             false, false, window, -1, false);
-        roadBookEntries[i].localDistanceText->setOverrideFont(FontManager::getInstance()->getFont(FontManager::FONT_LARGEBOLD));
+        roadBookEntries[i].localDistanceText->setOverrideFont(FontManager::getInstance()->getFont(FontManager::FONT_VERDANA_12PX));
         //roadBookEntries[i].localDistanceText->setTextAlignment(irr::gui::EGUIA_LOWERRIGHT, irr::gui::EGUIA_UPPERLEFT);
         //if (i!=1) roadBookEntries[i].localDistanceText->setOverrideColor(irr::video::SColor(255, 127, 127, 127));
 
@@ -177,7 +197,7 @@ MenuPageStage::MenuPageStage()
             ROADBOOKBG_POS_Y/*(window->getRelativePosition().getSize().Height*3/4) + 10*/ + ROADBOOKENTRY_NOTE_POS_Y),
             irr::core::dimension2di(ROADBOOKENTRY_NOTE_SIZE_X, ROADBOOKENTRY_NOTE_SIZE_Y)),
             false, true, window, -1, false);
-        roadBookEntries[i].noteText->setOverrideFont(FontManager::getInstance()->getFont(FontManager::FONT_SMALLBOLD));
+        roadBookEntries[i].noteText->setOverrideFont(FontManager::getInstance()->getFont(FontManager::FONT_VERDANA_8PX));
         roadBookEntries[i].noteText->setTextAlignment(irr::gui::EGUIA_CENTER, irr::gui::EGUIA_CENTER);
         //if (i!=1) roadBookEntries[i].noteText->setOverrideColor(irr::video::SColor(255, 127, 127, 127));
 
@@ -206,8 +226,8 @@ MenuPageStage::MenuPageStage()
 
     roadBookScrollBar = TheGame::getInstance()->getEnv()->addScrollBar(true, 
             irr::core::recti(irr::core::position2di(window->getRelativePosition().getSize().Width/2 - ROADBOOKBG_HSIZE_X,
-            ROADBOOKBG_POS_Y/*(window->getRelativePosition().getSize().Height*3/4) + 10*/ + ROADBOOKBG_SIZE_Y),
-            irr::core::dimension2di(ROADBOOKBG_SIZE_X, 20)),
+            RBSCROLLBAR_POS_Y/*ROADBOOKBG_POS_Y + ROADBOOKBG_SIZE_Y*/),
+            irr::core::dimension2di(ROADBOOKBG_SIZE_X, RBSCROLLBAR_SIZE_Y)),
             window,
             MI_SCROLLROADBOOK);
     roadBookScrollBar->setMin(0);
@@ -287,6 +307,11 @@ bool MenuPageStage::OnEvent(const irr::SEvent &event)
                         MenuManager::getInstance()->open(MenuManager::MP_MAIN);
                         return true;
                         break;
+                    case MI_BUTTONSETUP:
+                        dprintf(MY_DEBUG_NOTE, "stagemenu::setupbutton::clicked\n");
+                        MenuManager::getInstance()->open(MenuManager::MP_SETUP);
+                        return true;
+                        break;
                 };
                 break;
             }
@@ -338,6 +363,8 @@ void MenuPageStage::open()
         selectedRace = selectedStage->getParent()->getParent();
     }
     assert(selectedStage);
+    selectedRace->readPreData();
+    selectedStage->readPreData();
     itinerIt = selectedStage->getItinerPointList().begin();
     stageImageQuad->getMaterial().setTexture(0, selectedStage->getImage());
     roadBookScrollBar->setPos(0);
@@ -352,14 +379,31 @@ void MenuPageStage::open()
     }
     irr::core::stringw str;
     str += selectedRace->getLongName().c_str();
-    str += L" - ";
+    staticTextRaceName->setText(str.c_str());
+
+    str = L"";
     str += selectedStage->getParent()->getLongName().c_str();
     str += L" - ";
     str += selectedStage->getLongName().c_str();
+    str += L": ";
+    str += selectedStage->getDssAss().c_str();
+    str += L", special: ";
+    if (!selectedStage->getAIPointList().empty())
+    {
+        str += (int)(selectedStage->getAIPointList().back()->getGlobalDistance() / 1000.f);
+        str += L" km, time: ";
+    }
+    else
+    {
+        str += L"0 km, time: ";
+    }
+    WStringConverter::addTimeToStr(str, selectedStage->getStageTime());
     staticTextStageName->setText(str.c_str());
+
     str = L"";
     str += selectedStage->getShortDescription().c_str();
     staticTextStageDescription->setText(str.c_str());
+
     refresh();
     setVisible(true);
     //TheGame::getInstance()->getEnv()->setFocus(tableRaces);

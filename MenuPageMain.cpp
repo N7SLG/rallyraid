@@ -39,6 +39,7 @@ MenuPageMain::MenuPageMain()
       checkBoxEditor(0),
       staticTextRaceData(0),
       staticTextVehicleData(0),
+      buttonLoad(0),
       selectedRace(0),
       selectedVehicleType(0),
       willOpenOtherWindow(false)
@@ -52,22 +53,35 @@ MenuPageMain::MenuPageMain()
     window->setImage(TheGame::getInstance()->getDriver()->getTexture("data/bg/3.jpg"));
 
     TheGame::getInstance()->getEnv()->addButton(
-        irr::core::recti(10,60,90,80),
+        irr::core::recti(10,60,140,80),
         window,
         MI_BUTTONSTART,
         L"Start New Game");
 
-    TheGame::getInstance()->getEnv()->addButton(
-        irr::core::recti(10,90,90,110),
+    buttonLoad = TheGame::getInstance()->getEnv()->addButton(
+        irr::core::recti(10,90,140,110),
         window,
         MI_BUTTONLOAD,
         L"Load Game");
 
     TheGame::getInstance()->getEnv()->addButton(
-        irr::core::recti(10,120,90,140),
+        irr::core::recti(10,120,140,140),
         window,
         MI_BUTTONOPTIONS,
         L"Options");
+
+/*    TheGame::getInstance()->getEnv()->addButton(
+        irr::core::recti(10,150,140,170),
+        window,
+        MI_BUTTONSETUP,
+        L"Setup");
+*/
+    TheGame::getInstance()->getEnv()->addButton(
+        //irr::core::recti(10,180,140,200),
+        irr::core::recti(10,150,140,170),
+        window,
+        MI_BUTTONEXIT,
+        L"Exit");
 
     checkBoxEditor = TheGame::getInstance()->getEnv()->addCheckBox(Settings::getInstance()->editorMode,
         irr::core::recti(10,window->getRelativePosition().getSize().Height-30,150,window->getRelativePosition().getSize().Height-10),
@@ -76,9 +90,9 @@ MenuPageMain::MenuPageMain()
         L"Editor Mode");
 
     staticTextGameName = TheGame::getInstance()->getEnv()->addStaticText(L"Rally Raid",
-        irr::core::recti(window->getRelativePosition().getSize().Width/2 - 400,54,window->getRelativePosition().getSize().Width/2 + 400,88),
+        irr::core::recti(window->getRelativePosition().getSize().Width/2 - 400,54,window->getRelativePosition().getSize().Width/2 + 400,90),
         false, false, window, 0, false);
-    staticTextGameName->setOverrideFont(FontManager::getInstance()->getFont(FontManager::FONT_SPECIAL18));
+    staticTextGameName->setOverrideFont(FontManager::getInstance()->getFont(FontManager::FONT_VERDANA_22PX_BORDER/*SPECIAL18*/));
     staticTextGameName->setOverrideColor(irr::video::SColor(255, 255, 255, 255));
     staticTextGameName->setTextAlignment(irr::gui::EGUIA_CENTER, irr::gui::EGUIA_UPPERLEFT);
 
@@ -90,9 +104,10 @@ MenuPageMain::MenuPageMain()
     havok_image->setUseAlphaChannel(true);
     havok_image->setImage(havok_logo);
 
-    TheGame::getInstance()->getEnv()->addStaticText(L"Version: 1.0 - Build: 157",
+    irr::gui::IGUIStaticText* s = TheGame::getInstance()->getEnv()->addStaticText(L"Version: 1.0 - Build: 161",
         irr::core::recti(irr::core::position2di(window->getRelativePosition().getSize().Width - 110, window->getRelativePosition().getSize().Height - 20), havok_logo->getOriginalSize()),
         false, false, window, 0, false);
+    s->setOverrideFont(FontManager::getInstance()->getFont(FontManager::FONT_BUILTIN));
 
     // ----------------------------
     // Races
@@ -113,7 +128,7 @@ MenuPageMain::MenuPageMain()
         window,
         MI_STRACEDATA,
         true);
-    staticTextRaceData->setOverrideFont(FontManager::getInstance()->getFont(FontManager::FONT_NORMAL));
+    staticTextRaceData->setOverrideFont(FontManager::getInstance()->getFont(FontManager::FONT_VERDANA_8PX));
 
     // ----------------------------
     // Vehicles
@@ -134,7 +149,7 @@ MenuPageMain::MenuPageMain()
         window,
         MI_STRACEDATA,
         true);
-    staticTextVehicleData->setOverrideFont(FontManager::getInstance()->getFont(FontManager::FONT_NORMALBOLD));
+    staticTextVehicleData->setOverrideFont(FontManager::getInstance()->getFont(FontManager::FONT_VERDANA_10PX));
 
     window->setVisible(false);
 }
@@ -204,6 +219,17 @@ bool MenuPageMain::OnEvent(const irr::SEvent &event)
                         MenuManager::getInstance()->open(MenuManager::MP_OPTIONS);
                         return true;
                         break;
+                    case MI_BUTTONSETUP:
+                        dprintf(MY_DEBUG_NOTE, "mainmenu::setupbutton::clicked\n");
+                        willOpenOtherWindow = false;
+                        MenuManager::getInstance()->open(MenuManager::MP_SETUP);
+                        return true;
+                        break;
+                    case MI_BUTTONEXIT:
+                        dprintf(MY_DEBUG_NOTE, "mainmenu::exitbutton::clicked\n");
+                        TheGame::getInstance()->setTerminate();
+                        return true;
+                        break;
                 };
                 break;
             }
@@ -244,6 +270,14 @@ bool MenuPageMain::OnEvent(const irr::SEvent &event)
                     case MI_CBEDITORMODE:
                         dprintf(MY_DEBUG_INFO, "set editor mode to: %u\n", checkBoxEditor->isChecked());
                         Settings::getInstance()->editorMode = checkBoxEditor->isChecked();
+                        if (Settings::getInstance()->editorMode)
+                        {
+                            TheGame::getInstance()->getEnv()->getSkin()->setFont(FontManager::getInstance()->getFont(FontManager::FONT_BUILTIN));
+                        }
+                        else
+                        {
+                            TheGame::getInstance()->getEnv()->getSkin()->setFont(FontManager::getInstance()->getFont(FontManager::FONT_VERDANA_10PX));
+                        }
                         break;
                 }
                 break;
@@ -281,6 +315,7 @@ void MenuPageMain::close()
 
 void MenuPageMain::refresh()
 {
+    buttonLoad->setEnabled(!GamePlay::getInstance()->loadableGames.empty());
     // ----------------------------
     // Races
     // ----------------------------
@@ -305,6 +340,11 @@ void MenuPageMain::refresh()
         {
             selectedRace = rit->second;
         }
+    }
+    if (!raceMap.empty())
+    {
+        tableRaces->setSelected(0);
+        refreshRaceData((Race*)tableRaces->getCellData(tableRaces->getSelected(), 0));
     }
 
     // ----------------------------
@@ -336,6 +376,11 @@ void MenuPageMain::refresh()
         }
         i++;
     }
+    if (!VehicleTypeManager::getInstance()->getVehicleTypeMap().empty())
+    {
+        tableVehicles->setSelected(VehicleTypeManager::getInstance()->getVehicleTypeMap().size()-1);
+        refreshVehicleData((VehicleType*)tableVehicles->getCellData(tableVehicles->getSelected(), 0));
+    }
 }
 
 void MenuPageMain::refreshRaceData(Race* race)
@@ -364,13 +409,13 @@ void MenuPageMain::refreshVehicleData(VehicleType* vehicleType)
 
     str += L" / 10\nBrake: ";
     if ((int)vehicleType->maxBrakeForce)
-        str += (int)((vehicleType->maxBrakeForce*10) / VehicleType::maxMaxBrakeForce);
+        str += (int)((vehicleType->maxBrakeForce*10/vehicleType->mass) / VehicleType::maxMaxBrakeForce);
     else
         str += L"0";
 
     str += L" / 10\nAccelerate: ";
-    if ((int)vehicleType->maxTorque)
-        str += (int)((vehicleType->maxTorque*10) / VehicleType::maxMaxTorque);
+    if ((int)vehicleType->maxTorqueRate)
+        str += (int)((vehicleType->maxTorqueRate*10/vehicleType->mass) / VehicleType::maxMaxTorqueRate);
     else
         str += L"0";
 

@@ -89,7 +89,7 @@ static float normalizeAngle180(float &angle)
 #define SPEEDOMETER_RPM_STICK_HSIZE     (SPEEDOMETER_RPM_STICK_SIZE/2)
 
 #define SPEEDOMETER_POS_X               (HUD_PADDING)
-#define SPEEDOMETER_POS_Y               (TheGame::getInstance()->getDriver()->getScreenSize().Height-(HUD_PADDING*3)-(2*25)-SPEEDOMETER_SIZE) // The time and speed text
+#define SPEEDOMETER_POS_Y               (TheGame::getInstance()->getDriver()->getScreenSize().Height-(HUD_PADDING*4)-(3*28)-SPEEDOMETER_SIZE) // The time and speed text
 #define SPEEDOMETER_STICK_POS_X         (SPEEDOMETER_POS_X+SPEEDOMETER_STICK_HDIFF)
 #define SPEEDOMETER_STICK_POS_Y         (SPEEDOMETER_POS_Y+SPEEDOMETER_STICK_HDIFF)
 #define SPEEDOMETER_RPM_STICK_POS_X     (SPEEDOMETER_POS_X+SPEEDOMETER_RPM_STICK_HDIFF)
@@ -97,7 +97,7 @@ static float normalizeAngle180(float &angle)
 
 #define GEAR_TEXT_SIZE                  ((64*SPEEDOMETER_SIZE)/512)
 #define GEAR_TEXT_POS_X                 (SPEEDOMETER_POS_X+((226*SPEEDOMETER_SIZE)/512))
-#define GEAR_TEXT_POS_Y                 (SPEEDOMETER_POS_Y+((310*SPEEDOMETER_SIZE)/512))
+#define GEAR_TEXT_POS_Y                 (SPEEDOMETER_POS_Y+((308*SPEEDOMETER_SIZE)/512))
 
 
 Hud* Hud::hud = 0;
@@ -140,7 +140,7 @@ Hud::Hud()
       editorText(0)
 {
     miniMapQuad = new ScreenQuad(TheGame::getInstance()->getDriver(),
-        irr::core::position2di(HUD_PADDING, TheGame::getInstance()->getDriver()->getScreenSize().Height - MINIMAP_SIZE - (4*HUD_PADDING) - (2*25) - SPEEDOMETER_SIZE),
+        irr::core::position2di(HUD_PADDING, TheGame::getInstance()->getDriver()->getScreenSize().Height - MINIMAP_SIZE - (5*HUD_PADDING) - (3*28) - SPEEDOMETER_SIZE),
         irr::core::dimension2du(MINIMAP_SIZE, MINIMAP_SIZE), false);
 //        irr::core::position2di(HUD_PADDING, TheGame::getInstance()->getDriver()->getScreenSize().Height - MINIMAP_SIZE*3 - (3*HUD_PADDING) - (2*25)),
 //        irr::core::dimension2du(MINIMAP_SIZE*3, MINIMAP_SIZE*3), false);
@@ -179,7 +179,7 @@ Hud::Hud()
         TheGame::getInstance()->getDriver()->getScreenSize().Height - COMPASS_HSIZE - COMPASS_HSIZE - COMPASS_WP_ARROW_HDIFF - HUD_PADDING*2 - COMPASS_TEXT_HSIZE_Y),
         irr::core::dimension2di(COMPASS_TEXT_SIZE_X, COMPASS_TEXT_SIZE_Y)),
         false, false, 0, -1, false);
-    compassText->setOverrideFont(FontManager::getInstance()->getFont(FontManager::FONT_SPECIAL16));
+    compassText->setOverrideFont(FontManager::getInstance()->getFont(FontManager::FONT_VERDANA_16PX/*SPECIAL16*/));
 
     compassWPQuad = new ScreenQuad(TheGame::getInstance()->getDriver(),
         irr::core::position2di(TheGame::getInstance()->getDriver()->getScreenSize().Width - COMPASS_WP_ARROW_SIZE - HUD_PADDING,
@@ -201,7 +201,7 @@ Hud::Hud()
         irr::core::dimension2di(TM_TEXT_SIZE_X, TM_TEXT_SIZE_Y)),
         false, false, 0, -1, false);
     tmPartText->setTextAlignment(irr::gui::EGUIA_CENTER, irr::gui::EGUIA_UPPERLEFT);
-    tmPartText->setOverrideFont(FontManager::getInstance()->getFont(FontManager::FONT_EXTRALARGE));
+    tmPartText->setOverrideFont(FontManager::getInstance()->getFont(FontManager::FONT_VERDANA_14PX));
 
     tmTotalText = TheGame::getInstance()->getEnv()->addStaticText(L"000.00",
         irr::core::recti(irr::core::position2di(TheGame::getInstance()->getDriver()->getScreenSize().Width - COMPASS_WP_ARROW_HDIFF - HUD_PADDING - TM_TEXT_X,
@@ -209,7 +209,7 @@ Hud::Hud()
         irr::core::dimension2di(TM_TEXT_SIZE_X, TM_TEXT_SIZE_Y)),
         false, false, 0, -1, false);
     tmTotalText->setTextAlignment(irr::gui::EGUIA_CENTER, irr::gui::EGUIA_UPPERLEFT);
-    tmTotalText->setOverrideFont(FontManager::getInstance()->getFont(FontManager::FONT_EXTRALARGE));
+    tmTotalText->setOverrideFont(FontManager::getInstance()->getFont(FontManager::FONT_VERDANA_14PX));
 
 
     roadBookBGQuad = new ScreenQuad(TheGame::getInstance()->getDriver(),
@@ -247,7 +247,7 @@ Hud::Hud()
             TheGame::getInstance()->getDriver()->getScreenSize().Height - ROADBOOKBG_SIZE_Y - HUD_PADDING + ROADBOOKENTRY_NUM_POS_Y),
             irr::core::dimension2di(ROADBOOKENTRY_NUM_SIZE_X, ROADBOOKENTRY_NUM_SIZE_Y)),
             false, false, 0, -1, false);
-        roadBookEntries[i].numText->setOverrideFont(FontManager::getInstance()->getFont(FontManager::FONT_SMALL));
+        roadBookEntries[i].numText->setOverrideFont(FontManager::getInstance()->getFont(FontManager::FONT_VERDANA_8PX));
         roadBookEntries[i].numText->setTextAlignment(irr::gui::EGUIA_LOWERRIGHT, irr::gui::EGUIA_UPPERLEFT);
         if (i!=1) roadBookEntries[i].numText->setOverrideColor(irr::video::SColor(255, 127, 127, 127));
 
@@ -256,7 +256,7 @@ Hud::Hud()
             TheGame::getInstance()->getDriver()->getScreenSize().Height - ROADBOOKBG_SIZE_Y - HUD_PADDING + ROADBOOKENTRY_GD_POS_Y),
             irr::core::dimension2di(ROADBOOKENTRY_GD_SIZE_X, ROADBOOKENTRY_GD_SIZE_Y)),
             false, false, 0, -1, false);
-        roadBookEntries[i].globalDistanceText->setOverrideFont(FontManager::getInstance()->getFont(FontManager::FONT_EXTRALARGEBOLD));
+        roadBookEntries[i].globalDistanceText->setOverrideFont(FontManager::getInstance()->getFont(FontManager::FONT_VERDANA_14PX));
         roadBookEntries[i].globalDistanceText->setTextAlignment(irr::gui::EGUIA_LOWERRIGHT, irr::gui::EGUIA_UPPERLEFT);
         if (i!=1) roadBookEntries[i].globalDistanceText->setOverrideColor(irr::video::SColor(255, 127, 127, 127));
 
@@ -265,7 +265,7 @@ Hud::Hud()
             TheGame::getInstance()->getDriver()->getScreenSize().Height - ROADBOOKBG_SIZE_Y - HUD_PADDING + ROADBOOKENTRY_LD_POS_Y),
             irr::core::dimension2di(ROADBOOKENTRY_LD_SIZE_X, ROADBOOKENTRY_LD_SIZE_Y)),
             false, false, 0, -1, false);
-        roadBookEntries[i].localDistanceText->setOverrideFont(FontManager::getInstance()->getFont(FontManager::FONT_LARGEBOLD));
+        roadBookEntries[i].localDistanceText->setOverrideFont(FontManager::getInstance()->getFont(FontManager::FONT_VERDANA_12PX));
         //roadBookEntries[i].localDistanceText->setTextAlignment(irr::gui::EGUIA_LOWERRIGHT, irr::gui::EGUIA_UPPERLEFT);
         if (i!=1) roadBookEntries[i].localDistanceText->setOverrideColor(irr::video::SColor(255, 127, 127, 127));
 
@@ -274,7 +274,7 @@ Hud::Hud()
             TheGame::getInstance()->getDriver()->getScreenSize().Height - ROADBOOKBG_SIZE_Y - HUD_PADDING + ROADBOOKENTRY_NOTE_POS_Y),
             irr::core::dimension2di(ROADBOOKENTRY_NOTE_SIZE_X, ROADBOOKENTRY_NOTE_SIZE_Y)),
             false, true, 0, -1, false);
-        roadBookEntries[i].noteText->setOverrideFont(FontManager::getInstance()->getFont(FontManager::FONT_SMALLBOLD));
+        roadBookEntries[i].noteText->setOverrideFont(FontManager::getInstance()->getFont(FontManager::FONT_VERDANA_8PX));
         roadBookEntries[i].noteText->setTextAlignment(irr::gui::EGUIA_CENTER, irr::gui::EGUIA_CENTER);
         if (i!=1) roadBookEntries[i].noteText->setOverrideColor(irr::video::SColor(255, 127, 127, 127));
 
@@ -303,21 +303,22 @@ Hud::Hud()
 
     speedText = TheGame::getInstance()->getEnv()->addStaticText(L"000.00",
         irr::core::recti(irr::core::position2di(HUD_PADDING,
-        TheGame::getInstance()->getDriver()->getScreenSize().Height - HUD_PADDING - 25),
-        irr::core::dimension2di(365, 25)),
-        false, false, 0, -1, false);
-    speedText->setOverrideFont(FontManager::getInstance()->getFont(FontManager::FONT_SPECIAL16));
+        TheGame::getInstance()->getDriver()->getScreenSize().Height - (2*HUD_PADDING) - 56),
+        irr::core::dimension2di(365, 56)),
+        false, true, 0, -1, false);
+    speedText->setOverrideFont(FontManager::getInstance()->getFont(FontManager::FONT_SPECIAL_BIGFONT/*SPECIAL16*/));
     speedText->setOverrideColor(irr::video::SColor(255, 255, 255, 255));
 
     stageTimeText = TheGame::getInstance()->getEnv()->addStaticText(L"0:00:00",
         irr::core::recti(irr::core::position2di(HUD_PADDING,
-        TheGame::getInstance()->getDriver()->getScreenSize().Height - (2*HUD_PADDING) - (2*25)),
-        irr::core::dimension2di(365, 25)),
+        TheGame::getInstance()->getDriver()->getScreenSize().Height - (3*HUD_PADDING) - (3*28)),
+        irr::core::dimension2di(365, 28)),
         false, false, 0, -1, false);
-    stageTimeText->setOverrideFont(FontManager::getInstance()->getFont(FontManager::FONT_SPECIAL16));
+    stageTimeText->setOverrideFont(FontManager::getInstance()->getFont(FontManager::FONT_SPECIAL_BIGFONT/*SPECIAL16*/));
     stageTimeText->setOverrideColor(irr::video::SColor(255, 255, 255, 255));
 
     editorText = TheGame::getInstance()->getEnv()->addStaticText(L"", irr::core::recti(10, 10, 790, 30), false, true, 0, -1, true);
+    editorText->setOverrideFont(FontManager::getInstance()->getFont(FontManager::FONT_BUILTIN));
 
 
     speedometerQuad = new ScreenQuad(TheGame::getInstance()->getDriver(),
@@ -357,7 +358,7 @@ Hud::Hud()
         irr::core::recti(irr::core::position2di(GEAR_TEXT_POS_X, GEAR_TEXT_POS_Y),
         irr::core::dimension2di(GEAR_TEXT_SIZE, GEAR_TEXT_SIZE)),
         false, false, 0, -1, false);
-    gearText->setOverrideFont(FontManager::getInstance()->getFont(FontManager::FONT_LARGEBOLD));
+    gearText->setOverrideFont(FontManager::getInstance()->getFont(FontManager::FONT_VERDANA_14PX));
     //gearText->setOverrideColor(irr::video::SColor(255, 0, 0, 0));
     gearText->setTextAlignment(irr::gui::EGUIA_CENTER, irr::gui::EGUIA_CENTER);
 }
@@ -472,6 +473,7 @@ void Hud::preRender(float p_angle)
 
     str = L"";
     unsigned int angleInt = 360 - (unsigned int)normalizeAngle(angle);
+    if (angleInt == 360) angleInt = 0;
     if (angleInt < 10)
     {
         str += L"00";
@@ -526,7 +528,7 @@ void Hud::preRender(float p_angle)
     str += distp;
     tmTotalText->setText(str.c_str());
 
-    str = L"";
+    str = L"Speed: ";
     int speed = (int)(Player::getInstance()->getVehicleSpeed());
     int gear = (Player::getInstance()->getVehicleGear());
     int rpm = (int)(Player::getInstance()->getVehicle()->getRPM());
@@ -540,9 +542,7 @@ void Hud::preRender(float p_angle)
         str += L"0";
     }
     str += speed;
-    str += L" Km/h | G: ";
-    str += gear;
-    str += L" | RPM: ";
+    str += L" Km/h\nRPM: ";
     str += rpm;
     speedText->setText(str.c_str());
       
@@ -550,7 +550,7 @@ void Hud::preRender(float p_angle)
     WStringConverter::addTimeToStr(str, Player::getInstance()->getStageTime());
     if (Player::getInstance()->getStagePenaltyTime())
     {
-        str += L", Penalty: ";
+        str += L" + ";
         WStringConverter::addTimeToStr(str, Player::getInstance()->getStagePenaltyTime());
     }
     stageTimeText->setText(str.c_str());
@@ -558,7 +558,7 @@ void Hud::preRender(float p_angle)
     bool showWPCompass = WayPointManager::getInstance()->getShowCompass();
     if (showWPCompass)
     {
-        compassWPQuad->rotate(WayPointManager::getInstance()->getAngle()-p_angle-90.f);
+        compassWPQuad->rotate(WayPointManager::getInstance()->getAngle()-p_angle/*-90.f*/);
     }
     compassWPQuad->setVisible(showWPCompass);
 

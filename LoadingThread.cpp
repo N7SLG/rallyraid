@@ -34,7 +34,11 @@ LoadingThread::LoadingThread()
     : loading(false),
       running(false),
       bgQuad(0),
-      staticTextLoading(0)
+      staticTextLoading(0),
+      begin(0.0f),
+      end(100.0f),
+      smallStep(1.0f),
+      currentLoad(0.0f)
 {
     bgQuad = new ScreenQuad(TheGame::getInstance()->getDriver(),
         irr::core::position2di(0, 0),
@@ -45,9 +49,9 @@ LoadingThread::LoadingThread()
     bgQuad->setVisible(false);
 
     staticTextLoading = TheGame::getInstance()->getEnv()->addStaticText(L"Loading...",
-        irr::core::recti(TheGame::getInstance()->getScreenSize().Width/2 - 400,54,TheGame::getInstance()->getScreenSize().Height/2 + 400,88),
+        irr::core::recti(TheGame::getInstance()->getScreenSize().Width/2 - 400,54,TheGame::getInstance()->getScreenSize().Width/2 + 400,90),
         false, false, 0, -1, false);
-    staticTextLoading->setOverrideFont(FontManager::getInstance()->getFont(FontManager::FONT_SPECIAL18));
+    staticTextLoading->setOverrideFont(FontManager::getInstance()->getFont(FontManager::FONT_VERDANA_22PX_BORDER/*SPECIAL18*/));
     staticTextLoading->setOverrideColor(irr::video::SColor(255, 255, 255, 255));
     staticTextLoading->setTextAlignment(irr::gui::EGUIA_CENTER, irr::gui::EGUIA_UPPERLEFT);
     staticTextLoading->setVisible(false);
@@ -72,7 +76,12 @@ void LoadingThread::startLoading()
     loading = true;
     bgQuad->setVisible(true);
     staticTextLoading->setVisible(true);
+    begin = 0.0f;
+    end = 100.0f;
+    smallStep = 1.0f;
+    currentLoad = 0.0f;
 
+    /*
     irr::IrrlichtDevice* device = TheGame::getInstance()->getDevice();
 
     device->run();
@@ -80,7 +89,8 @@ void LoadingThread::startLoading()
     bgQuad->render();
     device->getGUIEnvironment()->drawAll();
     device->getVideoDriver()->endScene();
-
+    */
+    render();
     //execute();
 }
 
@@ -115,6 +125,41 @@ void LoadingThread::run()
     running = false;
 }
 
+void LoadingThread::setLargeSteps(unsigned int begin, unsigned int end)
+{
+    assert(begin < end);
+
+    this->begin = (float)begin;
+    this->end = (float)end;
+    this->currentLoad = this->begin;
+    this->smallStep = 1.0f;
+
+    render();
+}
+
+void LoadingThread::setSmallStepCount(unsigned int smallStepCount)
+{
+    if (smallStepCount > 0)
+    {
+        smallStep = (this->end - this->begin) / (float)smallStepCount;
+    }
+}
+
+void LoadingThread::stepSmall()
+{
+    float newLoad = currentLoad + smallStep;
+    if (newLoad < end)
+    {
+        currentLoad = newLoad;
+    }
+    else
+    {
+        currentLoad = end;
+    }
+
+    render();
+}
+
 void LoadingThread::refresh()
 {
     dprintf(MY_DEBUG_NOTE, "start refresh: loading: %u, running: %u\n", loading, running);
@@ -129,6 +174,10 @@ void LoadingThread::render()
 {
     irr::IrrlichtDevice* device = TheGame::getInstance()->getDevice();
     dprintf(MY_DEBUG_NOTE, "loading thread render step\n");
+    irr::core::stringw str = L"Loading, ";
+    str += (int)currentLoad;
+    str += L"% completed";
+    staticTextLoading->setText(str.c_str());
     device->run();
     device->getVideoDriver()->beginScene(true, true, irr::video::SColor(0,192,192,192));
     bgQuad->render();

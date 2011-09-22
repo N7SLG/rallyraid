@@ -5,6 +5,7 @@
 #include "ConfigFile.h"
 #include "stdafx.h"
 #include "StringConverter.h"
+#include "LoadingThread.h"
 
 ObjectPoolManager* ObjectPoolManager::objectPoolManager = 0;
 
@@ -51,8 +52,11 @@ void ObjectPoolManager::read()
 
     ConfigFile cf;
     cf.load("data/objects/objects.cfg");
-
+    
     dprintf(MY_DEBUG_NOTE, "Read objects file:\n");
+
+    LoadingThread::getInstance()->setSmallStepCount(cf.getSectionCount());
+
     // Go through all sections & settings in the file
     ConfigFile::SectionIterator seci = cf.getSectionIterator();
 
@@ -135,6 +139,7 @@ void ObjectPoolManager::read()
         {
             objectPoolMap[objectName] = new ObjectPool(objectName, meshFilename, textureFilename, texture2Filename,
                 physics, objectType, material, material2, num, category, friction, mass, center);
+            LoadingThread::getInstance()->stepSmall();
         }
     }
 }

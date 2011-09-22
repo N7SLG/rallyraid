@@ -157,6 +157,7 @@ private:
     irr::gui::IGUIImage*    itinerImage2;
     irr::gui::IGUIImage*    objectImage;
     irr::gui::IGUIImage*    objectImage2;
+    irr::gui::IGUIImage*    roadImage;
     irr::gui::IGUIButton*   buttonAction;
 
     Action                  currentAction;

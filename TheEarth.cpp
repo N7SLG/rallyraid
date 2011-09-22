@@ -18,6 +18,7 @@
 #include "RoadManager.h"
 #include "Shaders.h"
 #include "stdafx.h"
+#include "LoadingThread.h"
 
 
 const irr::core::vector3di TheEarth::VisualMembers::terrainPos[3][3] =
@@ -602,11 +603,22 @@ void TheEarth::setTileFineDensity(unsigned int x, unsigned int y, const irr::vid
 bool TheEarth::read()
 {
     bool ret = true;
+
+    LoadingThread::getInstance()->setSmallStepCount(4);
+
     ret &= readHeight();
+    LoadingThread::getInstance()->stepSmall();
+
     ret &= readHasDetail();
+    LoadingThread::getInstance()->stepSmall();
+
     //ret &= readHasDetailTex();
+
     ret &= readDensity();
+    LoadingThread::getInstance()->stepSmall();
+
     ret &= readEarthTexture();
+    LoadingThread::getInstance()->stepSmall();
     return ret;
 }
 

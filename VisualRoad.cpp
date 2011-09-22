@@ -227,6 +227,8 @@ void VisualRoad::switchToVisible()
 {
     assert(roadNode == 0);
 
+    if (animatedMesh == 0) return;
+
     OffsetManager* offsetManager = OffsetManager::getInstance();
     RoadType* roadType = roadRoadChunk.road->getRoadType();
     const Road::roadPointVector_t& basePoints = roadRoadChunk.road->getRoadPointVector();

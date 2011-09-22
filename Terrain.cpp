@@ -10,6 +10,8 @@
 #include "Settings.h"
 #include "stdafx.h"
 #include "ShadowRenderer.h"
+#include "RaceManager.h"
+#include "Stage.h"
 
 
 Terrain::Terrain(const std::string& prefix)
@@ -20,7 +22,8 @@ Terrain::Terrain(const std::string& prefix)
       offsetX(0),
       offsetY(0),
       prefix(prefix),
-      image(0)
+      image(0),
+      texture(0)
       /*, loading(false)*/
 {
 }
@@ -38,6 +41,16 @@ Terrain::~Terrain()
         hk::unlock();
         hkShape = 0;
     }
+    hkpRigidBody* hkBody = offsetObject->getBody();
+    if (hkBody)
+    {
+        hk::lock();
+        hkBody->removeReference();
+        hk::hkWorld->removeEntity(hkBody);
+        hk::unlock();
+        hkBody = 0;
+        offsetObject->setBody(0);
+    }
     if (image)
     {
         image->drop();
@@ -45,6 +58,8 @@ Terrain::~Terrain()
     }
     delete terrain;
     delete offsetObject;
+    TheGame::getInstance()->getDriver()->removeTexture(texture);
+    texture = 0;
 }
 
 void Terrain::postConstruct()
@@ -73,7 +88,12 @@ void Terrain::setVisible(bool p_visible)
             groundInfo.m_shape = hkShape;
             groundInfo.m_position.set(terrain->getPosition().X, terrain->getPosition().Y, terrain->getPosition().Z);
             groundInfo.m_motionType = hkpMotion::MOTION_FIXED;
-            groundInfo.m_friction = 0.7f;
+            groundInfo.m_friction = Settings::getInstance()->groundFriction; // 0.8f;
+                /* if (RaceManager::getInstance()->getCurrentStage())
+                    groundInfo.m_friction = RaceManager::getInstance()->getCurrentStage()->getGroundFriction();
+                   else
+                    groundInfo.m_friction = 0.8f;
+                */
             groundInfo.m_collisionFilterInfo = hkpGroupFilter::calcFilterInfo(hk::materialType::terrainId);
             hkpRigidBody* hkBody = new hkpRigidBody(groundInfo);
             hkpPropertyValue val(1);
@@ -90,9 +110,9 @@ void Terrain::setVisible(bool p_visible)
             char textureMapPartName[255];
             sprintf_s(textureMapPartName, "%s_textureMapPart_%d_%d", prefix.c_str(), offsetX, offsetY);
             TheGame::getInstance()->getDriver()->setTextureCreationFlag(irr::video::ETCF_CREATE_MIP_MAPS, false);
-            //irr::video::ITexture* texture = TheGame::getInstance()->getDriver()->addTexture(textureMapPartName, terrain->getGeneratedImage());
-            irr::video::ITexture* texture = TheGame::getInstance()->getDriver()->addTexture(textureMapPartName, image);
+            texture = TheGame::getInstance()->getDriver()->addTexture(textureMapPartName, image);
             TheGame::getInstance()->getDriver()->setTextureCreationFlag(irr::video::ETCF_CREATE_MIP_MAPS, true);
+            printf("texture cnt: %u\n", TheGame::getInstance()->getDriver()->getTextureCount());
             //printf("image found(%p): %s - %u x %u - %u, %u, %u\n",
             //    texture,
             //    prefix.c_str(), image->getDimension().Width, image->getDimension().Height,
@@ -102,6 +122,7 @@ void Terrain::setVisible(bool p_visible)
             terrain->setMaterialTexture(0, texture);
             terrain->setMaterialTexture(1, TheGame::getInstance()->getDriver()->getTexture("data/earthdata/detailmap_03.png"));
             terrain->setMaterialTexture(2, ShadowRenderer::getInstance()->getShadowMap());
+            terrain->setMaterialTexture(3, TheGame::getInstance()->getDriver()->getTexture("data/earthdata/detailmap_04.png"));
             if (Shaders::getInstance()->getSupportedSMVersion() < 2)
             {
                 terrain->setMaterialFlag(irr::video::EMF_LIGHTING, Settings::getInstance()->nonshaderLight);

@@ -28,12 +28,12 @@ MessageManager::MessageManager()
       messageHistory()
 {
     messageText = TheGame::getInstance()->getEnv()->addStaticText(L"messageText",
-        irr::core::recti(TheGame::getInstance()->getScreenSize().Width/2-200,40,TheGame::getInstance()->getScreenSize().Width/2+200,110),
+        irr::core::recti(TheGame::getInstance()->getScreenSize().Width/2-400,40,TheGame::getInstance()->getScreenSize().Width/2+400,110),
         true, // border
         true,  // wordwrap
         0, -1,
         true); // show bg
-    messageText->setOverrideFont(FontManager::getInstance()->getFont(FontManager::FONT_NORMALBOLD));
+    messageText->setOverrideFont(FontManager::getInstance()->getFont(FontManager::FONT_VERDANA_12PX));
     messageText->setVisible(false);
 }
 

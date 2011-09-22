@@ -2,6 +2,8 @@
 #include "MenuPageBase.h"
 #include "MenuManager.h"
 #include "TheGame.h"
+#include "FontManager.h"
+#include "Settings.h"
 
 #include "MenuPageEditor.h"
 #include "MenuPageEditorRace.h"
@@ -14,6 +16,7 @@
 #include "MenuPageOptions.h"
 #include "MenuPageOptionsKB.h"
 #include "MenuPageLoadSave.h"
+#include "MenuPageSetup.h"
 
 #include <string.h>
 
@@ -71,9 +74,20 @@ void MenuManager::finalize()
 }
 
 MenuManager::MenuManager()
-    : currentMenuPage(0), menuInput(false), eer(new EmptyEventReceiver())
+    : currentMenuPage(0), menuInput(false), eer(new EmptyEventReceiver()), currentEventReceiver(0)
 {
     menuManager = this;
+
+    if (Settings::getInstance()->editorMode)
+    {
+        TheGame::getInstance()->getEnv()->getSkin()->setFont(FontManager::getInstance()->getFont(FontManager::FONT_BUILTIN));
+    }
+    else
+    {
+        TheGame::getInstance()->getEnv()->getSkin()->setFont(FontManager::getInstance()->getFont(FontManager::FONT_VERDANA_10PX));
+    }
+    //TheGame::getInstance()->getEnv()->getSkin()->setFont(FontManager::getInstance()->getFont(FontManager::FONT_VERDANA_10PX));
+
     memset(menuPages, 0, sizeof(menuPages));
     menuPages[MP_EDITOR] = new MenuPageEditor();
     menuPages[MP_EDITORRACE] = new MenuPageEditorRace();
@@ -86,6 +100,7 @@ MenuManager::MenuManager()
     menuPages[MP_OPTIONS] = new MenuPageOptions();
     menuPages[MP_OPTIONSKB] = new MenuPageOptionsKB();
     menuPages[MP_LOADSAVE] = new MenuPageLoadSave();
+    menuPages[MP_SETUP] = new MenuPageSetup();
 }
 
 MenuManager::~MenuManager()
@@ -134,6 +149,7 @@ void MenuManager::closeAll()
 void MenuManager::refreshEventReceiver()
 {
     TheGame::getInstance()->getEnv()->setUserEventReceiver(currentMenuPage);
+    currentEventReceiver = currentMenuPage;
     menuInput = (currentMenuPage != 0);
     TheGame::getInstance()->getCamera()->setInputReceiverEnabled(!menuInput);
     //printf("set event receiver: %p, menuInput %d\n", currentMenuPage, menuInput);
@@ -142,6 +158,7 @@ void MenuManager::refreshEventReceiver()
 void MenuManager::clearEventReceiver()
 {
     TheGame::getInstance()->getEnv()->setUserEventReceiver(eer);
+    currentEventReceiver = eer;
     TheGame::getInstance()->resetMouseCursor();
     menuInput = false;
     TheGame::getInstance()->getCamera()->setInputReceiverEnabled(true);

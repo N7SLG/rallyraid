@@ -37,6 +37,7 @@ MenuPageInGame::MenuPageInGame()
       tableStages(0),
       tableCompetitors(0),
       tableCompetitorsG(0),
+      buttonLoad(0),
       willOpenOtherWindow(false)
 {
     menuPageInGame = this;
@@ -49,37 +50,44 @@ MenuPageInGame::MenuPageInGame()
 
     int line = 60;
     TheGame::getInstance()->getEnv()->addButton(
-        irr::core::recti(10,line,90,line+20),
+        irr::core::recti(10,line,140,line+20),
         window,
         MI_BUTTONBACK,
-        L"Back To Game");
+        L"Back To Race");
 
     line += 30;
-    TheGame::getInstance()->getEnv()->addButton(
-        irr::core::recti(10,line,90,line+20),
+    buttonLoad = TheGame::getInstance()->getEnv()->addButton(
+        irr::core::recti(10,line,140,line+20),
         window,
         MI_BUTTONLOAD,
         L"Load Game");
 
     line += 30;
     TheGame::getInstance()->getEnv()->addButton(
-        irr::core::recti(10,line,90,line+20),
+        irr::core::recti(10,line,140,line+20),
         window,
         MI_BUTTONSAVE,
         L"Save Game");
 
     line += 30;
     TheGame::getInstance()->getEnv()->addButton(
-        irr::core::recti(10,line,90,line+20),
+        irr::core::recti(10,line,140,line+20),
         window,
         MI_BUTTONOPTIONS,
         L"Options");
 
+    line += 30;
+    TheGame::getInstance()->getEnv()->addButton(
+        irr::core::recti(10,line,140,line+20),
+        window,
+        MI_BUTTONEXIT,
+        L"Exit");
+
     staticTextRaceName = TheGame::getInstance()->getEnv()->addStaticText(L"",
-        irr::core::recti(window->getRelativePosition().getSize().Width/2 - 400,54,window->getRelativePosition().getSize().Width/2 + 400,88),
+        irr::core::recti(window->getRelativePosition().getSize().Width/2 - 400,54,window->getRelativePosition().getSize().Width/2 + 400,90),
         //irr::core::recti(120,54,1200,88),
         false, false, window, 0, false);
-    staticTextRaceName->setOverrideFont(FontManager::getInstance()->getFont(FontManager::FONT_SPECIAL18));
+    staticTextRaceName->setOverrideFont(FontManager::getInstance()->getFont(FontManager::FONT_VERDANA_22PX_BORDER/*SPECIAL18*/));
     staticTextRaceName->setOverrideColor(irr::video::SColor(255, 255, 255, 255));
     staticTextRaceName->setTextAlignment(irr::gui::EGUIA_CENTER, irr::gui::EGUIA_UPPERLEFT);
 
@@ -87,7 +95,7 @@ MenuPageInGame::MenuPageInGame()
     // Stages
     // ----------------------------
     tableStages = TheGame::getInstance()->getEnv()->addTable(
-        irr::core::recti(irr::core::position2di(window->getRelativePosition().getSize().Width/6, (window->getRelativePosition().getSize().Height)/3), irr::core::dimension2di(window->getRelativePosition().getSize().Width/3-2,(window->getRelativePosition().getSize().Height*2)/3-2)),
+        irr::core::recti(irr::core::position2di(window->getRelativePosition().getSize().Width/6, (window->getRelativePosition().getSize().Height)/3), irr::core::dimension2di(window->getRelativePosition().getSize().Width/6-2,(window->getRelativePosition().getSize().Height*2)/3-2)),
         window,
         MI_TABLESTAGES,
         true);
@@ -99,7 +107,7 @@ MenuPageInGame::MenuPageInGame()
     // Competitors
     // ----------------------------
     irr::gui::IGUITabControl* tc = TheGame::getInstance()->getEnv()->addTabControl(
-        irr::core::recti(irr::core::position2di(window->getRelativePosition().getSize().Width/2+2, (window->getRelativePosition().getSize().Height)/3), irr::core::dimension2di(window->getRelativePosition().getSize().Width/3-2,(window->getRelativePosition().getSize().Height*2)/3-2)),
+        irr::core::recti(irr::core::position2di(window->getRelativePosition().getSize().Width/3+2, (window->getRelativePosition().getSize().Height)/3-34), irr::core::dimension2di(window->getRelativePosition().getSize().Width/2-2,(window->getRelativePosition().getSize().Height*2)/3-2+34)),
         window,
         true,
         true,
@@ -114,13 +122,15 @@ MenuPageInGame::MenuPageInGame()
         true);
 
     tableCompetitors->addColumn(L"Pos");
-    tableCompetitors->setColumnWidth(0, 30);
+    tableCompetitors->setColumnWidth(0, 40);
     tableCompetitors->addColumn(L"Time");
-    tableCompetitors->setColumnWidth(1, 50);
+    tableCompetitors->setColumnWidth(1, 80);
+    tableCompetitors->addColumn(L"Diff.");
+    tableCompetitors->setColumnWidth(2, 65);
     tableCompetitors->addColumn(L"Num");
-    tableCompetitors->setColumnWidth(2, 30);
+    tableCompetitors->setColumnWidth(3, 40);
     tableCompetitors->addColumn(L"Name");
-    tableCompetitors->setColumnWidth(3, tableCompetitors->getRelativePosition().getSize().Width-(16+tableCompetitors->getColumnWidth(0)+tableCompetitors->getColumnWidth(1)+tableCompetitors->getColumnWidth(2)));
+    tableCompetitors->setColumnWidth(4, tableCompetitors->getRelativePosition().getSize().Width-(16+tableCompetitors->getColumnWidth(0)+tableCompetitors->getColumnWidth(1)+tableCompetitors->getColumnWidth(2)+tableCompetitors->getColumnWidth(3)));
 
    irr::gui::IGUITab* tabGlobal = tc->addTab(L"Overall", 0);
 
@@ -131,13 +141,15 @@ MenuPageInGame::MenuPageInGame()
         true);
 
     tableCompetitorsG->addColumn(L"Pos");
-    tableCompetitorsG->setColumnWidth(0, 30);
+    tableCompetitorsG->setColumnWidth(0, 40);
     tableCompetitorsG->addColumn(L"Time");
-    tableCompetitorsG->setColumnWidth(1, 50);
+    tableCompetitorsG->setColumnWidth(1, 80);
+    tableCompetitorsG->addColumn(L"Diff.");
+    tableCompetitorsG->setColumnWidth(2, 65);
     tableCompetitorsG->addColumn(L"Num");
-    tableCompetitorsG->setColumnWidth(2, 30);
+    tableCompetitorsG->setColumnWidth(3, 40);
     tableCompetitorsG->addColumn(L"Name");
-    tableCompetitorsG->setColumnWidth(3, tableCompetitorsG->getRelativePosition().getSize().Width-(16+tableCompetitorsG->getColumnWidth(0)+tableCompetitorsG->getColumnWidth(1)+tableCompetitorsG->getColumnWidth(2)));
+    tableCompetitorsG->setColumnWidth(4, tableCompetitorsG->getRelativePosition().getSize().Width-(16+tableCompetitorsG->getColumnWidth(0)+tableCompetitorsG->getColumnWidth(1)+tableCompetitorsG->getColumnWidth(2)+tableCompetitorsG->getColumnWidth(3)));
 
     window->setVisible(false);
 }
@@ -206,6 +218,11 @@ bool MenuPageInGame::OnEvent(const irr::SEvent &event)
                         MenuManager::getInstance()->open(MenuManager::MP_OPTIONS);
                         return true;
                         break;
+                    case MI_BUTTONEXIT:
+                        dprintf(MY_DEBUG_NOTE, "ingamemenu::exitbutton::clicked\n");
+                        TheGame::getInstance()->setTerminate();
+                        return true;
+                        break;
                 };
                 break;
             }
@@ -258,6 +275,8 @@ void MenuPageInGame::refresh()
 {
     assert(!GamePlay::getInstance()->raceState.empty());
 
+    buttonLoad->setEnabled(!GamePlay::getInstance()->loadableGames.empty());
+
     if (RaceManager::getInstance()->getCurrentRace())
     {
         irr::core::stringw str;
@@ -308,6 +327,8 @@ void MenuPageInGame::refreshCompetitors(StageState* stageState)
 
     const competitorResultList_t& competitorResultList = stageState->competitorResultListStage;
     unsigned int i = 0;
+    unsigned int currTime = 0;
+    unsigned int prevTime = 0;
     for (competitorResultList_t::const_iterator it = competitorResultList.begin();
          it != competitorResultList.end();
          it++, i++)
@@ -321,23 +342,34 @@ void MenuPageInGame::refreshCompetitors(StageState* stageState)
         tableCompetitors->setCellText(i, 0, str.c_str());
         //tableStages->setCellData(i, 0, (void*)(*it));
 
+        currTime = (*it)->stageTime + (*it)->stagePenaltyTime;
         str = L"";
-        WStringConverter::addTimeToStr(str, (*it)->stageTime + (*it)->stagePenaltyTime);
+        WStringConverter::addTimeToStr(str, currTime);
         tableCompetitors->setCellText(i, 1, str.c_str());
+        
+        if (it != competitorResultList.begin())
+        {
+            str = L"+";
+            WStringConverter::addTimeToStr(str, currTime - prevTime);
+            tableCompetitors->setCellText(i, 2, str.c_str());
+        }
+        prevTime = currTime;
 
         str = L"";
         str += (*it)->competitor->getNum();
-        tableCompetitors->setCellText(i, 2, str.c_str());
+        tableCompetitors->setCellText(i, 3, str.c_str());
 
         str = L"";
         str += (*it)->competitor->getName().c_str();
-        tableCompetitors->setCellText(i, 3, str.c_str());
+        tableCompetitors->setCellText(i, 4, str.c_str());
     }
 
     tableCompetitorsG->clearRows();
 
     const competitorResultList_t& competitorResultListG = stageState->competitorResultListOverall;
     i = 0;
+    currTime = 0;
+    prevTime = 0;
     for (competitorResultList_t::const_iterator it = competitorResultListG.begin();
          it != competitorResultListG.end();
          it++, i++)
@@ -351,16 +383,25 @@ void MenuPageInGame::refreshCompetitors(StageState* stageState)
         tableCompetitorsG->setCellText(i, 0, str.c_str());
         //tableStages->setCellData(i, 0, (void*)(*it));
 
+        currTime = (*it)->stageTime + (*it)->stagePenaltyTime;
         str = L"";
-        WStringConverter::addTimeToStr(str, (*it)->globalTime + (*it)->globalPenaltyTime);
+        WStringConverter::addTimeToStr(str, currTime);
         tableCompetitorsG->setCellText(i, 1, str.c_str());
+
+        if (it != competitorResultListG.begin())
+        {
+            str = L"+";
+            WStringConverter::addTimeToStr(str, currTime - prevTime);
+            tableCompetitorsG->setCellText(i, 2, str.c_str());
+        }
+        prevTime = currTime;
 
         str = L"";
         str += (*it)->competitor->getNum();
-        tableCompetitorsG->setCellText(i, 2, str.c_str());
+        tableCompetitorsG->setCellText(i, 3, str.c_str());
 
         str = L"";
         str += (*it)->competitor->getName().c_str();
-        tableCompetitorsG->setCellText(i, 3, str.c_str());
+        tableCompetitorsG->setCellText(i, 4, str.c_str());
     }
 }

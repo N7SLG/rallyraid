@@ -85,9 +85,11 @@ class Vehicle : public OffsetObjectUpdateCB
 public:
     /* constructor:
             suspensionSpringModifier and damperModifier must be between -20 .. 20,
+            brakeBalance: 0.0 .. 1.0
     */
     Vehicle(const std::string& vehicleTypeName, const irr::core::vector3df& apos, const irr::core::vector3df& rotation,
-        bool manual = false, bool sequential = true, float suspensionSpringModifier = 0.0f, float suspensionDamperModifier = 0.0f);
+        bool manual = false, bool sequential = true, float suspensionSpringModifier = 0.0f, float suspensionDamperModifier = 0.0f,
+        float brakeBalance = 0.2f);
     ~Vehicle();
 
     void reset(const irr::core::vector3df& pos);
@@ -124,6 +126,11 @@ public:
     */
     void modifySuspensionDamper(float suspensionDamperModifier = 0.0f);
     
+    /* constructor:
+            damperModifier must be between 0.0f .. 1.0f,
+    */
+    void modifyBrakeBalance(float brakeBalance = 0.2f);
+    
     void pause();
     void resume();
 
@@ -156,6 +163,7 @@ private:
     float                       clutch;
     float                       suspensionSpringModifier;
     float                       suspensionDamperModifier;
+    float                       brakeBalance;
     irr::scene::ITextSceneNode* nameText;
     VehicleCollisionCB*         vehicleCollisionCB;
 
