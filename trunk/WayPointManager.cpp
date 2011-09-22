@@ -50,6 +50,57 @@ WayPointManager::~WayPointManager()
 bool WayPointManager::update(const irr::core::vector3df& newPos, bool force)
 {
     showCompass = false;
+    WayPoint* wp = 0;
+    float minDist = 10000.f;
+    for (wayPointSet_t::const_iterator it = activeWayPointSet.begin();
+         it != activeWayPointSet.end();
+         it++)
+    {
+        WayPoint* cwp = *it;
+        
+        // skip passed WPs
+        if (Player::getInstance()->isPassedWayPointNum(cwp->getNum())) continue;
+        
+        // get distance
+        float dist = cwp->getPos().getDistanceFrom(newPos);
+        if (((cwp->getType() == WayPoint::Hidden && dist < 400.f) ||
+             (cwp->getType() == WayPoint::Safety && dist < 3000.f)) &&
+            dist < minDist)
+        {
+            wp = cwp;
+            minDist = dist;
+        }
+    }
+    if (wp)
+    {
+        if ((wp->getType() == WayPoint::Hidden && minDist < 200.f) ||
+            (wp->getType() == WayPoint::Safety && minDist < 90.f)
+           )
+        {
+            if (Player::getInstance()->addPassedWayPointNum(wp->getNum()))
+            {
+                irr::core::stringw str;
+                str += L"You have just passed the ";
+                str += wp->getNum();
+                str += L". waypoint. (";
+                str += Player::getInstance()->getPassedWayPointsCount();
+                str += L" / ";
+                str += RaceManager::getInstance()->getCurrentStage()->getWayPointList().size();
+                str += L")";
+                MessageManager::getInstance()->addText(str.c_str(), 5);
+                return true;
+            }
+            assert(0);
+        }
+        else
+        {
+            irr::core::vector3df dir = wp->getPos() - newPos;
+            angle = (float)irr::core::vector2df(dir.X, dir.Z).getAngle();
+            showCompass = true;
+        }
+    
+    }
+/*
     if (!activeWayPointSet.empty())
     {
         WayPoint* wp = *activeWayPointSet.begin();
@@ -86,6 +137,7 @@ bool WayPointManager::update(const irr::core::vector3df& newPos, bool force)
             }
         }
     }
+*/
     return false;
 }
 

@@ -20,10 +20,13 @@ public:
     typedef std::map<std::string, Stage*> stageMap_t;
 
 private:
-    bool read();
+    bool readHeader();
+    bool readData();
+    
     bool readCfg();
     bool readStages();
     void readShortDescription();
+    
     void readGlobalObjects();
 
     bool write();
@@ -53,6 +56,7 @@ private:
     RaceManager::globalObjectList_t globalObjectList;
     bool                            active;
     RoadManager::roadMap_t          roadMap;
+    bool                            loaded;
     
 
     friend class RaceManager;

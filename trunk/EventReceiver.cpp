@@ -66,7 +66,7 @@ EventReceiver::EventReceiver()
     {
         if (Settings::getInstance()->scanForJoystick)
         {
-            PrintMessage(1, "Unable to detect joystick. Program will continue.\nYou can turn off joystick check if set scan_for_joystick to no in the settings file");
+            PrintMessage(1, "Unable to detect joystick. Program will continue.\nYou can turn off joystick check in the Options.");
         }
     }
 
@@ -509,14 +509,14 @@ void EventReceiver::checkEvents()
         {
             //dprintf(MY_DEBUG_NOTE, "brake pressed: %f\n", perc);
             Player::getInstance()->setFirstPressed();
-            Player::getInstance()->getVehicle()->setTorque(perc*perc);
+            Player::getInstance()->getVehicle()->setTorque(perc/*perc*/);
         }
         else
         if (IS_PRESSED(ACCELERATE) && (perc = getPercentage(ACCELERATE, joystickState))/* > Settings::getInstance()->joystickDeadZone*/)
         {
             //dprintf(MY_DEBUG_NOTE, "accelerate pressed: %f\n", perc);
             Player::getInstance()->setFirstPressed();
-            Player::getInstance()->getVehicle()->setTorque(-1.0f*perc*perc);
+            Player::getInstance()->getVehicle()->setTorque(-1.0f*perc/*perc*/);
         }
         else
         {
@@ -706,8 +706,8 @@ void EventReceiver::checkEvents()
             TheGame::getInstance()->decFPSSpeed();
         }
 
-        if (Settings::getInstance()->navigationAssistant == false)
-        {
+        //if (Settings::getInstance()->navigationAssistant == false)
+        //{
             if (IS_PRESSED(ROADBOOK_NEXT))
             {
                 Player::getInstance()->stepItiner();
@@ -722,7 +722,7 @@ void EventReceiver::checkEvents()
             {
                 Player::getInstance()->resetDistance();
             }
-        }
+        //}
 
         if (IS_PRESSED(EXIT_TO_MENU))
         {

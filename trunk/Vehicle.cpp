@@ -530,7 +530,7 @@ VehicleTyre::~VehicleTyre()
 // -------------------------------------------------------
 
 Vehicle::Vehicle(const std::string& vehicleTypeName, const irr::core::vector3df& apos, const irr::core::vector3df& rotation,
-    bool manual, bool sequential, float suspensionSpringModifier, float suspensionDamperModifier)
+    bool manual, bool sequential, float suspensionSpringModifier, float suspensionDamperModifier, float brakeBalance)
     : vehicleType(0),
       collisionListener(0),
       matrix(),
@@ -548,6 +548,7 @@ Vehicle::Vehicle(const std::string& vehicleTypeName, const irr::core::vector3df&
       clutch(0.0f),
       suspensionSpringModifier(suspensionSpringModifier),
       suspensionDamperModifier(suspensionDamperModifier),
+      brakeBalance(brakeBalance),
       nameText(0)
 {
     dprintf(MY_DEBUG_NOTE, "Vehicle::Vehicle(): %p, [%s]\n", this, vehicleTypeName.c_str());
@@ -769,9 +770,11 @@ Vehicle::Vehicle(const std::string& vehicleTypeName, const irr::core::vector3df&
     // ------------------------------------------------
     hkpVehicleDefaultBrake* brake = static_cast< hkpVehicleDefaultBrake*>(hkVehicle->m_brake);
     brake->m_wheelBrakingProperties.setSize(hkVehicle->m_data->m_numWheels);
+
+    modifyBrakeBalance(brakeBalance);
+
     for (unsigned int i = 0; i < tyres.size(); i++)
     {
-        brake->m_wheelBrakingProperties[i].m_maxBreakingTorque = vehicleType->maxBrakeForce;
         brake->m_wheelBrakingProperties[i].m_isConnectedToHandbrake = tyres[i]->tyreType->handbrakeable;
         brake->m_wheelBrakingProperties[i].m_minPedalInputToBlock = 0.1f;
     }
@@ -978,7 +981,9 @@ void Vehicle::handleUpdatePos(bool phys)
         const float speed = getSpeed();
         const float angularVelocity = fabsf(speed);
         const float ssSpeed = angularVelocity/80.f+1.0f;
-        float ssGear = (hkVehicle->calcRPM() * 1.5f) / vehicleType->maxTorque + 1.0f;
+        const float rpm = hkVehicle->calcRPM() / vehicleType->maxTorque;
+        float ssGear = rpm * 1.5f + 1.0f;
+        const float soundVolume = rpm*0.5f + 0.5f;
 
         if (ssGear > 2.5f) ssGear = 2.5f;
 
@@ -988,6 +993,7 @@ void Vehicle::handleUpdatePos(bool phys)
             engineSound->setPosition(soundPos);
             engineSound->setPlaybackSpeed(ssGear);
             engineSound->setVelocity(linearVelocity);
+            engineSound->setVolume(soundVolume);
         }
         updateSmoke();
         
@@ -1261,6 +1267,24 @@ void Vehicle::modifySuspensionDamper(float suspensionDamperModifier)
         ((hkpVehicleDefaultSuspension*)hkVehicle->m_suspension)->m_wheelSpringParams[i].m_dampingCompression = 
             ((hkpVehicleDefaultSuspension*)hkVehicle->m_suspension)->m_wheelSpringParams[i].m_dampingRelaxation = 
             tyres[i]->tyreType->suspensionDamper;
+    }
+}
+
+void Vehicle::modifyBrakeBalance(float brakeBalance)
+{
+    if (brakeBalance < 0.0f) brakeBalance = 0.0f;
+    if (brakeBalance > 1.0f) brakeBalance = 1.0f;
+    this->brakeBalance = brakeBalance;
+    for (unsigned int i = 0; i < tyres.size(); i++)
+    {
+        if (tyres[i]->tyreType->steerable)
+        {
+            static_cast<hkpVehicleDefaultBrake*>(hkVehicle->m_brake)->m_wheelBrakingProperties[i].m_maxBreakingTorque = vehicleType->maxBrakeForce*(2.0f*(1.0f - brakeBalance));
+        }
+        else
+        {
+            static_cast<hkpVehicleDefaultBrake*>(hkVehicle->m_brake)->m_wheelBrakingProperties[i].m_maxBreakingTorque = vehicleType->maxBrakeForce*(2.0f*brakeBalance);
+        }
     }
 }
 

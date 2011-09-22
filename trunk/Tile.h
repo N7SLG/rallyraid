@@ -129,6 +129,7 @@ public:
                     }
                     */
                     fineDensity[xx + fy] = irr::video::SColor(0);
+                    fineColors[xx + fy].setAlpha(0);
                     setAdjusted(xx + fy);
                     //fineColors[xx + fy] = val;
                     int newVal = (int)fineColors[xx + fy].getRed() + radjustRed;

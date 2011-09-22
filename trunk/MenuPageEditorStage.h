@@ -32,6 +32,7 @@ public:
         MI_TABLEHM,
 
         MI_EBLONGNAME,
+        MI_EBDSSASS,
         MI_EBSHORTDESCRIPTION,
         MI_EBNEWROADFILENAME,
         MI_EBNEWROADNAME,
@@ -75,6 +76,7 @@ private:
     irr::gui::IGUITable*    tableWP;
     irr::gui::IGUITable*    tableHM;
     irr::gui::IGUIEditBox*  editBoxLongName;
+    irr::gui::IGUIEditBox*  editBoxDssAss;
     irr::gui::IGUIEditBox*  editBoxShortDescription;
     irr::gui::IGUIEditBox*  editBoxNewRoadFilename;
     irr::gui::IGUIEditBox*  editBoxNewRoadName;

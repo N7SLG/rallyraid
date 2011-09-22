@@ -23,7 +23,11 @@ public:
     
     // returns if the loading is active
     bool getLoading(); // inline
-    
+
+    void setLargeSteps(unsigned int begin, unsigned int end);
+    void setSmallStepCount(unsigned int smallStep);
+    void stepSmall();
+private:
     void refresh();
 
 private:
@@ -42,6 +46,11 @@ private:
     volatile bool           running;
     ScreenQuad*             bgQuad;
     irr::gui::IGUIStaticText* staticTextLoading;
+
+    float                   begin;
+    float                   end;
+    float                   smallStep;
+    float                   currentLoad;
 };
 
 inline bool LoadingThread::getLoading()

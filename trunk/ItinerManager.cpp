@@ -61,8 +61,9 @@ bool ItinerManager::update(const irr::core::vector3df& newPos, bool force)
     //printf("ass: %s, valid: %s\n", Settings::getInstance()->navigationAssistant?"true":"false", Player::getInstance()->isCurrItinerValid()?"true":"false");
     if (Settings::getInstance()->navigationAssistant && Player::getInstance()->isCurrItinerValid())
     {
+        /*
         ItinerPoint* ip = *Player::getInstance()->getCurrItiner();
-        float dist = ip->getPos().getDistanceFrom(newPos);
+        const float dist = ip->getPos().getDistanceFrom(newPos);
         //printf("%f\n", dist);
 
         if (dist < 30.f)
@@ -71,6 +72,38 @@ bool ItinerManager::update(const irr::core::vector3df& newPos, bool force)
             Player::getInstance()->stepItiner();
             Player::getInstance()->resetDistance();
             Hud::getInstance()->updateRoadBook();
+        }
+        */
+        ItinerPoint* pip = *Player::getInstance()->getCurrItiner();
+        for (itinerPointSet_t::const_iterator it = activeItinerPointSet.begin();
+             it != activeItinerPointSet.end() && pip;
+             it++)
+        {
+            ItinerPoint* ip = *it;
+            if (pip->getNum() <= ip->getNum())
+            {
+                const float dist = ip->getPos().getDistanceFrom(newPos);
+                //printf("%f\n", dist);
+
+                if (dist < 30.f)
+                {
+                    dprintf(MY_DEBUG_NOTE, "step itiner by the assistant\n");
+                    do
+                    {
+                        Player::getInstance()->stepItiner();
+                        if (Player::getInstance()->isCurrItinerValid())
+                        {
+                            pip = *Player::getInstance()->getCurrItiner();
+                        }
+                        else
+                        {
+                            pip = 0;
+                        }
+                    } while (pip && pip->getNum() <= ip->getNum());
+                    Player::getInstance()->resetDistance();
+                    Hud::getInstance()->updateRoadBook();
+                }
+            }
         }
     }
     return false;

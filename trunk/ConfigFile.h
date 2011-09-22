@@ -37,6 +37,8 @@ public:
     /** Get an iterator over all the available settings in a section */
     SettingsIterator getSettingsIterator(const std::string& section = "");
 
+    size_t getSectionCount() const; // inline
+
     /** Clear the settings */
     void clear(void);
 protected:
@@ -44,5 +46,10 @@ protected:
     
     SettingsBySection mSettings;
 };
+
+inline size_t ConfigFile::getSectionCount() const
+{
+    return mSettings.size();
+}
 
 #endif // CONFIGFILE_H

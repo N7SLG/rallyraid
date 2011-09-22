@@ -5,6 +5,7 @@
 #include "ConfigFile.h"
 #include "ConfigDirectory.h"
 #include "stdafx.h"
+#include "LoadingThread.h"
 
 VehicleTypeManager* VehicleTypeManager::vehicleTypeManager = 0;
 
@@ -93,6 +94,8 @@ void VehicleTypeManager::read()
         return;
     }
     
+    LoadingThread::getInstance()->setSmallStepCount(fileList.size());
+
     for (ConfigDirectory::fileList_t::const_iterator it = fileList.begin();
          it != fileList.end();
          it++)
@@ -107,6 +110,7 @@ void VehicleTypeManager::read()
         else
         {
             vehicleTypeMap[vehicleTypeName] = vehicleType;
+            LoadingThread::getInstance()->stepSmall();
         }
     }
 //    assert(0);

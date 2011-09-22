@@ -123,6 +123,7 @@
     <ClInclude Include="MenuPageMain.h" />
     <ClInclude Include="MenuPageOptions.h" />
     <ClInclude Include="MenuPageOptionsKB.h" />
+    <ClInclude Include="MenuPageSetup.h" />
     <ClInclude Include="MenuPageStage.h" />
     <ClInclude Include="MessageManager.h" />
     <ClInclude Include="MyLock.h" />
@@ -207,6 +208,7 @@
     <ClCompile Include="MenuPageMain.cpp" />
     <ClCompile Include="MenuPageOptions.cpp" />
     <ClCompile Include="MenuPageOptionsKB.cpp" />
+    <ClCompile Include="MenuPageSetup.cpp" />
     <ClCompile Include="MenuPageStage.cpp" />
     <ClCompile Include="MessageManager.cpp" />
     <ClCompile Include="MySound.cpp" />

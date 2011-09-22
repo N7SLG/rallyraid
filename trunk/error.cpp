@@ -52,9 +52,45 @@ extern "C" void PrintMessage(int num, const char *msg, ...)
 
 #include "windows.h"
 #include <irrlicht.h>
+#include "TheGame.h"
+#include "MenuManager.h"
+
+class ModalEventReceiver : public irr::IEventReceiver
+{
+public:
+    ModalEventReceiver()
+        : closed(false)
+    {
+    }
+
+    virtual ~ModalEventReceiver()
+    {
+    }
+
+private:
+    virtual bool OnEvent(const irr::SEvent &event)
+    {
+        //printf("empty event: %u (%u)\n", event.EventType, event.GUIEvent.EventType);
+        if (event.EventType == irr::EET_GUI_EVENT && event.GUIEvent.EventType == irr::gui::EGET_MESSAGEBOX_OK)
+        {
+            closed = true;
+        }
+        return false;
+    }
+
+public:
+    volatile bool closed;
+};
+
+static bool printToWindow = true;
+
+/* extern "C" */ void switchPrintDestination()
+{
+    printToWindow = false;
+}
 
 
-extern "C" void PrintError(int num, const char *msg, ...)
+/* extern "C" */ void PrintError(int num, const char *msg, ...)
 {
     va_list ap;
     va_start(ap, msg);
@@ -63,19 +99,49 @@ extern "C" void PrintError(int num, const char *msg, ...)
     _vsnprintf_s(s, sizeof(s), msg, ap);
     s[sizeof(s)-1] = 0;
     _printMessage(num, "Rally Raid error", msg, ap);
+    if (printToWindow)
+    {
 #ifdef _NODEF// _MSC_VER
-    irr::core::stringw ws = L" ";
-    irr::core::stringw wtitle = L" ";
-    ws = s;
-    wtitle = title;
-    MessageBox(0, ws.c_str(), wtitle.c_str(), MB_OK | MB_ICONSTOP);
+        irr::core::stringw ws = L" ";
+        irr::core::stringw wtitle = L" ";
+        ws = s;
+        wtitle = title;
+        MessageBox(0, ws.c_str(), wtitle.c_str(), MB_OK | MB_ICONSTOP);
 #else
-    MessageBox(0, s, title, MB_OK | MB_ICONSTOP);
+        MessageBox(0, s, title, MB_OK | MB_ICONSTOP);
 #endif
+    }
+    else
+    {
+        irr::core::stringw ws = L" ";
+        irr::core::stringw wtitle = L" ";
+        ws = s;
+        wtitle = title;
+        TheGame::getInstance()->getEnv()->addMessageBox(wtitle.c_str(), ws.c_str());
+
+        irr::IEventReceiver* savedER = MenuManager::getInstance()->getCurrentEventReceiver();
+
+        ModalEventReceiver* mer = new ModalEventReceiver();
+        TheGame::getInstance()->getEnv()->setUserEventReceiver(mer);
+
+        irr::IrrlichtDevice* device = TheGame::getInstance()->getDevice();
+        while (!mer->closed)
+        {
+            irr::IrrlichtDevice* device = TheGame::getInstance()->getDevice();
+            device->run();
+            device->getVideoDriver()->beginScene(true, true, irr::video::SColor(0,192,192,192));
+            device->getGUIEnvironment()->drawAll();
+            device->getVideoDriver()->endScene();
+            device->sleep(50);
+        }
+
+        TheGame::getInstance()->getEnv()->setUserEventReceiver(savedER);
+        delete mer;
+    }
     exit(1);
 }
 
-extern "C" void PrintMessage(int num, const char *msg, ...)
+/* extern "C" */ void PrintMessage(int num, const char *msg, ...)
 {
     va_list ap;
     va_start(ap, msg);
@@ -84,15 +150,45 @@ extern "C" void PrintMessage(int num, const char *msg, ...)
     _vsnprintf_s(s, sizeof(s), msg, ap);
     s[sizeof(s)-1] = 0;
     _printMessage(num, "Rally Raid message", msg, ap);
+    if (printToWindow)
+    {
 #ifdef NODEF //_MSC_VER
-    irr::core::stringw ws = L" ";
-    irr::core::stringw wtitle = L" ";
-    ws = s;
-    wtitle = title;
-    MessageBox(0, ws.c_str(), wtitle.c_str(), MB_OK | MB_ICONWARNING);
+        irr::core::stringw ws = L" ";
+        irr::core::stringw wtitle = L" ";
+        ws = s;
+        wtitle = title;
+        MessageBox(0, ws.c_str(), wtitle.c_str(), MB_OK | MB_ICONWARNING);
 #else
-    MessageBox(0, s, title, MB_OK | MB_ICONWARNING);
+        MessageBox(0, s, title, MB_OK | MB_ICONWARNING);
 #endif
+    }
+    else
+    {
+        irr::core::stringw ws = L" ";
+        irr::core::stringw wtitle = L" ";
+        ws = s;
+        wtitle = title;
+        TheGame::getInstance()->getEnv()->addMessageBox(wtitle.c_str(), ws.c_str());
+
+        irr::IEventReceiver* savedER = MenuManager::getInstance()->getCurrentEventReceiver();
+
+        ModalEventReceiver* mer = new ModalEventReceiver();
+        TheGame::getInstance()->getEnv()->setUserEventReceiver(mer);
+
+        irr::IrrlichtDevice* device = TheGame::getInstance()->getDevice();
+        while (!mer->closed)
+        {
+            irr::IrrlichtDevice* device = TheGame::getInstance()->getDevice();
+            device->run();
+            device->getVideoDriver()->beginScene(true, true, irr::video::SColor(0,192,192,192));
+            device->getGUIEnvironment()->drawAll();
+            device->getVideoDriver()->endScene();
+            device->sleep(50);
+        }
+
+        TheGame::getInstance()->getEnv()->setUserEventReceiver(savedER);
+        delete mer;
+    }
 //    printMessage (num,"ODE Message",msg,ap);
 }
 

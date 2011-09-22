@@ -87,13 +87,13 @@ void TerrainCircle::load(TheEarth* earth)
 {
     if (!image && !detail)
     {
-        image = TheGame::getInstance()->getDriver()->createImage(irr::video::ECF_R8G8B8, irr::core::dimension2du(TILE_POINTS_NUM, TILE_POINTS_NUM));
+        image = TheGame::getInstance()->getDriver()->createImage(irr::video::ECF_A8R8G8B8, irr::core::dimension2du(TILE_POINTS_NUM, TILE_POINTS_NUM));
     }
     terrain->loadHeightMap(earth, offsetX, offsetY, TILE_POINTS_NUM+1, image);
 
     if (!image)
     {
-        image = TheGame::getInstance()->getDriver()->createImage(irr::video::ECF_R8G8B8, irr::core::dimension2du(TILE_FINE_POINTS_NUM, TILE_FINE_POINTS_NUM));
+        image = TheGame::getInstance()->getDriver()->createImage(irr::video::ECF_A8R8G8B8, irr::core::dimension2du(TILE_FINE_POINTS_NUM, TILE_FINE_POINTS_NUM));
         int offsetXFine = offsetX * TILE_FINE_RATE;
         int offsetYFine = offsetY * TILE_FINE_RATE;
         dprintf(MY_DEBUG_NOTE, "===============================\n%d %d\n===============================\n", offsetXFine, offsetYFine);

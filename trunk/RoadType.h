@@ -26,8 +26,10 @@ private:
     float                               frictionMulti;
     float                               tRate;
 
+
     friend class Road;
     friend class VisualRoad;
+    friend class MenuPageEditor;
 };
 
 

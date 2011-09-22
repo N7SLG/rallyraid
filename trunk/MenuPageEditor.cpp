@@ -69,6 +69,7 @@ MenuPageEditor::MenuPageEditor()
       itinerImage2(0),
       objectImage(0),
       objectImage2(0),
+      roadImage(0),
       buttonAction(0),
       currentAction(A_None),
       material(),
@@ -179,9 +180,9 @@ MenuPageEditor::MenuPageEditor()
         true);
 
     tableSelected->addColumn(L"item");
-    tableSelected->setColumnWidth(0, 50);
+    tableSelected->setColumnWidth(0, 100);
     tableSelected->addColumn(L"selected");
-    tableSelected->setColumnWidth(1, 150);
+    tableSelected->setColumnWidth(1, 200);
 
     tableAction = TheGame::getInstance()->getEnv()->addTable(
         irr::core::recti(irr::core::position2di(0, 44+(tabSelected->getRelativePosition().getSize().Height-44)/3+1), irr::core::dimension2di(tabSelected->getRelativePosition().getSize().Width, ((tabSelected->getRelativePosition().getSize().Height-44)*2)/3-1)),
@@ -353,7 +354,7 @@ MenuPageEditor::MenuPageEditor()
     irr::gui::IGUITab* tabRoadManager = tc->addTab(L"RoM", MI_TABROADMANAGER);
 
     tableRoadManagerS = TheGame::getInstance()->getEnv()->addTable(
-        irr::core::recti(irr::core::position2di(0, 0), irr::core::dimension2di(tabRoadManager->getRelativePosition().getSize().Width, (tabRoadManager->getRelativePosition().getSize().Height)/3-2)),
+        irr::core::recti(irr::core::position2di(0, 0), irr::core::dimension2di(tabRoadManager->getRelativePosition().getSize().Width, (tabRoadManager->getRelativePosition().getSize().Height-66)/3-2)),
         tabRoadManager,
         MI_TABLEROADMANAGERS,
         true);
@@ -363,7 +364,7 @@ MenuPageEditor::MenuPageEditor()
     tableRoadManagerS->addColumn(L"size");
 
     tableRoadManagerV = TheGame::getInstance()->getEnv()->addTable(
-        irr::core::recti(irr::core::position2di(0, ((tabRoadManager->getRelativePosition().getSize().Height)*1)/3+2), irr::core::dimension2di(tabRoadManager->getRelativePosition().getSize().Width, (tabRoadManager->getRelativePosition().getSize().Height)/3-2)),
+        irr::core::recti(irr::core::position2di(0, ((tabRoadManager->getRelativePosition().getSize().Height-66)*1)/3+2), irr::core::dimension2di(tabRoadManager->getRelativePosition().getSize().Width, (tabRoadManager->getRelativePosition().getSize().Height-66)/3-2)),
         tabRoadManager,
         MI_TABLEROADMANAGERV,
         true);
@@ -373,8 +374,14 @@ MenuPageEditor::MenuPageEditor()
     tableRoadManagerV->addColumn(L"begin");
     tableRoadManagerV->addColumn(L"end");
 
+    roadImage = TheGame::getInstance()->getEnv()->addImage(
+        irr::core::recti(irr::core::position2di(0, ((tabRoadManager->getRelativePosition().getSize().Height-66)*2)/3+2+1), irr::core::dimension2di(64,64)),
+        tabRoadManager);
+    roadImage->setScaleImage(true);
+    roadImage->setImage(0);
+
     tableRoadTypes = TheGame::getInstance()->getEnv()->addTable(
-        irr::core::recti(irr::core::position2di(0, ((tabRoadManager->getRelativePosition().getSize().Height)*2)/3+2), irr::core::dimension2di(tabRoadManager->getRelativePosition().getSize().Width, (tabRoadManager->getRelativePosition().getSize().Height)/3-2)),
+        irr::core::recti(irr::core::position2di(0, ((tabRoadManager->getRelativePosition().getSize().Height-66)*2)/3+2+66), irr::core::dimension2di(tabRoadManager->getRelativePosition().getSize().Width, (tabRoadManager->getRelativePosition().getSize().Height-66)/3-2)),
         tabRoadManager,
         MI_TABLEROADTYPES,
         true);
@@ -572,6 +579,12 @@ bool MenuPageEditor::OnEvent(const irr::SEvent &event)
                         if (RaceManager::getInstance()->editorStage)
                         {
                             RaceManager::getInstance()->activateStage(RaceManager::getInstance()->editorStage);
+                            if (!RaceManager::getInstance()->editorStage->itinerPointList.empty())
+                            {
+                                ItinerManager::getInstance()->editorGlobalDistance = RaceManager::getInstance()->editorStage->itinerPointList.back()->getGlobalDistance();
+                            }
+                            refreshSelected();
+                            refreshItinerGD();
                         }
                         return true;
                         break;
@@ -658,6 +671,7 @@ bool MenuPageEditor::OnEvent(const irr::SEvent &event)
                         break;
                     case MI_TABLEROADTYPES:
                         RoadTypeManager::getInstance()->editorRoadType = (RoadType*)tableRoadTypes->getCellData(tableRoadTypes->getSelected(), 0);
+                        roadImage->setImage(((RoadType*)tableRoadTypes->getCellData(tableRoadTypes->getSelected(), 0))->texture);
                         refreshSelected();
                         return true;
                         break;
@@ -938,6 +952,44 @@ void MenuPageEditor::refreshSelected()
     else
     {
         str = L"none";
+    }
+    tableSelected->setCellText(i, 1, str.c_str());
+
+    i = 8;
+    tableSelected->addRow(i);
+    str = L"WP type";
+    tableSelected->setCellText(i, 0, str.c_str());
+    switch (WayPointManager::getInstance()->editorWayPointType)
+    {
+    case WayPoint::Hidden:
+        str = L"hidden - WPM";
+        break;
+    case WayPoint::Safety:
+        str = L"safety - WPS";
+        break;
+    default:
+        str = L"unknown";
+        break;
+    }
+    tableSelected->setCellText(i, 1, str.c_str());
+
+    i = 9;
+    tableSelected->addRow(i);
+    str = L"stage length";
+    tableSelected->setCellText(i, 0, str.c_str());
+    str = L"0";
+    if (RaceManager::getInstance()->editorStage)
+    {
+        if (!RaceManager::getInstance()->editorStage->AIPointList.empty())
+        {
+            str = L"";
+            str += (int)RaceManager::getInstance()->editorStage->AIPointList.back()->getGlobalDistance();
+            if (!RaceManager::getInstance()->editorStage->itinerPointList.empty())
+            {
+                str += L", AI-iti: ";
+                str += (int)(RaceManager::getInstance()->editorStage->AIPointList.back()->getGlobalDistance()-RaceManager::getInstance()->editorStage->itinerPointList.back()->getGlobalDistance());
+            }
+        }
     }
     tableSelected->setCellText(i, 1, str.c_str());
 }
@@ -1502,6 +1554,7 @@ void MenuPageEditor::actionP()
                     ItinerManager::getInstance()->editorItinerImageName2,
                     ItinerManager::getInstance()->editorDescription);
                 RaceManager::getInstance()->editorStage->itinerPointList.push_back(ip);
+                refreshSelected();
             }
             break;
         }
@@ -1522,6 +1575,7 @@ void MenuPageEditor::actionP()
                 }
                 AIPoint* aip = new AIPoint(apos, gd ,ld);
                 RaceManager::getInstance()->editorStage->AIPointList.push_back(aip);
+                refreshSelected();
             }
             break;
         }
@@ -1765,6 +1819,7 @@ void MenuPageEditor::actionP()
                 refreshItinerGD();
                 RaceManager::getInstance()->editorStage->itinerPointList.pop_back();
                 delete ip;
+                refreshSelected();
             }
             break;
         }
@@ -1778,6 +1833,7 @@ void MenuPageEditor::actionP()
                 AIPoint* aip = RaceManager::getInstance()->editorStage->AIPointList.back();
                 RaceManager::getInstance()->editorStage->AIPointList.pop_back();
                 delete aip;
+                refreshSelected();
             }
             break;
         }

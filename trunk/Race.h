@@ -22,10 +22,14 @@ public:
     typedef std::map<unsigned int, Competitor*> competitorMap_t;
 
 private:
-    bool read();
+    bool readHeader();
+    bool readPreData();
+    bool readData();
+    
     bool readCfg();
     bool readDays();
     void readShortDescription();
+    
     bool readCompetitors();
     void readGlobalObjects();
     
@@ -56,6 +60,8 @@ private:
     RaceManager::globalObjectList_t globalObjectList;
     bool                            active;
     RoadManager::roadMap_t          roadMap;
+    bool                            loaded;
+    bool                            preLoaded;
 
     
     friend class RaceManager;
@@ -63,6 +69,7 @@ private:
     friend class MenuPageEditorRace;
     friend class MenuPageEditorDay;
     friend class MenuPageEditorStage;
+    friend class MenuPageStage;
 };
 
 

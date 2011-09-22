@@ -15,9 +15,11 @@ Race::Race(const std::string& raceName, bool& ret)
       competitorMap(),
       globalObjectList(),
       active(false),
-      roadMap()
+      roadMap(),
+      loaded(false),
+      preLoaded(false)
 {
-    ret = read();
+    ret = readHeader();
 }
 
 Race::~Race()
@@ -43,7 +45,7 @@ Race::~Race()
     RoadManager::clearRoadMap(roadMap);
 }
     
-bool Race::read()
+bool Race::readHeader()
 {
     bool ret = readCfg();
     if (ret)
@@ -51,16 +53,31 @@ bool Race::read()
         ret = readDays();
         if (ret)
         {
-            ret = readCompetitors();
-            if (ret)
-            {
-                readShortDescription();
-                readGlobalObjects();
-                RoadManager::readRoads(RACE_ROADS(raceName), roadMap, false, true);
-            }
+            readShortDescription();
         }
     }
     return ret;
+}
+
+bool Race::readPreData()
+{
+    if (preLoaded) return true;
+    
+    preLoaded = true;
+    
+    return readCompetitors();
+}
+
+bool Race::readData()
+{
+    if (loaded) return true;
+    
+    loaded = true;
+    
+    readGlobalObjects();
+    RoadManager::readRoads(RACE_ROADS(raceName), roadMap, false, true);
+
+    return true;
 }
 
 bool Race::readCfg()
@@ -203,6 +220,9 @@ void Race::readGlobalObjects()
 
 bool Race::write()
 {
+    if (!preLoaded) readPreData();
+    if (!loaded) readData();
+    
     bool ret = writeCfg();
     ret &= writeShortDescription();
     ret &= writeGlobalObjects();
@@ -240,6 +260,9 @@ bool Race::writeGlobalObjects()
 
 void Race::activate()
 {
+    if (!preLoaded) readPreData();
+    if (!loaded) readData();
+
     RoadManager::getInstance()->addStageRoad(roadMap);
     
     if (active) return;
