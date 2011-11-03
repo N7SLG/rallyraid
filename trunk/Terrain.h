@@ -21,6 +21,9 @@ class TheEarth;
 class Terrain /*: public OffsetObjectUpdateCB*/
 {
 public:
+    static void initialize();
+
+public:
     Terrain(const std::string& prefix);
     virtual ~Terrain();
 
@@ -51,6 +54,9 @@ protected:
     irr::video::ITexture*           texture;
     //bool                            skipUpdate;
     //volatile bool                   loading;
+
+    static irr::video::ITexture*    textureDetail1;
+    static irr::video::ITexture*    textureDetail2;
 };
 
 

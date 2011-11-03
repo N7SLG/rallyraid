@@ -42,7 +42,7 @@ MenuPageOptions::MenuPageOptions()
     irr::IrrlichtDevice* device = TheGame::getInstance()->getDevice();
 
     window = TheGame::getInstance()->getEnv()->addWindow(
-        irr::core::recti(TheGame::getInstance()->getScreenSize().Width/2-350, TheGame::getInstance()->getScreenSize().Height/2-300, TheGame::getInstance()->getScreenSize().Width/2+350, TheGame::getInstance()->getScreenSize().Height/2+300),
+        irr::core::recti(TheGame::getInstance()->getScreenSize().Width/2-450, TheGame::getInstance()->getScreenSize().Height/2-300, TheGame::getInstance()->getScreenSize().Width/2+450, TheGame::getInstance()->getScreenSize().Height/2+300),
         false,
         L"Options",
         0,
@@ -215,19 +215,19 @@ MenuPageOptions::MenuPageOptions()
     irr::gui::IGUITab* tabKB = tc->addTab(L"Input", 0);
 
     TheGame::getInstance()->getEnv()->addButton(
-        irr::core::recti(irr::core::position2di(0, 0), irr::core::dimension2di((tabKB->getRelativePosition().getSize().Width-16)/3-2, 20)),
+        irr::core::recti(irr::core::position2di(0, 0), irr::core::dimension2di(((tabKB->getRelativePosition().getSize().Width-16)*2)/4-2, 20)),
         tabKB,
         MI_BUTTONCENTER,
         L"Recalibrate Joystick");
 
     TheGame::getInstance()->getEnv()->addButton(
-        irr::core::recti(irr::core::position2di((tabKB->getRelativePosition().getSize().Width-16)/3, 0), irr::core::dimension2di((tabKB->getRelativePosition().getSize().Width-16)/3-2, 20)),
+        irr::core::recti(irr::core::position2di(((tabKB->getRelativePosition().getSize().Width-16)*2)/4, 0), irr::core::dimension2di((tabKB->getRelativePosition().getSize().Width-16)/4-2, 20)),
         tabKB,
         MI_BUTTONPRIMARY,
         L"Set Primary");
 
     TheGame::getInstance()->getEnv()->addButton(
-        irr::core::recti(irr::core::position2di((tabKB->getRelativePosition().getSize().Width-16)*2/3, 0), irr::core::dimension2di((tabKB->getRelativePosition().getSize().Width-16)/3-2, 20)),
+        irr::core::recti(irr::core::position2di(((tabKB->getRelativePosition().getSize().Width-16)*3)/4, 0), irr::core::dimension2di((tabKB->getRelativePosition().getSize().Width-16)/4-2, 20)),
         tabKB,
         MI_BUTTONSECONDARY,
         L"Set Secondary");
@@ -239,11 +239,14 @@ MenuPageOptions::MenuPageOptions()
         true);
 
     tableKB->addColumn(L"Action");
-    tableKB->setColumnWidth(0, (tableKB->getRelativePosition().getSize().Width-16)/3);
+    tableKB->setColumnWidth(0, (tableKB->getRelativePosition().getSize().Width-16)/2);
+    tableKB->setColumnOrdering(0, irr::gui::EGCO_NONE);
     tableKB->addColumn(L"Primary");
-    tableKB->setColumnWidth(1, (tableKB->getRelativePosition().getSize().Width-16)/3);
+    tableKB->setColumnWidth(1, (tableKB->getRelativePosition().getSize().Width-16)/4);
+    tableKB->setColumnOrdering(1, irr::gui::EGCO_NONE);
     tableKB->addColumn(L"Secondary");
-    tableKB->setColumnWidth(2, (tableKB->getRelativePosition().getSize().Width-16)/3);
+    tableKB->setColumnWidth(2, (tableKB->getRelativePosition().getSize().Width-16)/4);
+    tableKB->setColumnOrdering(2, irr::gui::EGCO_NONE);
 
 
     window->setVisible(false);

@@ -32,6 +32,7 @@
 #include "VehicleTypeManager.h"
 #include "Terrain_defs.h"
 #include "MessageManager.h"
+#include "error.h"
 
 
 MenuPageEditor* MenuPageEditor::menuPageEditor = 0;
@@ -93,13 +94,13 @@ MenuPageEditor::MenuPageEditor()
         irr::core::recti(2,22,42,42),
         window,
         MI_BUTTONREFRESH,
-        L"Refresh");
+        L"Refresh", L"Refresh the content of this window.");
 
     buttonAction = TheGame::getInstance()->getEnv()->addButton(
         irr::core::recti(44,22,84,42),
         window,
         MI_BUTTONACTION,
-        L"action");
+        L"action", L"Switch to game mode, then use left mouse button for the action.");
 /*
     TheGame::getInstance()->getEnv()->addButton(
         irr::core::recti(44,22,84,42),
@@ -111,25 +112,25 @@ MenuPageEditor::MenuPageEditor()
         irr::core::recti(86,22,146,42),
         window,
         MI_BUTTONACTIVATE,
-        L"activate race");
+        L"activate race", L"Activate the current race/stage.");
 
     TheGame::getInstance()->getEnv()->addButton(
         irr::core::recti(148,22,188,42),
         window,
         MI_BUTTONRESET,
-        L"reset");
+        L"reset", L"Put the car to a give position by the tile input.");
 
     TheGame::getInstance()->getEnv()->addButton(
         irr::core::recti(190,22,230,42),
         window,
         MI_BUTTONRELOAD,
-        L"reload");
+        L"reload", L"Reset the car into the camera position.");
 
     TheGame::getInstance()->getEnv()->addButton(
         irr::core::recti(232,22,280,42),
         window,
         MI_BUTTONJUMPEND,
-        L"jump end");
+        L"jump end", L"Jump to the last itiner point of the current stage.");
 
     irr::gui::IGUITabControl* tc = TheGame::getInstance()->getEnv()->addTabControl(
         irr::core::recti(irr::core::position2di(2, 44), irr::core::dimension2di(window->getRelativePosition().getSize().Width - 4, window->getRelativePosition().getSize().Height - 46)),
@@ -293,14 +294,24 @@ MenuPageEditor::MenuPageEditor()
     // ----------------------------
     irr::gui::IGUITab* tabObjectPool = tc->addTab(L"OPool", MI_TABOBJECTPOOL);
 
+    TheGame::getInstance()->getEnv()->addStaticText(L"Scale (XYZ)",
+        irr::core::recti(irr::core::position2di(0, 0), irr::core::dimension2di(EXP_TEXT_WIDTH, 20)),
+        false,
+        false,
+        tabObjectPool)->setTextAlignment(irr::gui::EGUIA_UPPERLEFT, irr::gui::EGUIA_CENTER);
     editBoxScale = TheGame::getInstance()->getEnv()->addEditBox(L"1",
-        irr::core::recti(irr::core::position2di(0, 0), irr::core::dimension2di(68, 20)),
+        irr::core::recti(irr::core::position2di(EXP_TEXT_WIDTH, 0), irr::core::dimension2di(68, 20)),
         true,
         tabObjectPool,
         MI_EBSCALE);
 
+    TheGame::getInstance()->getEnv()->addStaticText(L"Rotation (Y)",
+        irr::core::recti(irr::core::position2di(EXP_TEXT_WIDTH+70, 0), irr::core::dimension2di(EXP_TEXT_WIDTH, 20)),
+        false,
+        false,
+        tabObjectPool)->setTextAlignment(irr::gui::EGUIA_UPPERLEFT, irr::gui::EGUIA_CENTER);
     editBoxRot = TheGame::getInstance()->getEnv()->addEditBox(L"0",
-        irr::core::recti(irr::core::position2di(70, 0), irr::core::dimension2di(68, 20)),
+        irr::core::recti(irr::core::position2di(EXP_TEXT_WIDTH*2+70, 0), irr::core::dimension2di(68, 20)),
         true,
         tabObjectPool,
         MI_EBROT);
@@ -452,14 +463,24 @@ MenuPageEditor::MenuPageEditor()
         tabItiner,
         MI_STITINERGD);
 
-    editBoxItinerLD = TheGame::getInstance()->getEnv()->addEditBox(L"local distance",
-        irr::core::recti(irr::core::position2di(0, 22), irr::core::dimension2di(tabItiner->getRelativePosition().getSize().Width, 20)),
+    TheGame::getInstance()->getEnv()->addStaticText(L"Local dist.",
+        irr::core::recti(irr::core::position2di(0, 22), irr::core::dimension2di(EXP_TEXT_WIDTH, 20)),
+        false,
+        false,
+        tabItiner)->setTextAlignment(irr::gui::EGUIA_UPPERLEFT, irr::gui::EGUIA_CENTER);
+    editBoxItinerLD = TheGame::getInstance()->getEnv()->addEditBox(L"0",
+        irr::core::recti(irr::core::position2di(EXP_TEXT_WIDTH, 22), irr::core::dimension2di(tabItiner->getRelativePosition().getSize().Width-EXP_TEXT_WIDTH, 20)),
         true,
         tabItiner,
         MI_EBITINERLD);
 
-    editBoxItinerDescription = TheGame::getInstance()->getEnv()->addEditBox(L"description",
-        irr::core::recti(irr::core::position2di(0, 2*22), irr::core::dimension2di(tabItiner->getRelativePosition().getSize().Width, 20)),
+    TheGame::getInstance()->getEnv()->addStaticText(L"Description",
+        irr::core::recti(irr::core::position2di(0, 2*22), irr::core::dimension2di(EXP_TEXT_WIDTH, 20)),
+        false,
+        false,
+        tabItiner)->setTextAlignment(irr::gui::EGUIA_UPPERLEFT, irr::gui::EGUIA_CENTER);
+    editBoxItinerDescription = TheGame::getInstance()->getEnv()->addEditBox(L"",
+        irr::core::recti(irr::core::position2di(EXP_TEXT_WIDTH, 2*22), irr::core::dimension2di(tabItiner->getRelativePosition().getSize().Width-EXP_TEXT_WIDTH, 20)),
         true,
         tabItiner,
         MI_EBITINERDESCRIPTION);
@@ -571,6 +592,12 @@ bool MenuPageEditor::OnEvent(const irr::SEvent &event)
                                 new Road(roadFilename, roadName, roadDataFilename, RoadTypeManager::getInstance()->editorRoadType, true);
                             refreshRoads();
                         }
+                        else
+                        {
+                            PrintMessage(101, "Unable to create road with name: '%s' and type '%s'.",
+                                roadName.c_str(), 
+                                RoadTypeManager::getInstance()->editorRoadType?RoadTypeManager::getInstance()->editorRoadType->name.c_str():"<empty>");
+                        }
                         return true;
                         break;
                     }
@@ -583,8 +610,16 @@ bool MenuPageEditor::OnEvent(const irr::SEvent &event)
                             {
                                 ItinerManager::getInstance()->editorGlobalDistance = RaceManager::getInstance()->editorStage->itinerPointList.back()->getGlobalDistance();
                             }
+                            else
+                            {
+                                ItinerManager::getInstance()->editorGlobalDistance = 0;
+                            }
                             refreshSelected();
                             refreshItinerGD();
+                        }
+                        else
+                        {
+                            PrintMessage(102, "Unable to activate race/stage, because no stage is selected.");
                         }
                         return true;
                         break;
@@ -613,6 +648,7 @@ bool MenuPageEditor::OnEvent(const irr::SEvent &event)
                         {
                             printf("unable to reset because reset fields are not int\n");
                             MessageManager::getInstance()->addText(L"unable to reset because reset fields are not int", 1);
+                            PrintMessage(103, "Unable to reset because reset fields are not int.");
                         }
                         return true;
                         break;
@@ -642,6 +678,10 @@ bool MenuPageEditor::OnEvent(const irr::SEvent &event)
                                 ip->getPos(),
                                 Player::getInstance()->getSavedRot(),
                                 true);
+                        }
+                        else
+                        {
+                            PrintMessage(104, "Unable to jump to the end because %s.", RaceManager::getInstance()->editorStage==0?"no stage selected":"itiner point list is empty of the stage");
                         }
                         return true;
                         break;
@@ -1469,6 +1509,10 @@ void MenuPageEditor::actionP()
                     //go->setVisible(true);
                 }
             }
+            else
+            {
+                MessageManager::getInstance()->addText(L"Unable to add race object, because no race or no object type selected", 3);
+            }
             break;
         }
     case A_AddObjectDay:
@@ -1488,6 +1532,10 @@ void MenuPageEditor::actionP()
                     ObjectWire::getInstance()->addGlobalObject(go);
                     //go->setVisible(true);
                 }
+            }
+            else
+            {
+                MessageManager::getInstance()->addText(L"Unable to add day object, because no day or no object type selected", 3);
             }
             break;
         }
@@ -1509,6 +1557,10 @@ void MenuPageEditor::actionP()
                     //go->setVisible(true);
                 }
             }
+            else
+            {
+                MessageManager::getInstance()->addText(L"Unable to add stage object, because no stage or no object type selected", 3);
+            }
             break;
         }
     case A_AddRoadPoint:
@@ -1518,6 +1570,10 @@ void MenuPageEditor::actionP()
             {
                 MessageManager::getInstance()->addText(L"add road point", 1);
                 RoadManager::getInstance()->editorRoad->addRoadFarPoint(pos);
+            }
+            else
+            {
+                MessageManager::getInstance()->addText(L"Unable to add road point, because no road selected", 3);
             }
             break;
         }
@@ -1529,6 +1585,10 @@ void MenuPageEditor::actionP()
             {
                 MessageManager::getInstance()->addText(L"add road point BEGIN", 1);
                 RoadManager::getInstance()->editorRoad->addRoadFarPointBegin(pos);
+            }
+            else
+            {
+                MessageManager::getInstance()->addText(L"Unable to add road point BEGIN, because no road selected", 3);
             }
             break;
         }
@@ -1556,6 +1616,10 @@ void MenuPageEditor::actionP()
                 RaceManager::getInstance()->editorStage->itinerPointList.push_back(ip);
                 refreshSelected();
             }
+            else
+            {
+                MessageManager::getInstance()->addText(L"Unable to add itiner point, because no stage selected", 3);
+            }
             break;
         }
     case A_AddAIPoint:
@@ -1576,6 +1640,10 @@ void MenuPageEditor::actionP()
                 AIPoint* aip = new AIPoint(apos, gd ,ld);
                 RaceManager::getInstance()->editorStage->AIPointList.push_back(aip);
                 refreshSelected();
+            }
+            else
+            {
+                MessageManager::getInstance()->addText(L"Unable to add AI point, because no stage selected", 3);
             }
             break;
         }
@@ -1602,8 +1670,12 @@ void MenuPageEditor::actionP()
                 else
                 {
                     dprintf(MY_DEBUG_INFO, "MenuPageEditor::action(): add waypoint not possible, because last WP is to close: %f < 2500.0\n", ld);
-                    MessageManager::getInstance()->addText(L"add waypoint, but too close not add", 1);
+                    MessageManager::getInstance()->addText(L"Unable to add waypoint, because too close", 3);
                 }
+            }
+            else
+            {
+                MessageManager::getInstance()->addText(L"Unable to add waypoint, because no stage selected", 3);
             }
             break;
         }
@@ -1619,6 +1691,10 @@ void MenuPageEditor::actionP()
                 RaceManager::getInstance()->editorStage->editorHeightModifier.pos.X = apos.X;
                 RaceManager::getInstance()->editorStage->editorHeightModifier.pos.Z = apos.Z;
                 RaceManager::getInstance()->editorStage->heightModifierList.push_back(RaceManager::getInstance()->editorStage->editorHeightModifier);
+            }
+            else
+            {
+                MessageManager::getInstance()->addText(L"Unable to add height modifier, because \n\nno stage selected or \nHM value to small", 3);
             }
             break;
         }
@@ -1660,6 +1736,10 @@ void MenuPageEditor::actionP()
                     }
                 }
 
+            }
+            else
+            {
+                MessageManager::getInstance()->addText(L"Unable to add height modifier line, because \n\nno stage selected or \nHM value to small or \nno previous point in the list", 3);
             }
             break;
         }
@@ -1733,6 +1813,10 @@ void MenuPageEditor::actionP()
                 }
 
             }
+            else
+            {
+                MessageManager::getInstance()->addText(L"Unable to add height modifier square, because \n\nno stage selected or \nHM value to small or \nno previous point in the list", 3);
+            }
             break;
         }
     case A_RemoveObjectRace:
@@ -1749,6 +1833,10 @@ void MenuPageEditor::actionP()
                     ObjectWire::getInstance()->removeGlobalObject(go, false);
                 }
                 delete go;
+            }
+            else
+            {
+                MessageManager::getInstance()->addText(L"Unable to remove race object, because no race selected or object list is empty", 3);
             }
             break;
         }
@@ -1767,6 +1855,10 @@ void MenuPageEditor::actionP()
                 }
                 delete go;
             }
+            else
+            {
+                MessageManager::getInstance()->addText(L"Unable to remove day object, because no day selected or object list is empty", 3);
+            }
             break;
         }
     case A_RemoveObjectStage:
@@ -1784,6 +1876,10 @@ void MenuPageEditor::actionP()
                 }
                 delete go;
             }
+            else
+            {
+                MessageManager::getInstance()->addText(L"Unable to remove stage object, because no stage selected or object list is empty", 3);
+            }
             break;
         }
     case A_RemoveRoadPoint:
@@ -1794,6 +1890,10 @@ void MenuPageEditor::actionP()
                 MessageManager::getInstance()->addText(L"remove road point", 1);
                 RoadManager::getInstance()->editorRoad->removeRoadPoint();
             }
+            else
+            {
+                MessageManager::getInstance()->addText(L"Unable to remove road point, because no road selected", 3);
+            }
             break;
         }
     case A_RemoveRoadPointBegin:
@@ -1803,6 +1903,10 @@ void MenuPageEditor::actionP()
             {
                 MessageManager::getInstance()->addText(L"remove road point BEGIN", 1);
                 RoadManager::getInstance()->editorRoad->removeRoadPointBegin();
+            }
+            else
+            {
+                MessageManager::getInstance()->addText(L"Unable to remove road point BEGIN, because no road selected", 3);
             }
             break;
         }
@@ -1821,6 +1925,10 @@ void MenuPageEditor::actionP()
                 delete ip;
                 refreshSelected();
             }
+            else
+            {
+                MessageManager::getInstance()->addText(L"Unable to remove itiner point, because no stage selected or itiner point list is empty", 3);
+            }
             break;
         }
     case A_RemoveAIPoint:
@@ -1835,6 +1943,10 @@ void MenuPageEditor::actionP()
                 delete aip;
                 refreshSelected();
             }
+            else
+            {
+                MessageManager::getInstance()->addText(L"Unable to remove AI point, because no stage selected or AI point list is empty", 3);
+            }
             break;
         }
     case A_RemoveWayPoint:
@@ -1848,11 +1960,15 @@ void MenuPageEditor::actionP()
                 RaceManager::getInstance()->editorStage->wayPointList.pop_back();
                 delete wpip;
             }
+            else
+            {
+                MessageManager::getInstance()->addText(L"Unable to remove waypoint, because no stage selected or waypoint list is empty", 3);
+            }
             break;
         }
     default:
         dprintf(MY_DEBUG_ERROR, "MenuPageEditor::action(): no current action: %d\n", (int)currentAction);
-        MessageManager::getInstance()->addText(L"no current action", 1);
+        MessageManager::getInstance()->addText(L"no current action", 2);
     }
 }
 

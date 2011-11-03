@@ -36,7 +36,7 @@ void Player::finalize()
     
 Player::Player()
     : vehicle(0),
-      competitor(new Competitor(499, "Player", "-", "Player's Team", "vw3", 0, false)),
+      competitor(new Competitor(499, "Player", "-", "Player's Team", "vw3", 100, false)),
       starter(0),
       viewNum(VIEW_0),
       viewMask(VIEW_CENTER),
@@ -85,6 +85,10 @@ void Player::initializeVehicle(const std::string& vehicleTypeName, const irr::co
     lastVehicleDistance = savedVehicleDistance;
     vehicle->setDistance(savedVehicleDistance);
     vehicle->setVehicleCollisionCB(this);
+    if (starter)
+    {
+        starter->vehicle = vehicle;
+    }
     stageTime = savedStageTime;
     stagePenaltyTime = savedStagePenaltyTime;
     if (loaded)

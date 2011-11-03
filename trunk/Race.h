@@ -65,6 +65,7 @@ private:
 
     
     friend class RaceManager;
+    friend class GamePlay;
     friend class MenuPageEditor;
     friend class MenuPageEditorRace;
     friend class MenuPageEditorDay;

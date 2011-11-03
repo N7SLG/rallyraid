@@ -98,6 +98,11 @@ void VisualRoad::generateRoadNode()
     {
         return;
     }
+    if (roadRoadChunk.road->getRoadType()->texture == 0)
+    {
+        // it is a null road, so we only need the terrain effects, but no visual road
+        return;
+    }
     
     OffsetManager* offsetManager = OffsetManager::getInstance();
     irr::scene::SMeshBuffer* buffer = new irr::scene::SMeshBuffer();

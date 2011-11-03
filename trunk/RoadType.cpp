@@ -47,10 +47,15 @@ bool RoadType::read(FILE* f)
         return false;
     }
 
+    if (strcmp(textureName, "null") == 0)
+    {
+        return true;
+    }
+
     TheGame::getInstance()->getDriver()->setTextureCreationFlag(irr::video::ETCF_CREATE_MIP_MAPS, false);
     texture = TheGame::getInstance()->getDriver()->getTexture(textureName);
     TheGame::getInstance()->getDriver()->setTextureCreationFlag(irr::video::ETCF_CREATE_MIP_MAPS, true);
-    
+
     ret = fscanf_s(f, "friction_multi: %f\n", &frictionMulti);
     if (ret < 1)
     {

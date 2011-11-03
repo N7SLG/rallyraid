@@ -104,7 +104,7 @@ MenuPageMain::MenuPageMain()
     havok_image->setUseAlphaChannel(true);
     havok_image->setImage(havok_logo);
 
-    irr::gui::IGUIStaticText* s = TheGame::getInstance()->getEnv()->addStaticText(L"Version: 1.0 - Build: 161",
+    irr::gui::IGUIStaticText* s = TheGame::getInstance()->getEnv()->addStaticText(L"Version: 1.0 - Build: 162",
         irr::core::recti(irr::core::position2di(window->getRelativePosition().getSize().Width - 110, window->getRelativePosition().getSize().Height - 20), havok_logo->getOriginalSize()),
         false, false, window, 0, false);
     s->setOverrideFont(FontManager::getInstance()->getFont(FontManager::FONT_BUILTIN));
@@ -120,6 +120,7 @@ MenuPageMain::MenuPageMain()
 
     tableRaces->addColumn(L"Race");
     tableRaces->setColumnWidth(0, tableRaces->getRelativePosition().getSize().Width-16);
+    tableRaces->setColumnOrdering(0, irr::gui::EGCO_NONE);
 
     staticTextRaceData = TheGame::getInstance()->getEnv()->addStaticText(L"-",
         irr::core::recti(irr::core::position2di(window->getRelativePosition().getSize().Width/6, (window->getRelativePosition().getSize().Height)/2), irr::core::dimension2di(window->getRelativePosition().getSize().Width/3-2,window->getRelativePosition().getSize().Height/6-4)),
@@ -141,6 +142,7 @@ MenuPageMain::MenuPageMain()
 
     tableVehicles->addColumn(L"Vehicle");
     tableVehicles->setColumnWidth(0, tableVehicles->getRelativePosition().getSize().Width-16);
+    tableVehicles->setColumnOrdering(0, irr::gui::EGCO_NONE);
 
     staticTextVehicleData = TheGame::getInstance()->getEnv()->addStaticText(L"-",
         irr::core::recti(irr::core::position2di(window->getRelativePosition().getSize().Width/2+2, window->getRelativePosition().getSize().Height/2), irr::core::dimension2di(window->getRelativePosition().getSize().Width/3-2,window->getRelativePosition().getSize().Height/6-4)),
@@ -198,6 +200,7 @@ bool MenuPageMain::OnEvent(const irr::SEvent &event)
                             MenuPageStage::menuPageStage->selectedRace = selectedRace;
                             MenuPageStage::menuPageStage->selectedStage = 0;
                             MenuPageStage::menuPageStage->selectedVehicleType = selectedVehicleType;
+                            MenuPageStage::menuPageStage->newRace = true;
                             MenuManager::getInstance()->close();
                             MenuManager::getInstance()->open(MenuManager::MP_STAGE);
                             //GamePlay::getInstance()->startNewGame(selectedRace, selectedVehicleType);

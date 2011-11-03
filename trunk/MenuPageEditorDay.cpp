@@ -47,34 +47,44 @@ MenuPageEditorDay::MenuPageEditorDay()
         irr::core::recti(2,22,42,42),
         window,
         MI_BUTTONREFRESH,
-        L"Refresh");
+        L"Refresh", L"Refresh the content of this window.");
 
     TheGame::getInstance()->getEnv()->addButton(
         irr::core::recti(44,22,84,42),
         window,
         MI_BUTTONSAVE,
-        L"Save");
+        L"Save", L"Save the changes.");
 
     TheGame::getInstance()->getEnv()->addButton(
         irr::core::recti(86,22,126,42),
         window,
         MI_BUTTONCREATESTAGE,
-        L"new stage");
+        L"new stage", L"Create new stage.");
 
     TheGame::getInstance()->getEnv()->addButton(
         irr::core::recti(128,22,168,42),
         window,
         MI_BUTTONCREATEROAD,
-        L"new road");
+        L"new road", L"Create new road.");
 
-    editBoxLongName = TheGame::getInstance()->getEnv()->addEditBox(L"long name",
-        irr::core::recti(irr::core::position2di(2, 44), irr::core::dimension2di(window->getRelativePosition().getSize().Width - 4, 20)),
+    TheGame::getInstance()->getEnv()->addStaticText(L"Long name",
+        irr::core::recti(irr::core::position2di(2, 44), irr::core::dimension2di(EXP_TEXT_WIDTH, 20)),
+        false,
+        false,
+        window)->setTextAlignment(irr::gui::EGUIA_UPPERLEFT, irr::gui::EGUIA_CENTER);
+    editBoxLongName = TheGame::getInstance()->getEnv()->addEditBox(L"Day XXX",
+        irr::core::recti(irr::core::position2di(EXP_TEXT_WIDTH+2, 44), irr::core::dimension2di(window->getRelativePosition().getSize().Width - 4 - EXP_TEXT_WIDTH, 20)),
         true,
         window,
         MI_EBLONGNAME);
 
-    editBoxShortDescription = TheGame::getInstance()->getEnv()->addEditBox(L"short description",
-        irr::core::recti(irr::core::position2di(2, 66), irr::core::dimension2di(window->getRelativePosition().getSize().Width - 4, 20)),
+    TheGame::getInstance()->getEnv()->addStaticText(L"Short desc.",
+        irr::core::recti(irr::core::position2di(2, 66), irr::core::dimension2di(EXP_TEXT_WIDTH, 20)),
+        false,
+        false,
+        window)->setTextAlignment(irr::gui::EGUIA_UPPERLEFT, irr::gui::EGUIA_CENTER);
+    editBoxShortDescription = TheGame::getInstance()->getEnv()->addEditBox(L"",
+        irr::core::recti(irr::core::position2di(EXP_TEXT_WIDTH+2, 66), irr::core::dimension2di(window->getRelativePosition().getSize().Width - 4 - EXP_TEXT_WIDTH, 20)),
         true,
         window,
         MI_EBSHORTDESCRIPTION);
@@ -91,8 +101,13 @@ MenuPageEditorDay::MenuPageEditorDay()
     // ----------------------------
     irr::gui::IGUITab* tabStages = tc->addTab(L"Stages", MI_TABSTAGES);
 
-    editBoxNewStage = TheGame::getInstance()->getEnv()->addEditBox(L"new stage name",
-        irr::core::recti(irr::core::position2di(0, 0), irr::core::dimension2di(tabStages->getRelativePosition().getSize().Width, 20)),
+    TheGame::getInstance()->getEnv()->addStaticText(L"Stage id",
+        irr::core::recti(irr::core::position2di(0, 0), irr::core::dimension2di(EXP_TEXT_WIDTH, 20)),
+        false,
+        false,
+        tabStages)->setTextAlignment(irr::gui::EGUIA_UPPERLEFT, irr::gui::EGUIA_CENTER);
+    editBoxNewStage = TheGame::getInstance()->getEnv()->addEditBox(L"stagexxx",
+        irr::core::recti(irr::core::position2di(EXP_TEXT_WIDTH, 0), irr::core::dimension2di(tabStages->getRelativePosition().getSize().Width-EXP_TEXT_WIDTH, 20)),
         true,
         tabStages,
         MI_EBNEWSTAGENAME);
@@ -133,20 +148,35 @@ MenuPageEditorDay::MenuPageEditorDay()
     // ----------------------------
     irr::gui::IGUITab* tabRoads = tc->addTab(L"Roads", MI_TABROADS);
 
-    editBoxNewRoadName = TheGame::getInstance()->getEnv()->addEditBox(L"new road name",
-        irr::core::recti(irr::core::position2di(0, 0), irr::core::dimension2di(tabRoads->getRelativePosition().getSize().Width, 20)),
+    TheGame::getInstance()->getEnv()->addStaticText(L"Road id",
+        irr::core::recti(irr::core::position2di(0, 0), irr::core::dimension2di(EXP_TEXT_WIDTH, 20)),
+        false,
+        false,
+        tabRoads)->setTextAlignment(irr::gui::EGUIA_UPPERLEFT, irr::gui::EGUIA_CENTER);
+    editBoxNewRoadName = TheGame::getInstance()->getEnv()->addEditBox(L"road_x",
+        irr::core::recti(irr::core::position2di(EXP_TEXT_WIDTH, 0), irr::core::dimension2di(tabRoads->getRelativePosition().getSize().Width-EXP_TEXT_WIDTH, 20)),
         true,
         tabRoads,
         MI_EBNEWROADNAME);
 
+    TheGame::getInstance()->getEnv()->addStaticText(L"Road file",
+        irr::core::recti(irr::core::position2di(0, 22), irr::core::dimension2di(EXP_TEXT_WIDTH, 20)),
+        false,
+        false,
+        tabRoads)->setTextAlignment(irr::gui::EGUIA_UPPERLEFT, irr::gui::EGUIA_CENTER);
     editBoxNewRoadFilename = TheGame::getInstance()->getEnv()->addEditBox(L"new road filename",
-        irr::core::recti(irr::core::position2di(0, 22), irr::core::dimension2di(tabRoads->getRelativePosition().getSize().Width, 20)),
+        irr::core::recti(irr::core::position2di(EXP_TEXT_WIDTH, 22), irr::core::dimension2di(tabRoads->getRelativePosition().getSize().Width-EXP_TEXT_WIDTH, 20)),
         true,
         tabRoads,
         MI_EBNEWROADFILENAME);
 
+    TheGame::getInstance()->getEnv()->addStaticText(L"Road data file",
+        irr::core::recti(irr::core::position2di(0, 2*22), irr::core::dimension2di(EXP_TEXT_WIDTH, 20)),
+        false,
+        false,
+        tabRoads)->setTextAlignment(irr::gui::EGUIA_UPPERLEFT, irr::gui::EGUIA_CENTER);
     editBoxNewRoadDataFilename = TheGame::getInstance()->getEnv()->addEditBox(L"new road data filename",
-        irr::core::recti(irr::core::position2di(0, 2*22), irr::core::dimension2di(tabRoads->getRelativePosition().getSize().Width, 20)),
+        irr::core::recti(irr::core::position2di(EXP_TEXT_WIDTH, 2*22), irr::core::dimension2di(tabRoads->getRelativePosition().getSize().Width-EXP_TEXT_WIDTH, 20)),
         true,
         tabRoads,
         MI_EBNEWROADDATAFILENAME);

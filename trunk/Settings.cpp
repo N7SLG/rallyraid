@@ -51,7 +51,8 @@ Settings::Settings()
       steerRate(1.0f),
       steerRatePressed(0.1f),
       groundFriction(0.8f),
-      fpsStep(0.1f)
+      fpsStep(0.1f),
+      AIPlayer(false)
 {
     read();
 }
@@ -164,6 +165,9 @@ void Settings::read()
             } else if (keyName == "editor_mode")
             {
                 editorMode = StringConverter::parseBool(valName, false);
+            } else if (keyName == "ai_player")
+            {
+                AIPlayer = StringConverter::parseBool(valName, false);
             } else if (keyName == "steer_rate")
             {
                 steerRate = StringConverter::parseFloat(valName, 1.0f);
@@ -218,6 +222,7 @@ void Settings::write()
     ret = fprintf(f, "manual_gear_shifting=%s\n", manualGearShifting?"yes":"no");
     ret = fprintf(f, "sequential_gear_shifting=%s\n", sequentialGearShifting?"yes":"no");
     ret = fprintf(f, "editor_mode=%s\n", editorMode?"yes":"no");
+    ret = fprintf(f, "ai_player=%s\n", AIPlayer?"yes":"no");
     ret = fprintf(f, "steer_rate=%f\n", steerRate);
     ret = fprintf(f, "steer_rate_pressed=%f\n", steerRatePressed);
     ret = fprintf(f, "ground_friction=%f\n", groundFriction);
