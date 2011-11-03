@@ -15,6 +15,9 @@
 #include "FontManager.h"
 #include "MessageManager.h"
 #include "Hud.h"
+#include "error.h"
+#include "Player.h"
+#include "Competitor.h"
 #include <assert.h>
 
 
@@ -63,15 +66,15 @@ MenuPageLoadSave::MenuPageLoadSave()
     // Loadable games
     // ----------------------------
     tableLoadableGames = TheGame::getInstance()->getEnv()->addTable(
-        irr::core::recti(irr::core::position2di(window->getRelativePosition().getSize().Width/3, (window->getRelativePosition().getSize().Height)/2), irr::core::dimension2di(window->getRelativePosition().getSize().Width/3,(window->getRelativePosition().getSize().Height)/2-2)),
+        irr::core::recti(irr::core::position2di(window->getRelativePosition().getSize().Width/6, (window->getRelativePosition().getSize().Height)/2), irr::core::dimension2di((window->getRelativePosition().getSize().Width*2)/3,(window->getRelativePosition().getSize().Height)/2-2)),
         window,
         MI_TABLELOADABLEGAMES,
         true);
 
     tableLoadableGames->addColumn(L"Name");
-    tableLoadableGames->setColumnWidth(0, ((tableLoadableGames->getRelativePosition().getSize().Width-16))/3);
+    tableLoadableGames->setColumnWidth(0, ((tableLoadableGames->getRelativePosition().getSize().Width-16)*2)/5);
     tableLoadableGames->addColumn(L"Race");
-    tableLoadableGames->setColumnWidth(1, ((tableLoadableGames->getRelativePosition().getSize().Width-16)*2)/3);
+    tableLoadableGames->setColumnWidth(1, ((tableLoadableGames->getRelativePosition().getSize().Width-16)*3)/5);
 
     editBoxSaveName = TheGame::getInstance()->getEnv()->addEditBox(L"new save name",
         irr::core::recti(irr::core::position2di(window->getRelativePosition().getSize().Width/3, (window->getRelativePosition().getSize().Height)/2-22), irr::core::dimension2di(window->getRelativePosition().getSize().Width/3, 20)),
@@ -139,15 +142,18 @@ bool MenuPageLoadSave::OnEvent(const irr::SEvent &event)
                                 else
                                 {
                                     MessageManager::getInstance()->addText(L"Failed to load game!", 2);
+                                    PrintMessage(10, "Failed to load game: '%s'", saveName.c_str());
                                 }
                             }
                             else
                             {
                                 MessageManager::getInstance()->addText(L"First select a game to load.", 2);
+                                PrintMessage(11, "First select a game to load.");
                             }
                         }
                         else
                         {
+                            printf("save\n");
                             if (!saveName.empty())
                             {
                                 if (GamePlay::getInstance()->saveGame(saveName))
@@ -158,12 +164,20 @@ bool MenuPageLoadSave::OnEvent(const irr::SEvent &event)
                                 else
                                 {
                                     MessageManager::getInstance()->addText(L"Failed to save game!", 2);
+                                    PrintMessage(20, "Failed to save game: '%s'\n\n" \
+                                        "Maybe the name is invalid!" \
+                                        "Special characters are forbidden in the name, for example: " \
+                                        "%% \\ \" ' / < > # & @ { } [ ] | !\n\n" \
+                                        "Use ABC (a-z, A-Z), numeric (0-9), - and _ characters.",
+                                        saveName.c_str());
                                 }
                             }
                             else
                             {
                                 MessageManager::getInstance()->addText(L"First give a name to save.", 2);
+                                PrintMessage(21, "Failed to save game: '%s'\n\nFirst give a name to save.", saveName.c_str());
                             }
+                            printf("save end\n");
                         }
                         return true;
                         break;
@@ -214,7 +228,17 @@ void MenuPageLoadSave::open()
         
         if (saveName.empty())
         {
-            saveName = "new save name";
+            if (RaceManager::getInstance()->getCurrentRace() && RaceManager::getInstance()->getCurrentDay() && RaceManager::getInstance()->getCurrentStage())
+            {
+                saveName = Player::getInstance()->getCompetitor()->getName() + "_" +
+                    RaceManager::getInstance()->getCurrentRace()->getName() + "_" +
+                    RaceManager::getInstance()->getCurrentDay()->getName() + "_" +
+                    RaceManager::getInstance()->getCurrentStage()->getName();
+            }
+            else
+            {
+                saveName = "new save name";
+            }
         }
         
         editBoxSaveName->setVisible(true);
@@ -241,6 +265,8 @@ void MenuPageLoadSave::close()
 {
     dprintf(MY_DEBUG_NOTE, "MenuPageLoadSave::close()\n");
     window->setVisible(false);
+    
+    saveName.clear();
 
     // start necessarry elements in the game if returns
     if (!willOpenOtherWindow)

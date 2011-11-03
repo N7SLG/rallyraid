@@ -59,6 +59,7 @@ private:
     Race*                   selectedRace;
     Stage*                  selectedStage;
     VehicleType*            selectedVehicleType;
+    bool                    newRace;
     ItinerManager::itinerPointList_t::const_iterator itinerIt;
 
     class RoadBookEntry
@@ -79,6 +80,7 @@ private:
     
     
     friend class MenuPageMain;
+    friend class MenuPageInGame;
 };
 
 

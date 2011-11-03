@@ -114,6 +114,8 @@ Starter::Starter(Stage* stage,
 {
     const static float placeHardening[3] = {20.f, 8.f, 4.f};
     irr::core::stringw namePlusCar = L"";
+    namePlusCar += competitor->getNum();
+    namePlusCar += L" ";
     namePlusCar += (competitor->getName() + " (" + VehicleTypeManager::getInstance()->getVehicleType(competitor->getVehicleTypeName())->getLongName() + ")").c_str();
     nameText = TheGame::getInstance()->getSmgr()->addTextSceneNode(
         /*env->getBuiltInFont()*/ FontManager::getInstance()->getFont(FontManager::FONT_VERDANA_10PX),
@@ -135,11 +137,23 @@ Starter::Starter(Stage* stage,
     {
         assert(Player::getInstance()->getStarter()==0);
         Player::getInstance()->setStarter(this);
+        //vehicle = Player::getInstance()->getVehicle();
     }
 }
 
 Starter::~Starter()
 {
+    if (!competitor->getAi())
+    {
+        assert(Player::getInstance()->getStarter()==this);
+        vehicle = 0;
+        visible = false;
+        if (Settings::getInstance()->AIPlayer)
+        {
+            raceEngine->removeUpdater(this);
+        }
+        Player::getInstance()->setStarter(0);
+    }
     if (vehicle)
     {
         delete vehicle;
@@ -156,11 +170,6 @@ Starter::~Starter()
         nameTextOffsetObject->removeFromManager();
         delete nameTextOffsetObject;
         nameTextOffsetObject = 0;
-    }
-    if (!competitor->getAi())
-    {
-        assert(Player::getInstance()->getStarter()==this);
-        Player::getInstance()->setStarter(0);
     }
 }
 
@@ -217,10 +226,16 @@ bool Starter::update(unsigned int currentTime, const irr::core::vector3df& apos,
                 WStringConverter::addTimeToStr(str, finishTime+penaltyTime);
                 str += L",  position: ";
                 str += position;
-                MessageManager::getInstance()->addText(str.c_str(), 2);
+                MessageManager::getInstance()->addText(str.c_str(), 12);
             }
         }
-        return true;
+        if (!Settings::getInstance()->AIPlayer)
+        {
+            return true;
+        }
+        Player::getInstance()->setFirstPressed();
+        // else let the AI drive the car
+        //printf("starter fall through, visible: %u, vehicle: %p\n", visible, vehicle);
     }
     
     if (visible && vehicle)
@@ -266,7 +281,10 @@ bool Starter::update(unsigned int currentTime, const irr::core::vector3df& apos,
             goToNextPoint(currentTime, camActive);
             if (finishTime)
             {
-                switchToNotVisible();
+                if (competitor->getAi())
+                {
+                    switchToNotVisible();
+                }
                 return true;
             }
             nextPointPos = (*nextPoint)->getPos();
@@ -393,13 +411,13 @@ bool Starter::update(unsigned int currentTime, const irr::core::vector3df& apos,
                 (lastAngleToNext < 0.0f && angleToNext > 0.0f))
             {
                 //if (competitor->getNum() == 456) printf("sh");
-                steer *= 0.3f;
+                steer *= 0.3f; // 0.3
             }
             else
             {
                 if (angleToNextAbs > lastAngleToNextAbs)
                 {
-                    steer *= 3.0f;
+                    steer *= 3.0f; // 3.0
                     //if (competitor->getNum() == 456) printf("sd");
                     if (steer < -1.0f) steer = -1.0f;
                     if (steer >  1.0f) steer =  1.0f;
@@ -647,7 +665,7 @@ void Starter::switchToNotVisible()
         delete vehicle;
         vehicle = 0;
         currentPos = cp;
-        calculateTo((*nextPoint)->getPos());
+        calculateTo(currentPos/*(*nextPoint)->getPos()*/);
         nameText->setVisible(false);
         if (nameTextOffsetObject)
         {
@@ -687,24 +705,27 @@ void Starter::goToNextPoint(unsigned int currentTime, bool camActive)
     }
     if (nextPoint == stage->getAIPointList().end())
     {
-        // no more point finish the stage
-        finishTime = currentTime - startTime;
-        globalTime += finishTime;
-        globalPenaltyTime += penaltyTime;
-        
-        unsigned int position = raceEngine->insertIntoFinishedState(this);
-        if (camActive)
+        //if (competitor->getAi())
         {
-            irr::core::stringw str = L"";
+            // no more point finish the stage
+            finishTime = currentTime - startTime;
+            globalTime += finishTime;
+            globalPenaltyTime += penaltyTime;
             
-            str += competitor->getNum();
-            str += L" ";
-            str += competitor->getName().c_str();
-            str += L" finished the stage, time: ";
-            WStringConverter::addTimeToStr(str, finishTime+penaltyTime);
-            str += L",  position: ";
-            str += position;
-            MessageManager::getInstance()->addText(str.c_str(), 2);
+            unsigned int position = raceEngine->insertIntoFinishedState(this);
+            if (camActive)
+            {
+                irr::core::stringw str = L"";
+                
+                str += competitor->getNum();
+                str += L" ";
+                str += competitor->getName().c_str();
+                str += L" finished the stage, time: ";
+                WStringConverter::addTimeToStr(str, finishTime+penaltyTime);
+                str += L",  position: ";
+                str += position;
+                MessageManager::getInstance()->addText(str.c_str(), 6);
+            }
         }
     }
     else
@@ -718,7 +739,7 @@ void Starter::goToNextPoint(unsigned int currentTime, bool camActive)
         }
         //currentRand = (((float)(rand() % 100) - 50.f) / 1000.f) + ((float)competitor->strength / 50000.f);
         currentRand = ((float)(rand() % 100) - (60.f * ((float)competitor->getStrength()/100.f))) * ((110.f - (float)competitor->getStrength())/200.f);
-        calculateTo((*nextPoint)->getPos());
+        calculateTo(currentPos/*(*nextPoint)->getPos()*/);
     }
 }
 
@@ -867,6 +888,12 @@ bool RaceEngine::update(unsigned int tick, const irr::core::vector3df& apos, Upd
                     if (!(*it)->competitor->getAi())
                     {
                         (*it)->startTime++; // one sec need to the TheGame::doFewSteps(), which run for one sec virtually
+                        if (Settings::getInstance()->AIPlayer)
+                        {
+                            addUpdater(*it);
+                            (*it)->visible = true;
+                            (*it)->goToNextPoint(currentTime, when == InTheMiddle);
+                        }
                         return false;
                     }
                     (*it)->goToNextPoint(currentTime, when == InTheMiddle);
@@ -908,10 +935,11 @@ bool RaceEngine::update(unsigned int tick, const irr::core::vector3df& apos, Upd
         {
             starterSet_t::const_iterator nextIt = it;
             nextIt++;
-            if ((*it)->visible)
-            {
+            assert((*it)->visible);
+            //if ((*it)->visible)
+            //{
                 (*it)->update(currentTime, apos, when == InTheMiddle);
-            }
+            //}
             it = nextIt;
         }
         lastCTick = ctick;
@@ -1137,6 +1165,11 @@ bool RaceEngine::load(const std::string& filename, Race* race)
         else
         {
             starters.push_back(starter);
+            if (!starter->competitor->getAi() && Settings::getInstance()->AIPlayer)
+            {
+                addUpdater(starter);
+                starter->visible = true;
+            }
         }
     }
     fclose(f);

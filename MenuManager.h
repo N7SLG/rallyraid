@@ -4,6 +4,7 @@
 
 
 #define MAX_MENU_ITEMS 100
+#define EXP_TEXT_WIDTH 60
 
 class MenuPageBase;
 class EmptyEventReceiver;

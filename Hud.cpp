@@ -304,7 +304,7 @@ Hud::Hud()
     speedText = TheGame::getInstance()->getEnv()->addStaticText(L"000.00",
         irr::core::recti(irr::core::position2di(HUD_PADDING,
         TheGame::getInstance()->getDriver()->getScreenSize().Height - (2*HUD_PADDING) - 56),
-        irr::core::dimension2di(365, 56)),
+        irr::core::dimension2di(380, 56)),
         false, true, 0, -1, false);
     speedText->setOverrideFont(FontManager::getInstance()->getFont(FontManager::FONT_SPECIAL_BIGFONT/*SPECIAL16*/));
     speedText->setOverrideColor(irr::video::SColor(255, 255, 255, 255));
@@ -312,7 +312,7 @@ Hud::Hud()
     stageTimeText = TheGame::getInstance()->getEnv()->addStaticText(L"0:00:00",
         irr::core::recti(irr::core::position2di(HUD_PADDING,
         TheGame::getInstance()->getDriver()->getScreenSize().Height - (3*HUD_PADDING) - (3*28)),
-        irr::core::dimension2di(365, 28)),
+        irr::core::dimension2di(380, 28)),
         false, false, 0, -1, false);
     stageTimeText->setOverrideFont(FontManager::getInstance()->getFont(FontManager::FONT_SPECIAL_BIGFONT/*SPECIAL16*/));
     stageTimeText->setOverrideColor(irr::video::SColor(255, 255, 255, 255));
@@ -542,15 +542,22 @@ void Hud::preRender(float p_angle)
         str += L"0";
     }
     str += speed;
-    str += L" Km/h\nRPM: ";
+    str += L" Km/h\n  RPM: ";
     str += rpm;
     speedText->setText(str.c_str());
-      
-    str = L"Time: ";
+    
+    if (Player::getInstance()->getStageTime() >= 3600 && Player::getInstance()->getStagePenaltyTime() > 0)
+    {
+        str = L" Time:";
+    }
+    else
+    {
+        str = L" Time: ";
+    }
     WStringConverter::addTimeToStr(str, Player::getInstance()->getStageTime());
     if (Player::getInstance()->getStagePenaltyTime())
     {
-        str += L" + ";
+        str += L"+";
         WStringConverter::addTimeToStr(str, Player::getInstance()->getStagePenaltyTime());
     }
     stageTimeText->setText(str.c_str());

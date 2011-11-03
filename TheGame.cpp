@@ -28,6 +28,7 @@
 #include "FontManager.h"
 #include "MessageManager.h"
 #include "Terrain_defs.h"
+#include "Terrain.h"
 #include "Stage.h"
 #include "ItinerPoint.h"
 #include "LoadingThread.h"
@@ -118,7 +119,7 @@ TheGame::TheGame()
     if (device==0)
     {
          dprintf(MY_DEBUG_ERROR, "unable to create device\n");
-         PrintMessage(11, "Unable to create device!");
+         PrintMessage(1, "Unable to create device!");
          terminate = true;
     }
     else
@@ -192,6 +193,7 @@ TheGame::TheGame()
         roadManager = RoadManager::getInstance();
         loadingThread->setLargeSteps(49, 55);
         dprintf(MY_DEBUG_NOTE, "Initialize earth\n");
+        Terrain::initialize();
         TheEarth::initialize();
         earth = TheEarth::getInstance();
         loadingThread->setLargeSteps(56, 62);
@@ -413,7 +415,7 @@ void TheGame::loop()
 
     while (device->run() && !terminate)
     {
-        if (device->isWindowActive())
+        if (device->isWindowActive() || Settings::getInstance()->AIPlayer)
         {
             tick = device->getTimer()->getTime();
             eventReceiverTick = tick / eventReceiverCheckRate;

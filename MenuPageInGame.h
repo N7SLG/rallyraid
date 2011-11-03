@@ -19,6 +19,7 @@ public:
         MI_BUTTONSAVE,
         MI_BUTTONOPTIONS,
         MI_BUTTONEXIT,
+        MI_BUTTONNEXTSTAGE,
 
         MI_TABLESTAGES,
         MI_TABLECOMPETITORS,
@@ -50,6 +51,7 @@ private:
     irr::gui::IGUITable*    tableCompetitors;
     irr::gui::IGUITable*    tableCompetitorsG;
     irr::gui::IGUIButton*   buttonLoad;
+    irr::gui::IGUIButton*   buttonNextStage;
 
     bool                    willOpenOtherWindow;
 };

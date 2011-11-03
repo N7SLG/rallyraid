@@ -14,6 +14,16 @@
 #include "Stage.h"
 
 
+irr::video::ITexture* Terrain::textureDetail1 = 0;
+irr::video::ITexture* Terrain::textureDetail2 = 0;
+
+/* static */ void Terrain::initialize()
+{
+    textureDetail1 = TheGame::getInstance()->getDriver()->getTexture("data/earthdata/detailmap_03.png");
+    textureDetail2 = TheGame::getInstance()->getDriver()->getTexture("data/earthdata/detailmap_04.png");
+}
+
+
 Terrain::Terrain(const std::string& prefix)
     : terrain(0),
       hkShape(0),
@@ -112,7 +122,7 @@ void Terrain::setVisible(bool p_visible)
             TheGame::getInstance()->getDriver()->setTextureCreationFlag(irr::video::ETCF_CREATE_MIP_MAPS, false);
             texture = TheGame::getInstance()->getDriver()->addTexture(textureMapPartName, image);
             TheGame::getInstance()->getDriver()->setTextureCreationFlag(irr::video::ETCF_CREATE_MIP_MAPS, true);
-            printf("texture cnt: %u\n", TheGame::getInstance()->getDriver()->getTextureCount());
+            //printf("texture cnt: %u\n", TheGame::getInstance()->getDriver()->getTextureCount());
             //printf("image found(%p): %s - %u x %u - %u, %u, %u\n",
             //    texture,
             //    prefix.c_str(), image->getDimension().Width, image->getDimension().Height,
@@ -120,9 +130,9 @@ void Terrain::setVisible(bool p_visible)
             //    image->getPixel(image->getDimension().Width/2,image->getDimension().Height/2).getGreen(),
             //    image->getPixel(image->getDimension().Width/2,image->getDimension().Height/2).getBlue());
             terrain->setMaterialTexture(0, texture);
-            terrain->setMaterialTexture(1, TheGame::getInstance()->getDriver()->getTexture("data/earthdata/detailmap_03.png"));
+            terrain->setMaterialTexture(1, textureDetail1);
             terrain->setMaterialTexture(2, ShadowRenderer::getInstance()->getShadowMap());
-            terrain->setMaterialTexture(3, TheGame::getInstance()->getDriver()->getTexture("data/earthdata/detailmap_04.png"));
+            terrain->setMaterialTexture(3, textureDetail2);
             if (Shaders::getInstance()->getSupportedSMVersion() < 2)
             {
                 terrain->setMaterialFlag(irr::video::EMF_LIGHTING, Settings::getInstance()->nonshaderLight);

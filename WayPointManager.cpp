@@ -87,7 +87,7 @@ bool WayPointManager::update(const irr::core::vector3df& newPos, bool force)
                 str += L" / ";
                 str += RaceManager::getInstance()->getCurrentStage()->getWayPointList().size();
                 str += L")";
-                MessageManager::getInstance()->addText(str.c_str(), 5);
+                MessageManager::getInstance()->addText(str.c_str(), 6);
                 return true;
             }
             assert(0);

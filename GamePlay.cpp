@@ -134,7 +134,7 @@ bool GamePlay::goToNextStage()
         return false;
     }
 
-    VehicleType* vehicleType = VehicleTypeManager::getInstance()->getVehicleType(Player::getInstance()->getCompetitor()->getVehicleTypeName());
+    VehicleType* vehicleType = Player::getInstance()->getVehicle()->getVehicleType(); //VehicleTypeManager::getInstance()->getVehicleType(Player::getInstance()->getCompetitor()->getVehicleTypeName());
     if (vehicleType)
     {
         Stage* stage = RaceManager::getInstance()->getNextStage();
@@ -215,12 +215,26 @@ bool GamePlay::loadGame(const std::string& saveName)
         stage = raceState.back()->stage;
         currentRace = stage->getParent()->getParent();
 
+        stage->readPreData();
+
         raceEngine = new RaceEngine(stage);
         ret = raceEngine->load(SAVE_ENGINE(saveName), currentRace);
         if (ret)
         {
             ret = Player::getInstance()->load(SAVE_PLAYER(saveName), stage);
+            if (!ret)
+            {
+                dprintf(MY_DEBUG_ERROR, "GamePlay::loadGame(): unable to load player: %s\n", saveName.c_str());
+            }
         }
+        else
+        {
+            dprintf(MY_DEBUG_ERROR, "GamePlay::loadGame(): unable to load race engine: %s\n", saveName.c_str());
+        }
+    }
+    else
+    {
+        dprintf(MY_DEBUG_ERROR, "GamePlay::loadGame(): unable to read stage state list: %s\n", saveName.c_str());
     }
 
     if (ret)
@@ -334,10 +348,9 @@ void GamePlay::update(unsigned int tick, const irr::core::vector3df& apos, bool 
     //    raceEngine, Player::getInstance()->getStarter(), Player::getInstance()->getStarter() ? Player::getInstance()->getStarter()->startTime : 0);
     if (raceEngine)
     {
-        //assert(Player::getInstance()->getStarter()!=0);
         if (Player::getInstance()->getStarter() == 0 ||
             Player::getInstance()->getStarter()->startTime==0 ||
-            (Player::getInstance()->getStarter()->startTime!=0 && (Player::getInstance()->getFirstPressed() || force)))
+            (Player::getInstance()->getStarter()->startTime!=0 && (Player::getInstance()->getFirstPressed() /*|| Settings::getInstance()->AIPlayer*/ || force)))
         {
             raceEngine->update(tick, apos, RaceEngine::InTheMiddle);
         }
@@ -497,6 +510,7 @@ void GamePlay::refreshLoadableGames()
         fclose(f);
         return false;
     }
+    race->readPreData();
 
     ret = fscanf_s(f, "%lu\n", &numOfStages);
     if (ret < 1)
@@ -636,7 +650,7 @@ void GamePlay::refreshLoadableGames()
         }
         else
         {
-            printf("stage state unable to find competitor: %u (%s)\n", num, race->getName());
+            printf("stage state unable to find competitor: %u (%s)\n", num, race->getName().c_str());
             fclose(f);
             return false;
         }

@@ -66,7 +66,7 @@ EventReceiver::EventReceiver()
     {
         if (Settings::getInstance()->scanForJoystick)
         {
-            PrintMessage(1, "Unable to detect joystick. Program will continue.\nYou can turn off joystick check in the Options.");
+            PrintMessage(2, "Unable to detect joystick. Program will continue.\nYou can turn off joystick check in the Options.");
         }
     }
 
@@ -504,137 +504,142 @@ void EventReceiver::checkEvents()
         */
 
         // other
-        float perc = 0.f;
-        if (IS_PRESSED(BRAKE) && (perc = getPercentage(BRAKE, joystickState))/* > Settings::getInstance()->joystickDeadZone*/)
+        if (Settings::getInstance()->AIPlayer == false ||
+            Settings::getInstance()->editorMode ||
+            Player::getInstance()->getStarter() == 0)
         {
-            //dprintf(MY_DEBUG_NOTE, "brake pressed: %f\n", perc);
-            Player::getInstance()->setFirstPressed();
-            Player::getInstance()->getVehicle()->setTorque(perc/*perc*/);
-        }
-        else
-        if (IS_PRESSED(ACCELERATE) && (perc = getPercentage(ACCELERATE, joystickState))/* > Settings::getInstance()->joystickDeadZone*/)
-        {
-            //dprintf(MY_DEBUG_NOTE, "accelerate pressed: %f\n", perc);
-            Player::getInstance()->setFirstPressed();
-            Player::getInstance()->getVehicle()->setTorque(-1.0f*perc/*perc*/);
-        }
-        else
-        {
-            Player::getInstance()->getVehicle()->setTorque(0);
-        }
-
-        if (IS_PRESSED(CLUTCH) && (perc = getPercentage(CLUTCH, joystickState))/* > Settings::getInstance()->joystickDeadZone*/)
-        {
-            //dprintf(MY_DEBUG_NOTE, "accelerate pressed: %f\n", perc);
-            Player::getInstance()->getVehicle()->setClutch(perc*perc);
-        }
-
-        const float steerRatePressed = Settings::getInstance()->steerRatePressed; // 0.2f
-        float steerRate = Settings::getInstance()->steerRate; // 0.5f
-        float desiredSteer = 0.0f;
-        perc = 0.0f;
-        if (IS_PRESSED(LEFT) && (perc = getPercentage(LEFT, joystickState))/* > Settings::getInstance()->joystickDeadZone*/)
-        {
-            //dprintf(MY_DEBUG_NOTE, "left pressed: %f\n", perc);
-            //Player::getInstance()->getVehicle()->setSteer(-1.0f*perc*perc);
-            desiredSteer = -1.0f*perc*perc;
-        }
-        else
-        if (IS_PRESSED(RIGHT) && (perc = getPercentage(RIGHT, joystickState))/* > Settings::getInstance()->joystickDeadZone*/)
-        {
-            //dprintf(MY_DEBUG_NOTE, "right pressed: %f\n", perc);
-            //Player::getInstance()->getVehicle()->setSteer(perc*perc);
-            desiredSteer = perc*perc;
-        }
-        else
-        {
-            //Player::getInstance()->getVehicle()->setSteer(0.0f);
-        }
-        if (perc*perc > Settings::getInstance()->joystickDeadZone)
-        {
-            steerRate = steerRatePressed;
-        }
-        //printf("steer rate: %f\n", steerRate);
-        if (lastSteer + steerRate < desiredSteer)
-        {
-            lastSteer += steerRate;
-        }
-        else if (lastSteer - steerRate > desiredSteer)
-        {
-            lastSteer -= steerRate;
-        }
-        else
-        {
-            lastSteer = desiredSteer;
-        }
-
-        Player::getInstance()->getVehicle()->setSteer(lastSteer);
-
-        if (IS_PRESSED(HANDBRAKE))
-        {
-            //dprintf(MY_DEBUG_NOTE, "brake pressed\n");
-            Player::getInstance()->getVehicle()->setHandbrake(1.0f);
-        }
-        else
-        {
-            Player::getInstance()->getVehicle()->setHandbrake(0);
-        }
-
-        if (Settings::getInstance()->manualGearShifting)
-        {
-            if (Settings::getInstance()->sequentialGearShifting)
+            float perc = 0.f;
+            if (IS_PRESSED(BRAKE) && (perc = getPercentage(BRAKE, joystickState))/* > Settings::getInstance()->joystickDeadZone*/)
             {
-                if (IS_PRESSED(GEAR_UP) && getPressed(GEAR_UP))
-                {
-                    Player::getInstance()->getVehicle()->incGear();
-                }
-                if (IS_PRESSED(GEAR_DOWN) && getPressed(GEAR_DOWN))
-                {
-                    Player::getInstance()->getVehicle()->decGear();
-                }
+                //dprintf(MY_DEBUG_NOTE, "brake pressed: %f\n", perc);
+                Player::getInstance()->setFirstPressed();
+                Player::getInstance()->getVehicle()->setTorque(perc/*perc*/);
+            }
+            else
+            if (IS_PRESSED(ACCELERATE) && (perc = getPercentage(ACCELERATE, joystickState))/* > Settings::getInstance()->joystickDeadZone*/)
+            {
+                //dprintf(MY_DEBUG_NOTE, "accelerate pressed: %f\n", perc);
+                Player::getInstance()->setFirstPressed();
+                Player::getInstance()->getVehicle()->setTorque(-1.0f*perc/*perc*/);
             }
             else
             {
-                if (IS_PRESSED(GEAR_1))
+                Player::getInstance()->getVehicle()->setTorque(0);
+            }
+
+            if (IS_PRESSED(CLUTCH) && (perc = getPercentage(CLUTCH, joystickState))/* > Settings::getInstance()->joystickDeadZone*/)
+            {
+                //dprintf(MY_DEBUG_NOTE, "accelerate pressed: %f\n", perc);
+                Player::getInstance()->getVehicle()->setClutch(perc*perc);
+            }
+
+            const float steerRatePressed = Settings::getInstance()->steerRatePressed; // 0.2f
+            float steerRate = Settings::getInstance()->steerRate; // 0.5f
+            float desiredSteer = 0.0f;
+            perc = 0.0f;
+            if (IS_PRESSED(LEFT) && (perc = getPercentage(LEFT, joystickState))/* > Settings::getInstance()->joystickDeadZone*/)
+            {
+                //dprintf(MY_DEBUG_NOTE, "left pressed: %f\n", perc);
+                //Player::getInstance()->getVehicle()->setSteer(-1.0f*perc*perc);
+                desiredSteer = -1.0f*perc*perc;
+            }
+            else
+            if (IS_PRESSED(RIGHT) && (perc = getPercentage(RIGHT, joystickState))/* > Settings::getInstance()->joystickDeadZone*/)
+            {
+                //dprintf(MY_DEBUG_NOTE, "right pressed: %f\n", perc);
+                //Player::getInstance()->getVehicle()->setSteer(perc*perc);
+                desiredSteer = perc*perc;
+            }
+            else
+            {
+                //Player::getInstance()->getVehicle()->setSteer(0.0f);
+            }
+            if (perc*perc > Settings::getInstance()->joystickDeadZone)
+            {
+                steerRate = steerRatePressed;
+            }
+            //printf("steer rate: %f\n", steerRate);
+            if (lastSteer + steerRate < desiredSteer)
+            {
+                lastSteer += steerRate;
+            }
+            else if (lastSteer - steerRate > desiredSteer)
+            {
+                lastSteer -= steerRate;
+            }
+            else
+            {
+                lastSteer = desiredSteer;
+            }
+
+            Player::getInstance()->getVehicle()->setSteer(lastSteer);
+
+            if (IS_PRESSED(HANDBRAKE))
+            {
+                //dprintf(MY_DEBUG_NOTE, "brake pressed\n");
+                Player::getInstance()->getVehicle()->setHandbrake(1.0f);
+            }
+            else
+            {
+                Player::getInstance()->getVehicle()->setHandbrake(0);
+            }
+
+            if (Settings::getInstance()->manualGearShifting)
+            {
+                if (Settings::getInstance()->sequentialGearShifting)
                 {
-                    Player::getInstance()->getVehicle()->setGear(1);
+                    if (IS_PRESSED(GEAR_UP) && getPressed(GEAR_UP))
+                    {
+                        Player::getInstance()->getVehicle()->incGear();
+                    }
+                    if (IS_PRESSED(GEAR_DOWN) && getPressed(GEAR_DOWN))
+                    {
+                        Player::getInstance()->getVehicle()->decGear();
+                    }
                 }
                 else
-                if (IS_PRESSED(GEAR_2))
                 {
-                    Player::getInstance()->getVehicle()->setGear(2);
-                }
-                else
-                if (IS_PRESSED(GEAR_3))
-                {
-                    Player::getInstance()->getVehicle()->setGear(3);
-                }
-                else
-                if (IS_PRESSED(GEAR_4))
-                {
-                    Player::getInstance()->getVehicle()->setGear(4);
-                }
-                else
-                if (IS_PRESSED(GEAR_5))
-                {
-                    Player::getInstance()->getVehicle()->setGear(5);
-                }
-                else
-                if (IS_PRESSED(GEAR_6))
-                {
-                    Player::getInstance()->getVehicle()->setGear(6);
-                }
-                else
-                if (IS_PRESSED(GEAR_R))
-                {
-                    Player::getInstance()->getVehicle()->setGear(-1);
-                }
-                else
-                {
-                    Player::getInstance()->getVehicle()->setGear(0);
+                    if (IS_PRESSED(GEAR_1))
+                    {
+                        Player::getInstance()->getVehicle()->setGear(1);
+                    }
+                    else
+                    if (IS_PRESSED(GEAR_2))
+                    {
+                        Player::getInstance()->getVehicle()->setGear(2);
+                    }
+                    else
+                    if (IS_PRESSED(GEAR_3))
+                    {
+                        Player::getInstance()->getVehicle()->setGear(3);
+                    }
+                    else
+                    if (IS_PRESSED(GEAR_4))
+                    {
+                        Player::getInstance()->getVehicle()->setGear(4);
+                    }
+                    else
+                    if (IS_PRESSED(GEAR_5))
+                    {
+                        Player::getInstance()->getVehicle()->setGear(5);
+                    }
+                    else
+                    if (IS_PRESSED(GEAR_6))
+                    {
+                        Player::getInstance()->getVehicle()->setGear(6);
+                    }
+                    else
+                    if (IS_PRESSED(GEAR_R))
+                    {
+                        Player::getInstance()->getVehicle()->setGear(-1);
+                    }
+                    else
+                    {
+                        Player::getInstance()->getVehicle()->setGear(0);
+                    }
                 }
             }
-        }
+        } // if (Settings::getInstance()->AIPlayer == false || Settings::getInstance()->editorMode)
 
         if (IS_PRESSED(PHYSICS))
         {

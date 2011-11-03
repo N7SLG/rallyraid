@@ -291,11 +291,18 @@ bool MenuPageStage::OnEvent(const irr::SEvent &event)
                     case MI_BUTTONSTART:
                         dprintf(MY_DEBUG_NOTE, "stagemenu::startbutton::clicked: selected race: %s, vehicle: %s\n",
                             selectedRace?selectedRace->getName().c_str():"-", selectedVehicleType?selectedVehicleType->getName().c_str():"-");
-                        if (selectedRace && selectedVehicleType)
+                        if (selectedRace && selectedStage && selectedVehicleType)
                         {
                             willOpenOtherWindow = false;
                             MenuManager::getInstance()->close();
-                            GamePlay::getInstance()->startNewGame(selectedRace, selectedVehicleType);
+                            if (newRace)
+                            {
+                                GamePlay::getInstance()->startNewGame(selectedRace, selectedVehicleType);
+                            }
+                            else
+                            {
+                                GamePlay::getInstance()->goToNextStage();
+                            }
                         }
                         return true;
                         break;

@@ -51,6 +51,7 @@ public:
     float                   steerRatePressed;
     float                   groundFriction;
     float                   fpsStep;
+    bool                    AIPlayer;
 };
 
 #endif // SETTINGS_H
