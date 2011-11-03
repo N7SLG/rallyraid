@@ -1,8 +1,10 @@
-#summary One-sentence summary of this page.
+#summary This page describe how to install the game
 
 = Introduction =
 
-Add your content here.
+As Rally Raid Game can handle several races there is two part of the install:
+# install the game
+# install race
 
 
 = Details =
