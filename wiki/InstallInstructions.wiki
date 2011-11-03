@@ -20,6 +20,15 @@ The game has also two downloadable part:
 
 The runtime contains the executables, libraries and configuration files. The runtime often changes.
 
+=== File name format ===
+
+*RallyRaid_runtime_v*`<`major_version`>`*`_`*`<`minor_version`>`*`_`b*`<`build_number`>`*.zip*
+
+For example: RallyRaid_runtime_v1_0_b162.zip
+
+A game runtime can only handle races with the same major number.
+A game runtime is only compatible with the game base that has the same major and minor number. Use the most fresh base for a runtime that has not higher build number than the runtime.
+
 == Game base ==
 
 The base contains any other part, that need the game to work, and to create races from scratch:
@@ -39,9 +48,38 @@ The base contains any other part, that need the game to work, and to create race
 
 The base part of the game changes rarely, that's why they are separated from the runtime.
 
-= Details =
+=== File name format ===
 
-Add your content here.  Format your content with:
-  * Text in *bold* or _italic_
-  * Headings, paragraphs, and lists
-  * Automatic links to other wiki pages
+*RallyRaid_base_v*`<`major_version`>`*`_`*`<`minor_version`>`*`_`b*`<`build_number`>`*.zip*
+
+For example: RallyRaid_base_v1_0_b161.zip
+
+= Install a race =
+
+Installing the race can depend on the race itself. For example the Dakar 2012 race has the following installation instruction
+
+The Dakar 2012 Race has also two downloadable part:
+  # base
+  # stages
+
+== Race base ==
+
+The base contains part of the race that changes rarely. In case of Dakar 2012 it contains only the height information of the part of the earth where the race is going. Anyway it is quite large so it is a benefit that if an update need for the race the user don't need to download the whole large data again.
+
+=== File name format ===
+
+*RallyRaid`_`*`<`name_of_the_race`>`*`_`base_v*`<`major_version_of_the_compatible_game`>`*.zip*
+
+For example: RallyRaid_dakar2012_base_v1.zip
+
+== Race stages ==
+
+The stages describes the route and the object for all of the stages. It is quite small, so an update is easy to download.
+
+=== File name format ===
+
+*RallyRaid`_`*`<`name_of_the_race`>`*`_`stages_v*`<`major_version_of_the_compatible_game`>`*.zip*
+
+For example: RallyRaid_dakar2012_stages_v1.zip
+
+*Both race base and stages are only compatible with the game (runtime and base) that has the same major version!*
