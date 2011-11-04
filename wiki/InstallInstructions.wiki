@@ -22,9 +22,9 @@ The runtime contains the executables, libraries and configuration files. The run
 
 === File name format ===
 
-*RallyRaid_runtime_v*`<`major_version`>`*`_`*`<`minor_version`>`*`_`b*`<`build_number`>`*.zip*
+*RallyRaid_runtime_v*`<`major`_`version`>`*`_`*`<`minor`_`version`>`*`_`b*`<`build`_`number`>`*.zip*
 
-For example: RallyRaid_runtime_v1_0_b162.zip
+For example: RallyRaid`_`runtime`_`v1`_`0`_`b162.zip
 
 A game runtime can only handle races with the same major number.
 A game runtime is only compatible with the game base that has the same major and minor number. Use the most fresh base for a runtime that has not higher build number than the runtime.
@@ -50,9 +50,9 @@ The base part of the game changes rarely, that's why they are separated from the
 
 === File name format ===
 
-*RallyRaid_base_v*`<`major_version`>`*`_`*`<`minor_version`>`*`_`b*`<`build_number`>`*.zip*
+*RallyRaid_base_v*`<`major`_`version`>`*`_`*`<`minor`_`version`>`*`_`b*`<`build`_`number`>`*.zip*
 
-For example: RallyRaid_base_v1_0_b161.zip
+For example: RallyRaid`_`base`_`v1`_`0`_`b161.zip
 
 = Install a race =
 
@@ -68,9 +68,9 @@ The base contains part of the race that changes rarely. In case of Dakar 2012 it
 
 === File name format ===
 
-*RallyRaid`_`*`<`name_of_the_race`>`*`_`base_v*`<`major_version_of_the_compatible_game`>`*.zip*
+*RallyRaid`_`*`<`name`_`of`_`the`_`race`>`*`_`base`_`v*`<`major`_`version`_`of`_`the`_`compatible`_`game`>`*.zip*
 
-For example: RallyRaid_dakar2012_base_v1.zip
+For example: RallyRaid_dakar2012`_`base`_`v1.zip
 
 == Race stages ==
 
@@ -78,8 +78,8 @@ The stages describes the route and the object for all of the stages. It is quite
 
 === File name format ===
 
-*RallyRaid`_`*`<`name_of_the_race`>`*`_`stages_v*`<`major_version_of_the_compatible_game`>`*.zip*
+*RallyRaid`_`*`<`name`_`of`_`the`_`race`>`*`_`stages`_`v*`<`major`_`version`_`of`_`the`_`compatible`_`game`>`*.zip*
 
-For example: RallyRaid_dakar2012_stages_v1.zip
+For example: RallyRaid`_`dakar2012`_`stages`_`v1.zip
 
 *Both race base and stages are only compatible with the game (runtime and base) that has the same major version!*
