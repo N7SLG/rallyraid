@@ -22,7 +22,7 @@ The runtime contains the executables, libraries and configuration files. The run
 
 === File name format ===
 
-*RallyRaid_runtime_v*`<`major`_`version`>`*`_`*`<`minor`_`version`>`*`_`b*`<`build`_`number`>`*.zip*
+*RallyRaid`_`runtime`_`v*`<`major`_`version`>`*`_`*`<`minor`_`version`>`*`_`b*`<`build`_`number`>`*.zip*
 
 For example: RallyRaid`_`runtime`_`v1`_`0`_`b162.zip
 
@@ -50,7 +50,7 @@ The base part of the game changes rarely, that's why they are separated from the
 
 === File name format ===
 
-*RallyRaid_base_v*`<`major`_`version`>`*`_`*`<`minor`_`version`>`*`_`b*`<`build`_`number`>`*.zip*
+*RallyRaid`_`base`_`v*`<`major`_`version`>`*`_`*`<`minor`_`version`>`*`_`b*`<`build`_`number`>`*.zip*
 
 For example: RallyRaid`_`base`_`v1`_`0`_`b161.zip
 
@@ -70,7 +70,7 @@ The base contains part of the race that changes rarely. In case of Dakar 2012 it
 
 *RallyRaid`_`*`<`name`_`of`_`the`_`race`>`*`_`base`_`v*`<`major`_`version`_`of`_`the`_`compatible`_`game`>`*.zip*
 
-For example: RallyRaid_dakar2012`_`base`_`v1.zip
+For example: RallyRaid`_`dakar2012`_`base`_`v1.zip
 
 == Race stages ==
 
