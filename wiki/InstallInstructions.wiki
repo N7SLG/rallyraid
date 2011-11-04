@@ -3,16 +3,16 @@
 = Introduction =
 
 As Rally Raid Game can handle several races there is two part of the install:
-  # install the game
-  # install race
+ # install the game
+ # install race
 
 You can use the game alone, or with many of the races.
 
 = Install the game =
 
 The game has also two downloadable part:
-  # runtime
-  # base
+ # runtime
+ # base
 
 *The game only works if both part is installed!* But after it it is possible than an update for the game contains only the runtime part. In this case you only need to download the runtime and install.
 
@@ -24,7 +24,7 @@ The runtime contains the executables, libraries and configuration files. The run
 
 *RallyRaid`_`runtime`_`v*`<`major`_`version`>`*`_`*`<`minor`_`version`>`*`_`b*`<`build`_`number`>`*.zip*
 
-For example: RallyRaid`_`runtime`_`v1`_`0`_`b162.zip
+For example: `RallyRaid_runtime_v1_0_b162.zip`
 
 A game runtime can only handle races with the same major number.
 A game runtime is only compatible with the game base that has the same major and minor number. Use the most fresh base for a runtime that has not higher build number than the runtime.
@@ -32,19 +32,19 @@ A game runtime is only compatible with the game base that has the same major and
 == Game base ==
 
 The base contains any other part, that need the game to work, and to create races from scratch:
-  * backgrounds
-  * earth texture
-  * fonts
-  * hud textures
-  * roadbook textures
-  * shader programs
-  * menu textures
-  * object meshes and textures
-  * road types with textures
-  * skies
-  * smoke textures
-  * sounds
-  * vehicle datas and textures
+ * backgrounds
+ * earth texture
+ * fonts
+ * hud textures
+ * roadbook textures
+ * shader programs
+ * menu textures
+ * object meshes and textures
+ * road types with textures
+ * skies
+ * smoke textures
+ * sounds
+ * vehicle datas and textures
 
 The base part of the game changes rarely, that's why they are separated from the runtime.
 
@@ -52,15 +52,15 @@ The base part of the game changes rarely, that's why they are separated from the
 
 *RallyRaid`_`base`_`v*`<`major`_`version`>`*`_`*`<`minor`_`version`>`*`_`b*`<`build`_`number`>`*.zip*
 
-For example: RallyRaid`_`base`_`v1`_`0`_`b161.zip
+For example: `RallyRaid_base_v1_0_b161.zip`
 
 = Install a race =
 
 Installing the race can depend on the race itself. For example the Dakar 2012 race has the following installation instruction
 
 The Dakar 2012 Race has also two downloadable part:
-  # base
-  # stages
+ # base
+ # stages
 
 == Race base ==
 
@@ -70,7 +70,7 @@ The base contains part of the race that changes rarely. In case of Dakar 2012 it
 
 *RallyRaid`_`*`<`name`_`of`_`the`_`race`>`*`_`base`_`v*`<`major`_`version`_`of`_`the`_`compatible`_`game`>`*.zip*
 
-For example: RallyRaid`_`dakar2012`_`base`_`v1.zip
+For example: `RallyRaid_dakar2012_base_v1.zip`
 
 == Race stages ==
 
@@ -80,6 +80,6 @@ The stages describes the route and the object for all of the stages. It is quite
 
 *RallyRaid`_`*`<`name`_`of`_`the`_`race`>`*`_`stages`_`v*`<`major`_`version`_`of`_`the`_`compatible`_`game`>`*.zip*
 
-For example: RallyRaid`_`dakar2012`_`stages`_`v1.zip
+For example: `RallyRaid_dakar2012_stages_v1.zip`
 
 *Both race base and stages are only compatible with the game (runtime and base) that has the same major version!*
