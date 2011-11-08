@@ -5,6 +5,7 @@
 As Rally Raid Game can handle several races there is two part of the install:
  # install the game
  # install race
+ # `[`install MS libraries if needed`]`
 
 You can use the game alone, or with many of the races.
 
@@ -83,3 +84,7 @@ The stages describes the route and the object for all of the stages. It is quite
 For example: `RallyRaid_dakar2012_stages_v1.zip`
 
 *Both race base and stages are only compatible with the game (runtime and base) that has the same major version!*
+
+= Install MS libraries =
+
+[http://www.microsoft.com/download/en/details.aspx?displaylang=en&id=29 Microsoft Visual C++ 2008 Redistributable Package (x86)]
