@@ -3,7 +3,7 @@
 = Introduction =
 
 As Rally Raid Game can handle several races there is two part of the install:
- # [#Install_the_game install the game]
+ # [#Install_the_gam install the game]
  # install race
  # `[`install MS libraries if needed`]`
 
