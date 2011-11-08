@@ -1,4 +1,4 @@
-#summary This page describe how to install the game
+#summary How to install the game
 
 = Introduction =
 
