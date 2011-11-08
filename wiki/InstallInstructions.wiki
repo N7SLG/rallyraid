@@ -3,9 +3,9 @@
 = Introduction =
 
 As Rally Raid Game can handle several races there is two part of the install:
- # [#Install_the_gam install the game]
- # install race
- # `[`install MS libraries if needed`]`
+ # [#Install_the_game install the game]
+ # [#Install_a_race install race]
+ # [#Install_MS_libraries `[`install MS libraries if needed`]`]
 
 You can use the game alone, or with many of the races.
 
