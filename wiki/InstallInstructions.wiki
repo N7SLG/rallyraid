@@ -88,3 +88,4 @@ For example: `RallyRaid_dakar2012_stages_v1.zip`
 = Install MS libraries =
 
 [http://www.microsoft.com/download/en/details.aspx?displaylang=en&id=29 Microsoft Visual C++ 2008 Redistributable Package (x86)]
+[http://rallyraid.googlecode.com/files/RallyRaid_msvc_dlls.zip Additional msvc`*`.dll files]
