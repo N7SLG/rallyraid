@@ -3,17 +3,21 @@
 = Introduction =
 
 As Rally Raid Game can handle several races there are some steps of the install:
- # [#Install_the_game install the game]
- # [#Install_a_race install race]
- # [#Install_MS_libraries install MS libraries if needed]
+ * [#Install_the_game install the game]
+  * [#Game_runtime runtime]
+  * [#Game_base base]
+ * [#Install_a_race install race]
+  * [#Race_base base]
+  * [#Race_stages stages]
+ * [#Install_MS_libraries install MS libraries if needed]
 
 You can use the game alone, or with many of the races.
 
 = Install the game =
 
 The game has two part, that you can download independently:
- # [#Game_runtime runtime]
- # [#Game_base base]
+ * [#Game_runtime runtime]
+ * [#Game_base base]
 
 *The game only works if both parts are installed!* But after once installed both parts, it is possible to update only one of them.
 
@@ -60,8 +64,8 @@ For example: `RallyRaid_base_v1_0_b161.zip`
 Installing the race can depend on the race itself. For example the Dakar 2012 race has the following installation instruction:
 
 The Dakar 2012 Race has two part:
- # [#Race_base base]
- # [#Race_stages stages]
+ * [#Race_base base]
+ * [#Race_stages stages]
 
 == Race base ==
 
