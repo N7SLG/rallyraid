@@ -52,7 +52,8 @@ Settings::Settings()
       steerRatePressed(0.1f),
       groundFriction(0.8f),
       fpsStep(0.1f),
-      AIPlayer(false)
+      AIPlayer(false),
+      desktopResolution(true)
 {
     read();
 }
@@ -180,6 +181,9 @@ void Settings::read()
             } else if (keyName == "fps_step")
             {
                 fpsStep = StringConverter::parseFloat(valName, 0.1f);
+            } else if (keyName == "desktop_resolution")
+            {
+                desktopResolution = StringConverter::parseBool(valName, true);
             }
         }
     }
@@ -227,6 +231,7 @@ void Settings::write()
     ret = fprintf(f, "steer_rate_pressed=%f\n", steerRatePressed);
     ret = fprintf(f, "ground_friction=%f\n", groundFriction);
     ret = fprintf(f, "fps_step=%f\n", fpsStep);
+    ret = fprintf(f, "desktop_resolution=%s\n", desktopResolution?"yes":"no");
 
     fclose(f);
 }

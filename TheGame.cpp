@@ -119,7 +119,7 @@ TheGame::TheGame()
     if (device==0)
     {
          dprintf(MY_DEBUG_ERROR, "unable to create device\n");
-         PrintMessage(1, "Unable to create device!");
+         PrintMessage(1, "Unable to create device!\nTry to edit the data/settings.cfg file, or write mail to balazs.tuska@gmail.com to get help.");
          terminate = true;
     }
     else
@@ -362,11 +362,39 @@ void TheGame::readSettings(irr::SIrrlichtCreationParameters& params)
     {
         params.DriverType = irr::video::EDT_OPENGL;
     }
-    params.WindowSize = irr::core::dimension2du(Settings::getInstance()->resolutionX, Settings::getInstance()->resolutionY);
+    if (Settings::getInstance()->desktopResolution && Settings::getInstance()->fullScreen)
+    {
+        irr::IrrlichtDevice* nullDev = irr::createDevice(irr::video::EDT_NULL);
+        dprintf(MY_DEBUG_NOTE, "Use full screen with auto-detection\n");
+        if (nullDev)
+        {
+            dprintf(MY_DEBUG_NOTE, "null device found auto-detection is possible.\n");
+            params.WindowSize = nullDev->getVideoModeList()->getDesktopResolution();
+            params.Bits = nullDev->getVideoModeList()->getDesktopDepth();
+            nullDev->drop();
+            dprintf(MY_DEBUG_INFO, "null device found auto-detection is possible. detected: %dx%dx%d\n",
+                params.WindowSize.Width, params.WindowSize.Height, params.Bits);
+        }
+        else
+        {
+            dprintf(MY_DEBUG_INFO, "null device not found auto-detection is not possible!!!\n");
+            PrintMessage(2, "Unable to detect desktop resolution!\nUse resolution from the settings: %ux%u!",
+                Settings::getInstance()->resolutionX, Settings::getInstance()->resolutionY);
+        }
+    }
+    else
+    {
+        params.WindowSize = irr::core::dimension2du(Settings::getInstance()->resolutionX, Settings::getInstance()->resolutionY);
+        params.Bits = Settings::getInstance()->displayBits;
+    }
     params.Fullscreen = Settings::getInstance()->fullScreen;
-    params.Bits = Settings::getInstance()->displayBits;
     params.Vsync = Settings::getInstance()->vsync;
     //assert(0);
+    if (Settings::getInstance()->editorMode == false && (params.WindowSize.Width < 1280 || params.WindowSize.Height < 768))
+    {
+         PrintMessage(3, "Your current resolution (%ux%u) is lower then 1280x768!\nThe game was not tested on this resolution!",
+             Settings::getInstance()->resolutionX, Settings::getInstance()->resolutionY);
+    }
 }
 
 void TheGame::loop()

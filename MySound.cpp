@@ -141,7 +141,7 @@ void MySoundEngine::updateListener()
     ALfloat ListenerOri[] = { listenerDir.X, listenerDir.Y, listenerDir.Z, listenerUp.X, listenerUp.Y, listenerUp.Z};
     alListenerfv(AL_POSITION,    &listenerPos.X);
     alListenerfv(AL_VELOCITY,    &listenerVel.X);
-    alListenerfv(AL_ORIENTATION, ListenerOri);    
+    alListenerfv(AL_ORIENTATION, ListenerOri);
     alGetError();
 }
 
@@ -149,7 +149,7 @@ const irr::core::vector3df MySound::zeroVector;
 
 MySound::MySound(unsigned int newBuffer, bool plooped, const irr::core::vector3df& pos)
     : initialized(false), paused(true), looped(plooped), maxDistance(1000.0f), minDistance(1.0f), volume(1.0f),
-      playbackSpeed(1.0f), buffer(newBuffer), isStopped(true), soundSourcePos(pos)
+      playbackSpeed(1.0f), buffer(newBuffer), isStopped(true), soundSourcePos(-pos)
 {
     alGenSources(1, &source);
     
@@ -220,7 +220,7 @@ void MySound::setIsLooped(bool newLoop)
 void MySound::setPosition(const irr::core::vector3df& newPos)
 {
     if (!this || !initialized) return;
-    soundSourcePos = newPos;
+    soundSourcePos = -newPos;
     alSourcefv(source, AL_POSITION, &soundSourcePos.X);
     alGetError();
 }

@@ -52,6 +52,7 @@ public:
     float                   groundFriction;
     float                   fpsStep;
     bool                    AIPlayer;
+    bool                    desktopResolution;
 };
 
 #endif // SETTINGS_H

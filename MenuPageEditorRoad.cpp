@@ -62,35 +62,35 @@ MenuPageEditorRoad::MenuPageEditorRoad()
     irr::gui::IGUITab* tabPoints = tc->addTab(L"Points", MI_TABPOINTS);
 
     TheGame::getInstance()->getEnv()->addStaticText(L"Road point radius",
-        irr::core::recti(irr::core::position2di(0, 0), irr::core::dimension2di(EXP_TEXT_WIDTH, 20)),
+        irr::core::recti(irr::core::position2di(0, 0), irr::core::dimension2di(EXP_TEXT_WIDTH+20, 20)),
         false,
         false,
         tabPoints)->setTextAlignment(irr::gui::EGUIA_UPPERLEFT, irr::gui::EGUIA_CENTER);
     editBoxRadius = TheGame::getInstance()->getEnv()->addEditBox(L"0",
-        irr::core::recti(irr::core::position2di(EXP_TEXT_WIDTH, 0), irr::core::dimension2di(tabPoints->getRelativePosition().getSize().Width-EXP_TEXT_WIDTH, 20)),
+        irr::core::recti(irr::core::position2di(EXP_TEXT_WIDTH+20, 0), irr::core::dimension2di(tabPoints->getRelativePosition().getSize().Width-EXP_TEXT_WIDTH, 20)),
         true,
         tabPoints,
         MI_EBRADIUS);
 
     TheGame::getInstance()->getEnv()->addStaticText(L"Color modifier (RGB)",
-        irr::core::recti(irr::core::position2di(0, 0), irr::core::dimension2di(EXP_TEXT_WIDTH, 20)),
+        irr::core::recti(irr::core::position2di(0, 22), irr::core::dimension2di(EXP_TEXT_WIDTH+20, 20)),
         false,
         false,
         tabPoints)->setTextAlignment(irr::gui::EGUIA_UPPERLEFT, irr::gui::EGUIA_CENTER);
     editBoxRed = TheGame::getInstance()->getEnv()->addEditBox(L"0",
-        irr::core::recti(irr::core::position2di(EXP_TEXT_WIDTH, 22), irr::core::dimension2di(40, 20)),
+        irr::core::recti(irr::core::position2di(EXP_TEXT_WIDTH+20, 22), irr::core::dimension2di(40, 20)),
         true,
         tabPoints,
         MI_EBRED);
 
     editBoxGreen = TheGame::getInstance()->getEnv()->addEditBox(L"0",
-        irr::core::recti(irr::core::position2di(EXP_TEXT_WIDTH+42, 22), irr::core::dimension2di(40, 20)),
+        irr::core::recti(irr::core::position2di(EXP_TEXT_WIDTH+20+42, 22), irr::core::dimension2di(40, 20)),
         true,
         tabPoints,
         MI_EBGREEN);
 
     editBoxBlue = TheGame::getInstance()->getEnv()->addEditBox(L"0",
-        irr::core::recti(irr::core::position2di(EXP_TEXT_WIDTH+84, 22), irr::core::dimension2di(40, 20)),
+        irr::core::recti(irr::core::position2di(EXP_TEXT_WIDTH+20+84, 22), irr::core::dimension2di(40, 20)),
         true,
         tabPoints,
         MI_EBBLUE);
