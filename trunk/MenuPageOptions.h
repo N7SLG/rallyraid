@@ -26,6 +26,7 @@ public:
         MI_COMBOBOXRESOLUTION,
         MI_COMBOBOXDISPLAYBITS,
 
+        MI_CBDESKTOPRESOLUTION,
         MI_CBFULLSCREEN,
         MI_CBVSYNC,
         MI_CBSCANJOYSTICK,
@@ -63,6 +64,7 @@ private:
     irr::gui::IGUIComboBox* comboBoxDriverType;
     irr::gui::IGUIComboBox* comboBoxResolution;
     irr::gui::IGUIComboBox* comboBoxDisplayBits;
+    irr::gui::IGUICheckBox* cbDesktopResolution;
     irr::gui::IGUICheckBox* cbFullScreen;
     irr::gui::IGUICheckBox* cbVsync;
     irr::gui::IGUICheckBox* cbScanJoystick;

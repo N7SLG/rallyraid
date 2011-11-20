@@ -95,6 +95,8 @@ void GamePlay::startNewGame(Race* race, VehicleType* vehicleType)
         currentRace = race;
 
         // reinitalize new resources
+        srand(TheGame::getInstance()->getTick() % RAND_MAX);
+
         StageState* stageState = new StageState;
 
         stageState->stage = stage;
@@ -155,6 +157,8 @@ bool GamePlay::goToNextStage()
         assert(!raceState.empty());
 
         // reinitalize new resources
+        srand(TheGame::getInstance()->getTick() % RAND_MAX);
+
         StageState* stageState = new StageState;
 
         stageState->stage = stage;
@@ -207,6 +211,8 @@ bool GamePlay::loadGame(const std::string& saveName)
         clearStageStateList(raceState);
         currentRace = 0;
     }
+
+    srand(TheGame::getInstance()->getTick() % RAND_MAX);
 
     ret = readStageStateList(SAVE_STATE(saveName), raceState);
     if (ret)

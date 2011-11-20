@@ -74,7 +74,7 @@ inline void MySoundEngine::setListenerPosition(const irr::core::vector3df& pos,
                                         const irr::core::vector3df& upVector,
                                         const irr::core::vector3df& velPerSecond)
 {
-    listenerPos = pos;
+    listenerPos = -pos;
     listenerVel = velPerSecond;
     listenerDir = lookdir;
     listenerUp = upVector;

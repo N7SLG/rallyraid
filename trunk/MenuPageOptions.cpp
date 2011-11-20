@@ -27,6 +27,7 @@ MenuPageOptions::MenuPageOptions()
       comboBoxDriverType(0),
       comboBoxResolution(0),
       comboBoxDisplayBits(0),
+      cbDesktopResolution(0),
       cbFullScreen(0),
       cbVsync(0),
       cbScanJoystick(0),
@@ -183,6 +184,20 @@ MenuPageOptions::MenuPageOptions()
             //if (auto_resolution==0 && resolutionX==res.Width && resolutionY==res.Height && display_bits==dep) resolution_cbox->setSelected(i+2);
         }
     }
+
+    line += 20;
+    TheGame::getInstance()->getEnv()->addStaticText(L"Same resolution as desktop (*)",
+        irr::core::recti(irr::core::position2di(PADDING, line), irr::core::dimension2di(FTW, 16)),
+        false,
+        false,
+        tabGraphics);
+
+   cbDesktopResolution = TheGame::getInstance()->getEnv()->addCheckBox(Settings::getInstance()->desktopResolution,
+        irr::core::recti(irr::core::position2di(FTW+(PADDING*2), line), irr::core::dimension2di(16 + 512, 16)),
+        tabGraphics,
+        MI_CBDESKTOPRESOLUTION,
+        L"(Only if full screen is set. Resolution above will be discarded.)");
+
 
     line += 20;
     TheGame::getInstance()->getEnv()->addStaticText(L"Full Screen (*)",
@@ -360,6 +375,10 @@ bool MenuPageOptions::OnEvent(const irr::SEvent &event)
             {
                 switch (id)
                 {
+                    case MI_CBDESKTOPRESOLUTION:
+                        Settings::getInstance()->desktopResolution = ((irr::gui::IGUICheckBox*)event.GUIEvent.Caller)->isChecked();
+                        return true;
+                        break;
                     case MI_CBFULLSCREEN:
                         Settings::getInstance()->fullScreen = ((irr::gui::IGUICheckBox*)event.GUIEvent.Caller)->isChecked();
                         return true;
@@ -466,6 +485,7 @@ void MenuPageOptions::refreshGraphics()
         }
     }
 
+    cbDesktopResolution->setChecked(Settings::getInstance()->desktopResolution);
     cbFullScreen->setChecked(Settings::getInstance()->fullScreen);
     cbVsync->setChecked(Settings::getInstance()->vsync);
 }
