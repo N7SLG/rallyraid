@@ -33,6 +33,7 @@
 #define WAYPOINT_CFG                (std::string("waypoint.cfg"))
 #define AIPOINTS_CFG                (std::string("aipoints.cfg"))
 #define DEFAULTSTAGE_IMG            (std::string("stage.png"))
+#define DEFAULTRACE_IMG             (std::string("race.png"))
 #define HEIGHTMODIFIERS_CFG         (std::string("heightmodifiers.cfg"))
 
 class Race;

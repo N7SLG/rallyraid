@@ -144,6 +144,13 @@ void OffsetObject::addToManager(bool p_skipNodeUpdate)
     skipNodeUpdate = false;
 }
 
+void OffsetObject::addToManagerBegin(bool p_skipNodeUpdate)
+{
+    skipNodeUpdate = p_skipNodeUpdate;
+    offsetManager->addObjectBegin(this);
+    skipNodeUpdate = false;
+}
+
 void OffsetObject::removeFromManager()
 {
     offsetManager->removeObject(this);

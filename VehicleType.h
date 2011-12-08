@@ -33,13 +33,15 @@ typedef std::map<unsigned int, float> gearMap_t;
 class VehicleType
 {
 public:
-    VehicleType(const std::string& vehicleTypeName, const std::string& vehicleTypeFilename, bool& ret);
+    VehicleType(const std::string& vehicleTypeName, const std::string& vehicleTypeFilename,
+        const std::string& vehicleTypeDir, bool& ret);
     ~VehicleType();
 
     const std::string& getName(); // inline
     const std::string& getLongName(); // inline
     float getMaxSpeed(); // inline
     float getMaxRPM(); // inline
+    irr::video::ITexture* getImage(); // inline
 
 private:
     bool read(const std::string& vehicleTypeFilename);
@@ -63,6 +65,7 @@ private:
     irr::core::matrix4      viewPos[VIEW_SIZE];
     irr::core::matrix4      viewDest[VIEW_SIZE];
     float                   mass;   // only used for info in the main menu
+    irr::video::ITexture*   image;
     
     static float            maxMaxBrakeForce;
     static float            maxMaxSpeed;
@@ -93,6 +96,11 @@ inline float VehicleType::getMaxSpeed()
 inline float VehicleType::getMaxRPM()
 {
     return maxTorque;
+}
+
+inline irr::video::ITexture* VehicleType::getImage()
+{
+    return image;
 }
 
 #endif // VEHICLETYPE_H

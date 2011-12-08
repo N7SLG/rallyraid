@@ -101,8 +101,9 @@ void VehicleTypeManager::read()
          it++)
     {
         std::string vehicleTypeName = it->c_str();
-        std::string vehicleTypeFilename = std::string("data/vehicles/")+vehicleTypeName+"/"+vehicleTypeName+".cfg";
-        VehicleType* vehicleType = new VehicleType(vehicleTypeName, vehicleTypeFilename, ret);
+        std::string vehicleTypeDir = std::string("data/vehicles/")+vehicleTypeName;
+        std::string vehicleTypeFilename = vehicleTypeDir+"/"+vehicleTypeName+".cfg";
+        VehicleType* vehicleType = new VehicleType(vehicleTypeName, vehicleTypeFilename, vehicleTypeDir, ret);
         if (!ret)
         {
             delete vehicleType;

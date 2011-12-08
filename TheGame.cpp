@@ -18,6 +18,7 @@
 #include "MenuManager.h"
 #include "MenuPageEditor.h"
 #include "MenuPageStage.h"
+#include "MenuPageMain.h"
 #include "Hud.h"
 #include "RoadManager.h"
 #include "RoadTypeManager.h"
@@ -36,6 +37,7 @@
 #include <CSceneNodeAnimatorCameraFPS.h>
 #include "error.h"
 
+void renderVehicleImages();
 
 // static stuff
 TheGame* TheGame::theGame = 0;
@@ -240,6 +242,8 @@ TheGame::TheGame()
         dprintf(MY_DEBUG_NOTE, "Initialize hud\n");
         Hud::initialize();
         hud = Hud::getInstance();
+
+        //renderVehicleImages();
 
         skydome = smgr->addSkyDomeSceneNode(driver->getTexture("data/skys/fairday.jpg"),16,8,0.95f,2.0f);
         /*if (useShaders && useCgShaders)
@@ -447,6 +451,7 @@ void TheGame::loop()
         {
             tick = device->getTimer()->getTime();
             eventReceiverTick = tick / eventReceiverCheckRate;
+            //bool ou = false;
             if (inGame)
             {
                 // -------------------------------
@@ -470,7 +475,7 @@ void TheGame::loop()
                 //camera->setTarget(camera->getPosition()+initialDir);
                 //printf("off: %f, %f (%f, %f)\n", offsetManager->getOffset().X, offsetManager->getOffset().Z,
                 //    camera->getPosition().X, camera->getPosition().Z);
-                offsetManager->update(offsetManager->getOffset()+camera->getPosition());
+                /*bool ou = */offsetManager->update(offsetManager->getOffset()+camera->getPosition());
                 objectWire->update(offsetManager->getOffset()+camera->getPosition());
                 //printf("off: %f, %f (%f, %f)\n", offsetManager->getOffset().X, offsetManager->getOffset().Z,
                 //    camera->getPosition().X, camera->getPosition().Z);
@@ -500,7 +505,7 @@ void TheGame::loop()
                 /*
                 update dynamic object position
                 */
-                if (physUpdateDone)
+                if (physUpdateDone/* || ou*/)
                 {
                     OffsetObject::updateDynamicToPhys();
                     handleUpdatePos(true); // update the camera to the player position
@@ -610,7 +615,7 @@ void TheGame::loop()
 
             driver->setRenderTarget(0, true, true, irr::video::SColor(0, 0, 0, 255));
             //printf("prerender\n");
-            earth->registerVisual();
+            //earth->registerVisual();
             hud->preRender(cameraAngle);
             //printf("scene mgr drawAll\n");
             smgr->drawAll();
@@ -630,6 +635,10 @@ void TheGame::loop()
                 {
                     MenuPageStage::menuPageStage->render();
                 }
+                if (MenuPageMain::menuPageMain->isVisible())
+                {
+                    MenuPageMain::menuPageMain->render();
+                }
             }
             
             env->drawAll();
@@ -637,6 +646,7 @@ void TheGame::loop()
             //printf("hud render\n");
             //testQuad.render();
             driver->endScene();
+            //assert(!ou);
             //printf("5\n");
 
             //int fps = driver->getFPS();
@@ -667,7 +677,7 @@ void TheGame::reset(const irr::core::vector3df& apos, const irr::core::vector3df
     camera->setTarget(camera->getPosition()+dir);
 
     cameraOffsetObject = new OffsetObject(camera/*, true*/);
-    cameraOffsetObject->addToManager();
+    cameraOffsetObject->addToManagerBegin();
     offsetManager->update(camera->getPosition());
     cameraOffsetObject->setUpdateCB(this);
 }
@@ -785,7 +795,7 @@ void TheGame::handleUpdatePos(bool phys)
         campos = (player->getVehicleMatrix() * viewPos).getTranslation();
         camtar = (player->getVehicleMatrix() * viewDest).getTranslation();
         centar = (player->getVehicleMatrix() * tcentar).getTranslation();
-        carrot = player->getVehicleMatrix().getRotationDegrees();
+        carrot = player->getVehicle()->getRotationDegrees();// getVehicleMatrix().getRotationDegrees();
 
         camera->setTarget(camtar);
         if (player->getViewNum() == VIEW_0)
@@ -814,6 +824,7 @@ void TheGame::handleUpdatePos(bool phys)
             camera->setPosition(centar + dir);
         }
     }
+    //camera->updateAbsolutePosition();
 
     if (phys && inGame)
     {
@@ -837,4 +848,52 @@ void TheGame::handleUpdatePos(bool phys)
         cameraAngle = (float)(irr::core::vector2df(cameraDirection.X, cameraDirection.Z)).getAngle();
     }
     soundEngine->setListenerPosition(camera->getPosition(), cameraDirection, camera->getUpVector(), velocity);
+}
+
+
+void renderVehicleImages()
+{
+    printf("renderVehicleImages(): BEGIN\n");
+
+    bool tempTexFlagMipMaps = TheGame::getInstance()->getDriver()->getTextureCreationFlag(irr::video::ETCF_CREATE_MIP_MAPS);
+    bool tempTexFlag32 = TheGame::getInstance()->getDriver()->getTextureCreationFlag(irr::video::ETCF_ALWAYS_32_BIT);
+    irr::video::ITexture* car_selector_rtt = TheGame::getInstance()->getDriver()->addRenderTargetTexture(irr::core::dimension2du(1024, 1024));
+    TheGame::getInstance()->getDriver()->setTextureCreationFlag(irr::video::ETCF_CREATE_MIP_MAPS, tempTexFlagMipMaps);
+    TheGame::getInstance()->getDriver()->setTextureCreationFlag(irr::video::ETCF_ALWAYS_32_BIT, tempTexFlag32);
+
+    irr::scene::ICameraSceneNode* car_selector_camera = TheGame::getInstance()->getSmgr()->addCameraSceneNode();
+    car_selector_camera->setPosition(irr::core::vector3df(3.4f, 1.2f, 1.7f));
+    car_selector_camera->setTarget(irr::core::vector3df(0.f,-0.5f,0.f));
+    car_selector_camera->setAspectRatio(1.f);
+    //car_selector_camera->setFarValue(DEFAULT_FAR_VALUE);
+    TheGame::getInstance()->getSmgr()->setActiveCamera(car_selector_camera);
+
+    for (VehicleTypeManager::vehicleTypeMap_t::const_iterator it = VehicleTypeManager::getInstance()->getVehicleTypeMap().begin();
+         it != VehicleTypeManager::getInstance()->getVehicleTypeMap().end();
+         it++)
+    {
+        printf("Create vehicle, type: %s\n", it->first.c_str());
+        Vehicle* vehicle = new Vehicle(it->first, irr::core::vector3df(), irr::core::vector3df());
+        
+        printf("Render start\n");
+        TheGame::getInstance()->getDriver()->beginScene(true, true, irr::video::SColor(0,255,0,0));
+        TheGame::getInstance()->getDriver()->setRenderTarget(car_selector_rtt, true, true, irr::video::SColor(0, 255, 0, 255));
+        TheGame::getInstance()->getSmgr()->drawAll();
+        TheGame::getInstance()->getDriver()->endScene();
+        printf("Render end\n");
+        
+        delete vehicle;
+
+        std::string filename = it->first + "_preview.png";
+
+        irr::video::IImage* outImg = TheGame::getInstance()->getDriver()->createImage(car_selector_rtt, irr::core::position2d< irr::s32 >(), car_selector_rtt->getOriginalSize());
+        irr::io::IWriteFile* wf = TheGame::getInstance()->getDevice()->getFileSystem()->createAndWriteFile(filename.c_str());
+        TheGame::getInstance()->getDriver()->writeImageToFile(outImg, wf);
+        wf->drop();
+        outImg->drop();
+    }
+
+    TheGame::getInstance()->getSmgr()->setActiveCamera(TheGame::getInstance()->getCamera());
+
+    printf("renderVehicleImages(): END\n");
 }

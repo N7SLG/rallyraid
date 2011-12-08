@@ -62,6 +62,7 @@ public:
     void setPool(ObjectPool* p_pool) {pool = p_pool;}
 
     void addToManager(bool p_skipNodeUpdate = false);
+    void addToManagerBegin(bool p_skipNodeUpdate = false);
     void removeFromManager();
 
     void setUpdateCB(OffsetObjectUpdateCB* p_updateCB);

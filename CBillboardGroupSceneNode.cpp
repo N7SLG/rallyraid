@@ -198,7 +198,7 @@ void CBillboardGroupSceneNode::updateBillboards()
     
     if ( farAway && (rotatedCamDir - LastCamDir).getLengthSQ() < 1000.0f )
     {
-        return;
+        //return;
     }
     
     LastCamDir = rotatedCamDir;

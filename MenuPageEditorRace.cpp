@@ -32,7 +32,8 @@ MenuPageEditorRace::MenuPageEditorRace()
       editBoxNewDay(0),
       editBoxNewRoadFilename(0),
       editBoxNewRoadName(0),
-      editBoxNewRoadDataFilename(0)
+      editBoxNewRoadDataFilename(0),
+      editBoxImage(0)
 {
     window = TheGame::getInstance()->getEnv()->addWindow(
         irr::core::recti(TheGame::getInstance()->getScreenSize().Width-350, 50, TheGame::getInstance()->getScreenSize().Width-10, TheGame::getInstance()->getScreenSize().Height-150),
@@ -87,8 +88,19 @@ MenuPageEditorRace::MenuPageEditorRace()
         window,
         MI_EBSHORTDESCRIPTION);
 
+    TheGame::getInstance()->getEnv()->addStaticText(L"Race image",
+        irr::core::recti(irr::core::position2di(2, 88), irr::core::dimension2di(EXP_TEXT_WIDTH, 20)),
+        false,
+        false,
+        window)->setTextAlignment(irr::gui::EGUIA_UPPERLEFT, irr::gui::EGUIA_CENTER);
+    editBoxImage = TheGame::getInstance()->getEnv()->addEditBox(L"",
+        irr::core::recti(irr::core::position2di(EXP_TEXT_WIDTH+2, 88), irr::core::dimension2di(window->getRelativePosition().getSize().Width - 4 - EXP_TEXT_WIDTH, 20)),
+        true,
+        window,
+        MI_EBIMAGE);
+
     irr::gui::IGUITabControl* tc = TheGame::getInstance()->getEnv()->addTabControl(
-        irr::core::recti(irr::core::position2di(2, 88), irr::core::dimension2di(window->getRelativePosition().getSize().Width - 4, window->getRelativePosition().getSize().Height - 90)),
+        irr::core::recti(irr::core::position2di(2, 110), irr::core::dimension2di(window->getRelativePosition().getSize().Width - 4, window->getRelativePosition().getSize().Height - 112)),
         window,
         true,
         true,
@@ -262,6 +274,7 @@ bool MenuPageEditorRace::OnEvent(const irr::SEvent &event)
                         dprintf(MY_DEBUG_NOTE, "editor::race::save\n");
                         WStringConverter::toString(editBoxLongName->getText(), RaceManager::getInstance()->editorRace->raceLongName);
                         WStringConverter::toString(editBoxShortDescription->getText(), RaceManager::getInstance()->editorRace->shortDescription);
+                        WStringConverter::toString(editBoxImage->getText(), RaceManager::getInstance()->editorRace->imageName);
                         RaceManager::getInstance()->editorRace->write();
                         return true;
                         break;
@@ -623,4 +636,7 @@ void MenuPageEditorRace::refreshRoadEditBoxes(const wchar_t* newRoadName)
     str += newRoadName;
     editBoxNewRoadDataFilename->setText(str.c_str());
 
+    str = L"";
+    str += RaceManager::getInstance()->editorRace->imageName.c_str();
+    editBoxImage->setText(str.c_str());
 }

@@ -57,7 +57,7 @@ namespace scene
 		#ifdef _DEBUG
 		setDebugName("TerrainSceneNode");
 		#endif
-
+        
 		Mesh = new SMesh();
 		RenderBuffer = new CDynamicMeshBuffer(video::EVT_2TCOORDS, video::EIT_16BIT);
 		RenderBuffer->setHardwareMappingHint(scene::EHM_STATIC, scene::EBT_VERTEX);
@@ -73,6 +73,7 @@ namespace scene
 	//! destructor
 	TerrainSceneNode::~TerrainSceneNode()
 	{
+        remove(); // IMP
 		delete [] TerrainData.Patches;
 
 		if (FileSystem)
@@ -84,7 +85,7 @@ namespace scene
             //    Mesh->getReferenceCount(), Mesh->getMeshBuffer(0)->getReferenceCount(), ((irr::scene::CDynamicMeshBuffer*)Mesh->getMeshBuffer(0))->getVertexBuffer().getReferenceCount());
 			Mesh->drop();
         }
-
+        // IMP
 		if (RenderBuffer)
         {
             //printf("TerrainSceneNode::~TerrainSceneNode(): type: %u, RenderBuffer %p, refcnt: %u\n", type, RenderBuffer, RenderBuffer->getReferenceCount());
@@ -1083,6 +1084,7 @@ namespace scene
 		TerrainData.Position = newpos;
 		applyTransformation();
 		ForceRecalculation = true;
+		//updateAbsolutePosition();
 	}
 
 
@@ -1092,7 +1094,7 @@ namespace scene
 		if (!Mesh->getMeshBufferCount())
 			return;
 
-		TerrainData.Position = TerrainData.Position;
+		//TerrainData.Position = TerrainData.Position;
 		s32 vtxCount = Mesh->getMeshBuffer(0)->getVertexCount();
 		//core::matrix4 rotMatrix;
 		//rotMatrix.setRotationDegrees(TerrainData.Rotation);

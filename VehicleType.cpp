@@ -36,7 +36,8 @@ float VehicleType::maxMaxTorque = 0.f;
 float VehicleType::maxMaxTorqueRate = 0.f;
 float VehicleType::maxMaxSteerAngle = 0.f;
 
-VehicleType::VehicleType(const std::string& vehicleTypeName, const std::string& vehicleTypeFilename, bool& ret)
+VehicleType::VehicleType(const std::string& vehicleTypeName, const std::string& vehicleTypeFilename,
+    const std::string& vehicleTypeDir, bool& ret)
     : vehicleTypeName(vehicleTypeName),
       vehicleTypeTyreMap(),
       gearMap(),
@@ -51,9 +52,11 @@ VehicleType::VehicleType(const std::string& vehicleTypeName, const std::string& 
       changeGearTime(20),
       maxSteerAngle(35.0f),
       maxSteerRate(0.1f),
-      mass(2000.0f)
+      mass(2000.0f),
+      image(0)
 {
     ret = read(vehicleTypeFilename);
+    image = TheGame::getInstance()->getDriver()->getTexture((vehicleTypeDir+"/"+vehicleTypeName+"_preview.png").c_str());
 }
 
 VehicleType::~VehicleType()
