@@ -33,6 +33,7 @@ public:
         MI_EBNEWROADFILENAME,
         MI_EBNEWROADNAME,
         MI_EBNEWROADDATAFILENAME,
+        MI_EBIMAGE,
 
         NUMBER_OF_MENUITEMS
     };
@@ -67,6 +68,7 @@ private:
     irr::gui::IGUIEditBox*  editBoxNewRoadFilename;
     irr::gui::IGUIEditBox*  editBoxNewRoadName;
     irr::gui::IGUIEditBox*  editBoxNewRoadDataFilename;
+    irr::gui::IGUIEditBox*  editBoxImage;
 };
 
 #endif // MENUPAGEEDITORRACE_H

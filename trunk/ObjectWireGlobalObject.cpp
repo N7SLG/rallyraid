@@ -36,6 +36,7 @@ void ObjectWireGlobalObject::setVisible(bool p_visible)
     {
         if (objectPool)
         {
+            /*
             irr::core::vector3df objectPos = irr::core::vector3df(apos.X, -50.f, apos.Z);
             objectPos.Y = TheEarth::getInstance()->getHeight(objectPos-OffsetManager::getInstance()->getOffset());
             //printf("opos: %f %f %f\n", objectPos.X, objectPos.Y, objectPos.Z);
@@ -47,6 +48,13 @@ void ObjectWireGlobalObject::setVisible(bool p_visible)
                     //offsetObject->getNode()->setRotation(rot);
                     softVisible = true;
                 }
+            }
+            */
+            offsetObject = objectPool->getObject(apos, scale, rot);
+            if (offsetObject)
+            {
+                //offsetObject->getNode()->setRotation(rot);
+                softVisible = true;
             }
         }
     }

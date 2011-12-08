@@ -10,6 +10,7 @@
 #include "TheEarth.h"
 #include "TheGame.h"
 #include "Settings.h"
+#include "Player.h"
 
 #include <Physics/Vehicle/WheelCollide/RayCast/hkpVehicleRayCastWheelCollide.h>
 #include <Physics/Vehicle/hkpVehicleInstance.h>
@@ -543,6 +544,9 @@ Vehicle::Vehicle(const std::string& vehicleTypeName, const irr::core::vector3df&
       linearVelocity(),
       distance(0.0f),
       lastPos(),
+      rot(rotation),
+      soundPosAdjustment(),
+      angle(0.f),
       smokes(new Smoke*[MAX_SMOKES]),
       physUpdates(0),
       clutch(0.0f),
@@ -567,6 +571,8 @@ Vehicle::Vehicle(const std::string& vehicleTypeName, const irr::core::vector3df&
 
     matrix.setTranslation(node->getPosition());
     matrix.setRotationDegrees(rotation);
+
+    updateAngle();
 
     tyres.resize(vehicleType->vehicleTypeTyreMap.size(), 0);
 
@@ -640,7 +646,9 @@ Vehicle::Vehicle(const std::string& vehicleTypeName, const irr::core::vector3df&
     for (unsigned int i = 0; i < tyres.size(); i++)
     {
         tyres[i] = new VehicleTyre(vehicleType->vehicleTypeTyreMap[i], apos, this, i);
-        irr::core::matrix4 tyreMatGlob = matrix * tyres[i]->localMatrix;
+        irr::core::matrix4 localMatrix = tyres[i]->localMatrix;
+        localMatrix[13] -= (vehicleType->vehicleTypeTyreMap[i]->suspensionLength * 3.0f) / 4.0f;
+        irr::core::matrix4 tyreMatGlob = matrix * localMatrix;
         tyres[i]->node->setPosition(tyreMatGlob.getTranslation());
         tyres[i]->node->setRotation(tyreMatGlob.getRotationDegrees());
     }
@@ -898,6 +906,12 @@ Vehicle::Vehicle(const std::string& vehicleTypeName, const irr::core::vector3df&
 Vehicle::~Vehicle()
 {
     dprintf(MY_DEBUG_NOTE, "Vehicle::~Vehicle(): %p\n", this);
+
+    /*if (this == Player::getInstance()->getVehicle())
+    {
+        *(int*)1 = 2;
+        assert(0);
+    }*/
     
     if (collisionListener)
     {
@@ -971,8 +985,11 @@ void Vehicle::handleUpdatePos(bool phys)
         const irr::core::vector3df newPos = matrix.getTranslation();
         distance += newPos.getDistanceFrom(lastPos);
         lastPos = newPos;
+        rot = matrix.getRotationDegrees();
         node->setPosition(newPos);
-        node->setRotation(matrix.getRotationDegrees());
+        node->setRotation(rot);
+
+        updateAngle();
         
         linearVelocity.X = hkLV(0);
         linearVelocity.Y = hkLV(1);
@@ -987,7 +1004,7 @@ void Vehicle::handleUpdatePos(bool phys)
 
         if (ssGear > 2.5f) ssGear = 2.5f;
 
-        const irr::core::vector3df soundPos = node->getPosition(); //(matrix*soundMatrix).getTranslation();
+        const irr::core::vector3df soundPos = node->getPosition() + soundPosAdjustment; //(matrix*soundMatrix).getTranslation();
         if (engineSound)
         {
             engineSound->setPosition(soundPos);
@@ -1056,8 +1073,9 @@ void Vehicle::handleUpdatePos(bool phys)
     }
     else
     {
-        const irr::core::vector3df soundPos = node->getPosition(); //(matrix*soundMatrix).getTranslation();
-        lastPos = soundPos;
+        lastPos = node->getPosition();
+        matrix.setTranslation(lastPos);
+        const irr::core::vector3df soundPos = lastPos + soundPosAdjustment; //(matrix*soundMatrix).getTranslation();
         if (engineSound)
         {
             engineSound->setPosition(soundPos);
@@ -1079,7 +1097,7 @@ void Vehicle::updateNameTextPos()
 
 void Vehicle::reset(const irr::core::vector3df& pos)
 {
-    irr::core::vector3df rot = matrix.getRotationDegrees();// - m_trafo.getRotationDegrees();
+    //irr::core::vector3df rot = matrix.getRotationDegrees();// - m_trafo.getRotationDegrees();
     dprintf(MY_DEBUG_NOTE, "reset car: orig rot: %f %f %f\n", rot.X, rot.Y, rot.Z);
     /*
     if (fabsf(rot.Z-180.f) < 90.f)
@@ -1123,6 +1141,7 @@ void Vehicle::addStartImpulse(float initialSpeed, const irr::core::vector3df& di
 
 float Vehicle::getAngle() const
 {
+    /*
     irr::core::vector3df rot = matrix.getRotationDegrees();
     if (fabsf(rot.Z-180.f) < 90.f)
     {
@@ -1133,6 +1152,8 @@ float Vehicle::getAngle() const
     }
     //rot.Z = rot.X = 0.f;
     return rot.Y;
+    */
+    return angle;
 }
 
 int Vehicle::getGear() const
@@ -1172,12 +1193,21 @@ bool Vehicle::getGearShiftingSequential() const
 void Vehicle::updateToMatrix()
 {
     const irr::core::vector3df pos = matrix.getTranslation();
+    rot = matrix.getRotationDegrees();
+
     irr::core::quaternion quat(matrix);
     hkBody->setPositionAndRotation(hkVector4(pos.X, pos.Y, pos.Z), hkQuaternion(quat.X, quat.Y, quat.Z, quat.W));
 
     node->setPosition(pos);
-    node->setRotation((matrix).getRotationDegrees());
+    node->setRotation(rot);
     lastPos = pos;
+    updateAngle();
+}
+
+void Vehicle::updateAngle()
+{
+    soundPosAdjustment = rot.rotationToDirection(irr::core::vector3df(2.0f, 0.0f, 0.0f));
+    angle = irr::core::vector2df(soundPosAdjustment.X, soundPosAdjustment.Z).getAngle();
 }
 
 void Vehicle::setSteer(float value)

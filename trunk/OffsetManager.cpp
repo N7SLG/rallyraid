@@ -50,6 +50,13 @@ OffsetManager::~OffsetManager()
 
 void OffsetManager::addObject(OffsetObject* object)
 {
+    objects.push_back(object);
+    object->iterator = objects.getLast();
+    object->update(offset, offset);
+}
+
+void OffsetManager::addObjectBegin(OffsetObject* object)
+{
     objects.push_front(object);
     object->iterator = objects.begin();
     object->update(offset, offset);

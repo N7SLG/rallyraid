@@ -9,7 +9,7 @@
 #include "Shaders.h"
 #include "Settings.h"
 #include "stdafx.h"
-//#include <CSceneManager.h>
+#include <CSceneManager.h>
 
 
 class HeightFieldHelper : public hkpSampledHeightFieldShape
@@ -53,7 +53,7 @@ TerrainCircle::TerrainCircle(const irr::core::vector3di& posi, TheEarth* earth, 
 {
     offsetX = (posi.X / TILE_SCALE);
     offsetY = (posi.Z / TILE_SCALE);
-    terrain = new irr::scene::TerrainSceneNode(0/*(irr::scene::CSceneManager*)TheGame::getInstance()->getSmgr()*/,
+    terrain = new irr::scene::TerrainSceneNode((irr::scene::CSceneManager*)TheGame::getInstance()->getSmgr(),
         TheGame::getInstance()->getSmgr(),
         TheGame::getInstance()->getDevice()->getFileSystem(),
         -1,

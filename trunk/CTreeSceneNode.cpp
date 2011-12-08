@@ -209,10 +209,14 @@ const core::aabbox3d<f32>& CTreeSceneNode::getBoundingBox() const
 void CTreeSceneNode::setPosition(const core::vector3df &newpos)
 {
     ISceneNode::setPosition(newpos);
+    updateAbsolutePosition();
+    
     if (LeafNode)
     {
+        //LeafNode->setPosition(newpos);
         LeafNode->updateAbsolutePosition();
     }
+    
         //updateBillboard();
         //LeafNode->setPosition(newpos);
 }

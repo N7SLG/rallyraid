@@ -22,6 +22,7 @@ public:
     bool update(const irr::core::vector3df& newPos, bool force = false);
     const irr::core::vector3df& getOffset() const {return offset;}
     void addObject(OffsetObject* object);
+    void addObjectBegin(OffsetObject* object);
     void removeObject(OffsetObject* object);
     bool empty() {return objects.empty();}
     void reset();

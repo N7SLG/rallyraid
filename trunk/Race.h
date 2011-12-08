@@ -47,6 +47,7 @@ public:
     const competitorMap_t& getCompetitorMap() const; // inline
     Competitor* getCompetitor(unsigned int compNum) const; // inline
     const RoadManager::roadMap_t& getRoadMap() const; // inline
+    irr::video::ITexture* getImage(); // inline
 
     void activate();
     void deactivate();
@@ -55,6 +56,7 @@ private:
     std::string                     raceName;
     std::string                     raceLongName;
     std::string                     shortDescription;
+    std::string                     imageName;
     dayMap_t                        dayMap;
     competitorMap_t                 competitorMap;
     RaceManager::globalObjectList_t globalObjectList;
@@ -62,6 +64,7 @@ private:
     RoadManager::roadMap_t          roadMap;
     bool                            loaded;
     bool                            preLoaded;
+    irr::video::ITexture*           image;
 
     
     friend class RaceManager;
@@ -122,6 +125,11 @@ inline Competitor* Race::getCompetitor(unsigned int compNum) const
 inline const RoadManager::roadMap_t& Race::getRoadMap() const
 {
     return roadMap;
+}
+
+inline irr::video::ITexture* Race::getImage()
+{
+    return image;
 }
 
 #endif // RACE_H

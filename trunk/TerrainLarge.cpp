@@ -9,7 +9,7 @@
 #include "Shaders.h"
 #include "Settings.h"
 #include "stdafx.h"
-//#include <CSceneManager.h>
+#include <CSceneManager.h>
 
 
 TerrainLarge::TerrainLarge(const irr::core::vector3di& posi, TheEarth* earth)
@@ -17,7 +17,7 @@ TerrainLarge::TerrainLarge(const irr::core::vector3di& posi, TheEarth* earth)
 {
     offsetX = (posi.X / TILE_LARGE_SCALE);
     offsetY = (posi.Z / TILE_LARGE_SCALE);
-    terrain = new irr::scene::TerrainSceneNode(0/*(irr::scene::CSceneManager*)TheGame::getInstance()->getSmgr()*/,
+    terrain = new irr::scene::TerrainSceneNode((irr::scene::CSceneManager*)TheGame::getInstance()->getSmgr(),
         TheGame::getInstance()->getSmgr(),
         TheGame::getInstance()->getDevice()->getFileSystem(),
         -1,

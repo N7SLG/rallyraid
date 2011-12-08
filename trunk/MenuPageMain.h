@@ -8,6 +8,7 @@
 
 class Race;
 class VehicleType;
+class ScreenQuad;
 
 class MenuPageMain : public MenuPageBase
 {
@@ -38,6 +39,9 @@ public:
 
     static MenuPageMain* menuPageMain;
 
+    bool isVisible(); // inline
+    void render();
+
 protected:
     virtual bool OnEvent (const irr::SEvent &event);
     virtual void open();
@@ -47,6 +51,7 @@ private:
     void refresh();
     void refreshRaceData(Race* race);
     void refreshVehicleData(VehicleType* vehicleType);
+    void setVisible(bool visible);
 
 private:
     irr::gui::IGUIImage*    window;
@@ -57,11 +62,21 @@ private:
     irr::gui::IGUIStaticText* staticTextRaceData;
     irr::gui::IGUIStaticText* staticTextVehicleData;
     irr::gui::IGUIButton*   buttonLoad;
+    ScreenQuad*             bgQuad;
     
     Race*                   selectedRace;
     VehicleType*            selectedVehicleType;
     
     bool                    willOpenOtherWindow;
+
+    bool                    visible;
+    ScreenQuad*             raceImageQuad;
+    ScreenQuad*             vehicleImageQuad;
 };
+
+inline bool MenuPageMain::isVisible()
+{
+    return visible;
+}
 
 #endif // MENUPAGEMAIN_H

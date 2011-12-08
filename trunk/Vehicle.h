@@ -103,6 +103,7 @@ public:
     const irr::core::matrix4& getViewPos(unsigned int num) const;
     const irr::core::matrix4& getViewDest(unsigned int num) const;
     const irr::core::matrix4& getMatrix() const {return matrix;}
+    const irr::core::vector3df& getRotationDegrees() const {return rot;}
     float getDistance() const {return distance;}
     bool getGearShifting() const;
     bool getGearShiftingSequential() const;
@@ -143,6 +144,7 @@ private:
     void addSmoke(const float speed, const irr::core::vector3df& pos, float offset);
     void updateSmoke();
     void updateNameTextPos();
+    void updateAngle();
 
 private:
     VehicleType*                vehicleType;
@@ -158,6 +160,9 @@ private:
     irr::core::vector3df        linearVelocity;
     float                       distance;
     irr::core::vector3df        lastPos;
+    irr::core::vector3df        rot;
+    irr::core::vector3df        soundPosAdjustment;
+    float                       angle;
     Smoke**                     smokes;
     unsigned int                physUpdates;
     float                       clutch;

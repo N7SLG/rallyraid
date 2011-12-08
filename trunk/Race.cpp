@@ -6,18 +6,21 @@
 #include "ConfigFile.h"
 #include "stdafx.h"
 #include "StringConverter.h"
+#include "TheGame.h"
 
 Race::Race(const std::string& raceName, bool& ret)
     : raceName(raceName),
       raceLongName(),
       shortDescription(),
+      imageName(RACE_DIR(raceName)+"/"+DEFAULTRACE_IMG),
       dayMap(),
       competitorMap(),
       globalObjectList(),
       active(false),
       roadMap(),
       loaded(false),
-      preLoaded(false)
+      preLoaded(false),
+      image(0)
 {
     ret = readHeader();
 }
@@ -105,12 +108,16 @@ bool Race::readCfg()
             if (keyName == "long_name")
             {
                 raceLongName = valName;
+            } else if (keyName == "image")
+            {
+                imageName = valName;
             }/* else if (keyName == "cache_objects")
             {
                 cacheObjects = StringConverter::parseBool(valName, true);
             }*/
         }
     }
+    image = TheGame::getInstance()->getDriver()->getTexture(imageName.c_str());
     return true;
 }
 
@@ -242,6 +249,7 @@ bool Race::writeCfg()
     }
 
     ret = fprintf(f, "long_name=%s\n", raceLongName.c_str());
+    ret = fprintf(f, "image=%s\n", imageName.c_str());
 
     fclose(f);
     return true;

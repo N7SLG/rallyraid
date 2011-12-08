@@ -26,6 +26,8 @@
 #include "Hud.h"
 #include "VehicleManager.h"
 #include "FontManager.h"
+#include "ScreenQuad.h"
+#include "Shaders.h"
 #include <assert.h>
 
 
@@ -39,10 +41,14 @@ MenuPageMain::MenuPageMain()
       checkBoxEditor(0),
       staticTextRaceData(0),
       staticTextVehicleData(0),
+      bgQuad(0),
       buttonLoad(0),
       selectedRace(0),
       selectedVehicleType(0),
-      willOpenOtherWindow(false)
+      willOpenOtherWindow(false),
+      visible(true),
+      raceImageQuad(0),
+      vehicleImageQuad(0)      
 {
     menuPageMain = this;
     window = TheGame::getInstance()->getEnv()->addImage(
@@ -50,7 +56,8 @@ MenuPageMain::MenuPageMain()
         0,
         MI_WINDOW);
     window->setScaleImage(true);
-    window->setImage(TheGame::getInstance()->getDriver()->getTexture("data/bg/3.jpg"));
+    window->setUseAlphaChannel(true);
+    window->setImage(TheGame::getInstance()->getDriver()->getTexture("data/bg/transp.png"));
 
     TheGame::getInstance()->getEnv()->addButton(
         irr::core::recti(10,60,140,80),
@@ -104,10 +111,18 @@ MenuPageMain::MenuPageMain()
     havok_image->setUseAlphaChannel(true);
     havok_image->setImage(havok_logo);
 
-    irr::gui::IGUIStaticText* s = TheGame::getInstance()->getEnv()->addStaticText(L"Version: 1.0 - Build: 163",
+    irr::gui::IGUIStaticText* s = TheGame::getInstance()->getEnv()->addStaticText(L"Version: 1.0 - Build: 165",
         irr::core::recti(irr::core::position2di(window->getRelativePosition().getSize().Width - 110, window->getRelativePosition().getSize().Height - 20), havok_logo->getOriginalSize()),
         false, false, window, 0, false);
     s->setOverrideFont(FontManager::getInstance()->getFont(FontManager::FONT_BUILTIN));
+
+    bgQuad = new ScreenQuad(TheGame::getInstance()->getDriver(),
+        window->getRelativePosition().UpperLeftCorner,
+        irr::core::dimension2du(window->getRelativePosition().getSize().Width, window->getRelativePosition().getSize().Height),
+        false);
+    bgQuad->getMaterial().MaterialType = Shaders::getInstance()->materialMap["quad2d"];
+    bgQuad->getMaterial().setTexture(0, TheGame::getInstance()->getDriver()->getTexture("data/bg/3.jpg"));
+
 
     // ----------------------------
     // Races
@@ -131,6 +146,17 @@ MenuPageMain::MenuPageMain()
         true);
     staticTextRaceData->setOverrideFont(FontManager::getInstance()->getFont(FontManager::FONT_VERDANA_8PX));
 
+    const int tmpRH = ((window->getRelativePosition().getSize().Height)/2) - 110;
+    const int tmpRW = ((window->getRelativePosition().getSize().Width)/3);
+    const int raceImageSize = tmpRW < tmpRH ? tmpRW : tmpRH;
+    const int raceImageOffset = tmpRW < tmpRH ? 0 : (tmpRW - tmpRH) / 2;
+    raceImageQuad = new ScreenQuad(TheGame::getInstance()->getDriver(),
+        irr::core::position2di(window->getRelativePosition().getSize().Width/2 - raceImageSize - 2 - raceImageOffset, window->getRelativePosition().getSize().Height/2 - raceImageSize - 2),
+        irr::core::dimension2du(raceImageSize, raceImageSize), false);
+    raceImageQuad->getMaterial().setFlag(irr::video::EMF_BLEND_OPERATION, true);
+    raceImageQuad->getMaterial().MaterialType = Shaders::getInstance()->materialMap["quad2d_t"];
+    raceImageQuad->getMaterial().setTexture(0, 0);
+
     // ----------------------------
     // Vehicles
     // ----------------------------
@@ -153,7 +179,14 @@ MenuPageMain::MenuPageMain()
         true);
     staticTextVehicleData->setOverrideFont(FontManager::getInstance()->getFont(FontManager::FONT_VERDANA_10PX));
 
-    window->setVisible(false);
+    vehicleImageQuad = new ScreenQuad(TheGame::getInstance()->getDriver(),
+        irr::core::position2di(window->getRelativePosition().getSize().Width/2 + 2 + raceImageOffset, window->getRelativePosition().getSize().Height/2 - raceImageSize - 2),
+        irr::core::dimension2du(raceImageSize, raceImageSize), false);
+    vehicleImageQuad->getMaterial().MaterialType = Shaders::getInstance()->materialMap["quad2d_t"];
+    vehicleImageQuad->getMaterial().setFlag(irr::video::EMF_BLEND_OPERATION, true);
+    vehicleImageQuad->getMaterial().setTexture(0, 0);
+
+    setVisible(false);
 }
 
 MenuPageMain::~MenuPageMain()
@@ -161,6 +194,22 @@ MenuPageMain::~MenuPageMain()
     //window->remove();
     menuPageMain = 0;
     close();
+    if (bgQuad)
+    {
+        delete bgQuad;
+        bgQuad = 0;
+    }
+    if (raceImageQuad)
+    {
+        delete raceImageQuad;
+        raceImageQuad = 0;
+    }
+
+    if (vehicleImageQuad)
+    {
+        delete vehicleImageQuad;
+        vehicleImageQuad = 0;
+    }
 }
 
 bool MenuPageMain::OnEvent(const irr::SEvent &event)
@@ -294,7 +343,7 @@ void MenuPageMain::open()
 {
     dprintf(MY_DEBUG_NOTE, "MenuPageMain::open()\n");
     refresh();
-    window->setVisible(true);
+    setVisible(true);
     TheGame::getInstance()->getEnv()->setFocus(tableRaces);
     
     // stop necessarry elements in the game
@@ -305,7 +354,7 @@ void MenuPageMain::open()
 void MenuPageMain::close()
 {
     dprintf(MY_DEBUG_NOTE, "MenuPageMain::close()\n");
-    window->setVisible(false);
+    setVisible(false);
 
     // start necessarry elements in the game if returns
     if (!willOpenOtherWindow)
@@ -396,6 +445,8 @@ void MenuPageMain::refreshRaceData(Race* race)
 
     staticTextRaceData->setText(str.c_str());
     selectedRace = race;
+
+    raceImageQuad->getMaterial().setTexture(0, selectedRace->getImage());
 }
 
 void MenuPageMain::refreshVehicleData(VehicleType* vehicleType)
@@ -432,4 +483,27 @@ void MenuPageMain::refreshVehicleData(VehicleType* vehicleType)
 
     staticTextVehicleData->setText(str.c_str());
     selectedVehicleType = vehicleType;
+
+    vehicleImageQuad->getMaterial().setTexture(0, selectedVehicleType->getImage());
+}
+
+void MenuPageMain::setVisible(bool visible)
+{
+    if (visible == this->visible) return;
+    
+    this->visible = visible;
+    
+    window->setVisible(visible);
+    bgQuad->setVisible(visible);
+    raceImageQuad->setVisible(visible);
+    vehicleImageQuad->setVisible(visible);
+}
+
+void MenuPageMain::render()
+{
+    if (!visible) return;
+    
+    bgQuad->render();
+    raceImageQuad->render();
+    vehicleImageQuad->render();
 }
