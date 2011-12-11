@@ -83,9 +83,9 @@ The stages describes the route and the object for all of the stages. It is quite
 
 === File name format ===
 
-*RallyRaid`_`*`<`name`_`of`_`the`_`race`>`*`_`stages`_`v*`<`major`_`version`_`of`_`the`_`compatible`_`game`>`*.zip*
+*RallyRaid`_`*`<`name`_`of`_`the`_`race`>`*`_`stages`_`v*`<`major`_`version`_`of`_`the`_`compatible`_`game`>`*`_`s*`<`version`_`of`_`this`_`file`>`*.zip*
 
-For example: `RallyRaid_dakar2012_stages_v1.zip`
+For example: `RallyRaid_dakar2012_stages_v1_s3.zip`
 
 *Both race base and stages are only compatible with the game (runtime and base) that has the same major version!*
 
