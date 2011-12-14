@@ -53,7 +53,8 @@ Settings::Settings()
       groundFriction(0.8f),
       fpsStep(0.1f),
       AIPlayer(false),
-      desktopResolution(true)
+      desktopResolution(true),
+      generatePreImages(false)
 {
     read();
 }
@@ -184,6 +185,9 @@ void Settings::read()
             } else if (keyName == "desktop_resolution")
             {
                 desktopResolution = StringConverter::parseBool(valName, true);
+            } else if (keyName == "generate_pre_images")
+            {
+                generatePreImages = StringConverter::parseBool(valName, false);
             }
         }
     }
@@ -232,6 +236,7 @@ void Settings::write()
     ret = fprintf(f, "ground_friction=%f\n", groundFriction);
     ret = fprintf(f, "fps_step=%f\n", fpsStep);
     ret = fprintf(f, "desktop_resolution=%s\n", desktopResolution?"yes":"no");
+    ret = fprintf(f, "generate_pre_images=%s\n", generatePreImages?"yes":"no");
 
     fclose(f);
 }
