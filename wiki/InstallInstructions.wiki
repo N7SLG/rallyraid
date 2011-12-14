@@ -73,9 +73,9 @@ The base contains part of the race that changes rarely. In case of Dakar 2012 it
 
 === File name format ===
 
-*RallyRaid`_`*`<`name`_`of`_`the`_`race`>`*`_`base`_`v*`<`major`_`version`_`of`_`the`_`compatible`_`game`>`*.zip*
+*RallyRaid`_`*`<`name`_`of`_`the`_`race`>`*`_`base`_`v*`<`major`_`version`_`of`_`the`_`compatible`_`game`>`*`_`s*`<`version`_`of`_`this`_`file`>`*.zip*
 
-For example: `RallyRaid_dakar2012_base_v1.zip`
+For example: `RallyRaid_dakar2012_base_v1_s4.zip`
 
 == Race stages ==
 
