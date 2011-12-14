@@ -198,37 +198,37 @@ MenuPageEditor::MenuPageEditor()
     tableAction->addRow(A_AddObjectRace);
     tableAction->addRow(A_AddObjectDay);
     tableAction->addRow(A_AddObjectStage);
-    tableAction->addRow(A_AddRoadPoint);
-    tableAction->addRow(A_AddRoadPointBegin);
-    tableAction->addRow(A_AddItinerPoint);
     tableAction->addRow(A_AddAIPoint);
+    tableAction->addRow(A_AddItinerPoint);
     tableAction->addRow(A_AddWayPoint);
     tableAction->addRow(A_AddHeightModifier);
     tableAction->addRow(A_AddHeightModifierLine);
     tableAction->addRow(A_AddHeightModifierSquare);
+    tableAction->addRow(A_AddRoadPoint);
+    tableAction->addRow(A_AddRoadPointBegin);
     tableAction->addRow(A_RemoveObjectGlobal);
     tableAction->addRow(A_RemoveObjectRace);
     tableAction->addRow(A_RemoveObjectDay);
     tableAction->addRow(A_RemoveObjectStage);
+    tableAction->addRow(A_RemoveAIPoint);
+    tableAction->addRow(A_RemoveItinerPoint);
+    tableAction->addRow(A_RemoveWayPoint);
     tableAction->addRow(A_RemoveRoadPoint);
     tableAction->addRow(A_RemoveRoadPointBegin);
-    tableAction->addRow(A_RemoveItinerPoint);
-    tableAction->addRow(A_RemoveAIPoint);
-    tableAction->addRow(A_RemoveWayPoint);
     tableAction->setCellText(A_None, 0, L"none");
-    tableAction->setCellText(A_AddObjectGlobal, 0, L"not used"/*L"add object global"*/);
+    tableAction->setCellText(A_AddObjectGlobal, 0, L"------------[ ADD ]------------"/*L"not used"*//*L"add object global"*/);
     tableAction->setCellText(A_AddObjectRace, 0, L"add object race");
     tableAction->setCellText(A_AddObjectDay, 0, L"add object day");
     tableAction->setCellText(A_AddObjectStage, 0, L"add object stage");
+    tableAction->setCellText(A_AddAIPoint, 0, L"add AI point");
+    tableAction->setCellText(A_AddItinerPoint, 0, L"add itiner point (1x)");
+    tableAction->setCellText(A_AddWayPoint, 0, L"add waypoint (1x)");
+    tableAction->setCellText(A_AddHeightModifier, 0, L"add height modifier");
+    tableAction->setCellText(A_AddHeightModifierLine, 0, L"add height modifier line (1x)");
+    tableAction->setCellText(A_AddHeightModifierSquare, 0, L"add height modifier square (1x)");
     tableAction->setCellText(A_AddRoadPoint, 0, L"add road point");
     tableAction->setCellText(A_AddRoadPointBegin, 0, L"add road point begin");
-    tableAction->setCellText(A_AddItinerPoint, 0, L"add itiner point");
-    tableAction->setCellText(A_AddAIPoint, 0, L"add AI point");
-    tableAction->setCellText(A_AddWayPoint, 0, L"add waypoint");
-    tableAction->setCellText(A_AddHeightModifier, 0, L"add height modifier");
-    tableAction->setCellText(A_AddHeightModifierLine, 0, L"add height modifier line");
-    tableAction->setCellText(A_AddHeightModifierSquare, 0, L"add height modifier square");
-    tableAction->setCellText(A_RemoveObjectGlobal, 0, L"not used"/*L"remove object global"*/);
+    tableAction->setCellText(A_RemoveObjectGlobal, 0, L"----------[ REMOVE ]----------"/*L"not used"*//*L"remove object global"*/);
     tableAction->setCellText(A_RemoveObjectRace, 0, L"remove object race");
     tableAction->setCellText(A_RemoveObjectDay, 0, L"remove object day");
     tableAction->setCellText(A_RemoveObjectStage, 0, L"remove object stage");
@@ -777,8 +777,23 @@ bool MenuPageEditor::OnEvent(const irr::SEvent &event)
                 };
                 break;
             }
-            case irr::gui::EGET_EDITBOX_CHANGED:
             case irr::gui::EGET_EDITBOX_ENTER:
+                if (id == MI_EBITINERLD)
+                {
+                    if (RaceManager::getInstance()->editorStage &&
+                        !RaceManager::getInstance()->editorStage->AIPointList.empty() &&
+                        !RaceManager::getInstance()->editorStage->itinerPointList.empty())
+                    {
+                        irr::core::stringw str;
+                        str += (int)(RaceManager::getInstance()->editorStage->AIPointList.back()->getGlobalDistance()-RaceManager::getInstance()->editorStage->itinerPointList.back()->getGlobalDistance());
+                        editBoxItinerLD->setText(str.c_str());
+                    }
+                    else
+                    {
+                        editBoxItinerLD->setText(L"0");
+                    }
+                }
+            case irr::gui::EGET_EDITBOX_CHANGED:
             {
                 switch (id)
                 {
@@ -1620,6 +1635,8 @@ void MenuPageEditor::actionP()
             {
                 MessageManager::getInstance()->addText(L"Unable to add itiner point, because no stage selected", 3);
             }
+            MenuManager::getInstance()->refreshEventReceiver();
+            refreshAction();
             break;
         }
     case A_AddAIPoint:
@@ -1677,6 +1694,8 @@ void MenuPageEditor::actionP()
             {
                 MessageManager::getInstance()->addText(L"Unable to add waypoint, because no stage selected", 3);
             }
+            MenuManager::getInstance()->refreshEventReceiver();
+            refreshAction();
             break;
         }
     case A_AddHeightModifier:
@@ -1723,7 +1742,6 @@ void MenuPageEditor::actionP()
                     tmpp = bp + dir*(cur/dist);
                     currentDetailPos.X = (int)(tmpp.X / TILE_DETAIL_SCALE_F);
                     currentDetailPos.Y = (int)(tmpp.Y / TILE_DETAIL_SCALE_F);
-
                     //printf("try line point: cur: %f, last: (%d, %d), current: (%d, %d)\n", cur, lastDetailPos.X, lastDetailPos.Y, currentDetailPos.X, currentDetailPos.Y);
                     
                     if (lastDetailPos != currentDetailPos)
@@ -1735,12 +1753,13 @@ void MenuPageEditor::actionP()
                         lastDetailPos = currentDetailPos;
                     }
                 }
-
             }
             else
             {
                 MessageManager::getInstance()->addText(L"Unable to add height modifier line, because \n\nno stage selected or \nHM value to small or \nno previous point in the list", 3);
             }
+            MenuManager::getInstance()->refreshEventReceiver();
+            refreshAction();
             break;
         }
     case A_AddHeightModifierSquare:
@@ -1811,12 +1830,13 @@ void MenuPageEditor::actionP()
                     lastDetailPos.Y = (int)(min.Y / TILE_DETAIL_SCALE_F);
                     min.X += TILE_DETAIL_SCALE_F;
                 }
-
             }
             else
             {
                 MessageManager::getInstance()->addText(L"Unable to add height modifier square, because \n\nno stage selected or \nHM value to small or \nno previous point in the list", 3);
             }
+            MenuManager::getInstance()->refreshEventReceiver();
+            refreshAction();
             break;
         }
     case A_RemoveObjectRace:
@@ -1922,6 +1942,10 @@ void MenuPageEditor::actionP()
                 if (ItinerManager::getInstance()->editorGlobalDistance < 0.f) ItinerManager::getInstance()->editorGlobalDistance = 0.f;
                 refreshItinerGD();
                 RaceManager::getInstance()->editorStage->itinerPointList.pop_back();
+                if (RaceManager::getInstance()->editorStage->active)
+                {
+                    ObjectWire::getInstance()->removeGlobalObject(ip, false);
+                }
                 delete ip;
                 refreshSelected();
             }
@@ -1940,6 +1964,10 @@ void MenuPageEditor::actionP()
                 MessageManager::getInstance()->addText(L"remove AI point", 1);
                 AIPoint* aip = RaceManager::getInstance()->editorStage->AIPointList.back();
                 RaceManager::getInstance()->editorStage->AIPointList.pop_back();
+                if (RaceManager::getInstance()->editorStage->active)
+                {
+                    ObjectWire::getInstance()->removeGlobalObject(aip, false);
+                }
                 delete aip;
                 refreshSelected();
             }

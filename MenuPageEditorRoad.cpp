@@ -202,21 +202,21 @@ bool MenuPageEditorRoad::OnEvent(const irr::SEvent &event)
                     {
                         int ret = 0;
                         WStringConverter::toInt(editBoxRed->getText(), ret);
-                        RoadManager::getInstance()->editorColor.setRed(ret);
+                        RoadManager::getInstance()->editorColor.setRed(ret + 0x80);
                         break;
                     }
                     case MI_EBGREEN:
                     {
                         int ret = 0;
                         WStringConverter::toInt(editBoxGreen->getText(), ret);
-                        RoadManager::getInstance()->editorColor.setGreen(ret);
+                        RoadManager::getInstance()->editorColor.setGreen(ret + 0x80);
                         break;
                     }
                     case MI_EBBLUE:
                     {
                         int ret = 0;
                         WStringConverter::toInt(editBoxBlue->getText(), ret);
-                        RoadManager::getInstance()->editorColor.setBlue(ret);
+                        RoadManager::getInstance()->editorColor.setBlue(ret + 0x80);
                         break;
                     }
                 }
@@ -301,15 +301,15 @@ void MenuPageEditorRoad::refreshColor()
 {
     irr::core::stringw str;
 
-    str += RoadManager::getInstance()->editorColor.getRed();
+    str += ((int)RoadManager::getInstance()->editorColor.getRed() - 0x80);
     editBoxRed->setText(str.c_str());
 
     str = L"";
-    str += RoadManager::getInstance()->editorColor.getGreen();
+    str += ((int)RoadManager::getInstance()->editorColor.getGreen() - 0x80);
     editBoxGreen->setText(str.c_str());
 
     str = L"";
-    str += RoadManager::getInstance()->editorColor.getBlue();
+    str += ((int)RoadManager::getInstance()->editorColor.getBlue() - 0x80);
     editBoxBlue->setText(str.c_str());
 
     str = L"";

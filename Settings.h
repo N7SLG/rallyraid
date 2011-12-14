@@ -53,6 +53,7 @@ public:
     float                   fpsStep;
     bool                    AIPlayer;
     bool                    desktopResolution;
+    bool                    generatePreImages;
 };
 
 #endif // SETTINGS_H

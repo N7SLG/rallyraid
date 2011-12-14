@@ -67,27 +67,27 @@ public:
     enum Action
     {
         A_None = 0,
-        A_AddObjectGlobal,
+        A_AddObjectGlobal, // ADD
         A_AddObjectRace,
         A_AddObjectDay,
         A_AddObjectStage,
-        A_AddRoadPoint,
-        A_AddRoadPointBegin,
-        A_AddItinerPoint,
         A_AddAIPoint,
+        A_AddItinerPoint,
         A_AddWayPoint,
         A_AddHeightModifier,
         A_AddHeightModifierLine,
         A_AddHeightModifierSquare,
-        A_RemoveObjectGlobal,
+        A_AddRoadPoint,
+        A_AddRoadPointBegin,
+        A_RemoveObjectGlobal, // REMOVE
         A_RemoveObjectRace,
         A_RemoveObjectDay,
         A_RemoveObjectStage,
+        A_RemoveAIPoint,
+        A_RemoveItinerPoint,
+        A_RemoveWayPoint,
         A_RemoveRoadPoint,
         A_RemoveRoadPointBegin,
-        A_RemoveItinerPoint,
-        A_RemoveAIPoint,
-        A_RemoveWayPoint,
     };
 
     MenuPageEditor();
