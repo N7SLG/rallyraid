@@ -35,6 +35,7 @@ MenuPageOptions::MenuPageOptions()
       cbNavigationAssistant(0),
       cbManualShifting(0),
       cbSequentialShifting(0),
+      cbLinearSteering(0),
       resolutionMap(),
       lastKeyName(0),
       primary(true)
@@ -134,6 +135,18 @@ MenuPageOptions::MenuPageOptions()
         irr::core::recti(irr::core::position2di(FTW+(PADDING*2), line), irr::core::dimension2di(16, 16)),
         tabGame,
         MI_CBSEQUENTIALSHIFTING);
+
+    line += 20;
+    TheGame::getInstance()->getEnv()->addStaticText(L"Linear steering",
+        irr::core::recti(irr::core::position2di(PADDING, line), irr::core::dimension2di(FTW, 16)),
+        false,
+        false,
+        tabGame);
+
+    cbLinearSteering = TheGame::getInstance()->getEnv()->addCheckBox(Settings::getInstance()->linearSteering,
+        irr::core::recti(irr::core::position2di(FTW+(PADDING*2), line), irr::core::dimension2di(16, 16)),
+        tabGame,
+        MI_CBLINEARSTEERING);
 
     // ----------------------------
     // Graphics
@@ -415,6 +428,10 @@ bool MenuPageOptions::OnEvent(const irr::SEvent &event)
                         }
                         return true;
                         break;
+                    case MI_CBLINEARSTEERING:
+                        Settings::getInstance()->linearSteering = ((irr::gui::IGUICheckBox*)event.GUIEvent.Caller)->isChecked();
+                        return true;
+                        break;
                 };
                 break;
             }
@@ -451,6 +468,7 @@ void MenuPageOptions::refreshGame()
     cbNavigationAssistant->setChecked(Settings::getInstance()->navigationAssistant);
     cbManualShifting->setChecked(Settings::getInstance()->manualGearShifting);
     cbSequentialShifting->setChecked(Settings::getInstance()->sequentialGearShifting);
+    cbLinearSteering->setChecked(Settings::getInstance()->linearSteering);
 }
 
 void MenuPageOptions::refreshGraphics()

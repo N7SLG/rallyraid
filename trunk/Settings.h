@@ -54,6 +54,7 @@ public:
     bool                    AIPlayer;
     bool                    desktopResolution;
     bool                    generatePreImages;
+    bool                    linearSteering;
 };
 
 #endif // SETTINGS_H

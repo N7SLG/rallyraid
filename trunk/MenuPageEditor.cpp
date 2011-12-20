@@ -27,6 +27,7 @@
 #include "WayPoint.h"
 #include "GamePlay.h"
 #include "Player.h"
+#include "Hud.h"
 #include "Competitor.h"
 #include "VehicleType.h"
 #include "VehicleTypeManager.h"
@@ -1619,6 +1620,7 @@ void MenuPageEditor::actionP()
             if (RaceManager::getInstance()->editorStage)
             {
                 MessageManager::getInstance()->addText(L"add itiner point", 1);
+                bool empty = RaceManager::getInstance()->editorStage->itinerPointList.empty();
                 ItinerManager::getInstance()->editorGlobalDistance += ItinerManager::getInstance()->editorLocalDistance;
                 refreshItinerGD();
                 ItinerPoint* ip = new ItinerPoint(apos,
@@ -1630,6 +1632,11 @@ void MenuPageEditor::actionP()
                     ItinerManager::getInstance()->editorDescription);
                 RaceManager::getInstance()->editorStage->itinerPointList.push_back(ip);
                 refreshSelected();
+                if (empty)
+                {
+                    Player::getInstance()->resetItiner();
+                }
+                Hud::getInstance()->updateRoadBook();
             }
             else
             {
@@ -1948,6 +1955,8 @@ void MenuPageEditor::actionP()
                 }
                 delete ip;
                 refreshSelected();
+                Player::getInstance()->resetItiner();
+                Hud::getInstance()->updateRoadBook();
             }
             else
             {
