@@ -75,6 +75,8 @@ public:
     bool isPrevItinerValid(); //inline
     bool isCurrItinerValid(); //inline
     bool isItinerValid(const ItinerManager::itinerPointList_t::const_iterator& itinerIt); //inline
+    void resetItiner(); // inline
+    void resetItiner(Stage* stage); // inline
 
     unsigned int getStageTime(); // inline
     unsigned int getStagePenaltyTime(); // inline
@@ -343,6 +345,26 @@ inline bool Player::isItinerValid(const ItinerManager::itinerPointList_t::const_
 {
     Stage* stage = RaceManager::getInstance()->getCurrentStage();
     return (stage!=0 && itinerIt != stage->getItinerPointList().end());
+}
+
+inline void Player::resetItiner()
+{
+    Stage* stage = RaceManager::getInstance()->getCurrentStage();
+    resetItiner(stage);
+}
+
+inline void Player::resetItiner(Stage* stage)
+{
+    if (stage)
+    {
+        currItinerIt = stage->getItinerPointList().begin();
+        prevItinerIt = stage->getItinerPointList().end();
+    }
+    else
+    {
+        currItinerIt = helperItinerPointList.end();
+        prevItinerIt = helperItinerPointList.end();
+    }
 }
 
 inline bool Player::addPassedWayPointNum(unsigned int wpNum)

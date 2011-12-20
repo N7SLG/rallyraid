@@ -85,7 +85,6 @@ public:
     Vehicle* vehicle;
     unsigned int forResetCnt;
     unsigned int forBigResetCnt;
-    unsigned int forNonResetCnt;
     float currentRand;
     irr::scene::ITextSceneNode* nameText;
     OffsetObject* nameTextOffsetObject;

@@ -54,7 +54,8 @@ Settings::Settings()
       fpsStep(0.1f),
       AIPlayer(false),
       desktopResolution(true),
-      generatePreImages(false)
+      generatePreImages(false),
+      linearSteering(false)
 {
     read();
 }
@@ -188,6 +189,9 @@ void Settings::read()
             } else if (keyName == "generate_pre_images")
             {
                 generatePreImages = StringConverter::parseBool(valName, false);
+            } else if (keyName == "linear_steering")
+            {
+                linearSteering = StringConverter::parseBool(valName, false);
             }
         }
     }
@@ -237,6 +241,7 @@ void Settings::write()
     ret = fprintf(f, "fps_step=%f\n", fpsStep);
     ret = fprintf(f, "desktop_resolution=%s\n", desktopResolution?"yes":"no");
     ret = fprintf(f, "generate_pre_images=%s\n", generatePreImages?"yes":"no");
+    ret = fprintf(f, "linear_steering=%s\n", linearSteering?"yes":"no");
 
     fclose(f);
 }

@@ -101,22 +101,7 @@ void Player::initializeVehicle(const std::string& vehicleTypeName, const irr::co
     }
     else
     {
-        if (stage)
-        {
-            currItinerIt = stage->getItinerPointList().begin();
-            prevItinerIt = stage->getItinerPointList().end();
-            /*printf("start test: p = e, begin: %u, end: %u\n", prevItinerIt == stage->getItinerPointList().begin(), prevItinerIt == stage->getItinerPointList().end());
-            prevItinerIt = stage->getItinerPointList().begin();
-            printf("start test: p = b, begin: %u, end: %u\n", prevItinerIt == stage->getItinerPointList().begin(), prevItinerIt == stage->getItinerPointList().end());
-            prevItinerIt--;
-            printf("start test: p--, begin: %u, end: %u\n", prevItinerIt == stage->getItinerPointList().begin(), prevItinerIt == stage->getItinerPointList().end());
-            assert(0 && "end test");*/
-        }
-        else
-        {
-            currItinerIt = helperItinerPointList.end()/*ItinerManager::itinerPointList_t::const_iterator()*/;
-            prevItinerIt = helperItinerPointList.end()/*ItinerManager::itinerPointList_t::const_iterator()*/;
-        }
+        resetItiner(stage);
     }
     passedWayPoints = savedPassedWayPoints;
     savedDistance = 0.f;
