@@ -119,7 +119,8 @@ static bool printToWindow = true;
         wtitle = title;
         TheGame::getInstance()->getEnv()->addMessageBox(wtitle.c_str(), ws.c_str());
 
-        irr::IEventReceiver* savedER = MenuManager::getInstance()->getCurrentEventReceiver();
+        irr::IEventReceiver* savedER = 0;
+        if (MenuManager::getInstance()) savedER = MenuManager::getInstance()->getCurrentEventReceiver();
 
         ModalEventReceiver* mer = new ModalEventReceiver();
         TheGame::getInstance()->getEnv()->setUserEventReceiver(mer);
@@ -170,7 +171,8 @@ static bool printToWindow = true;
         wtitle = title;
         TheGame::getInstance()->getEnv()->addMessageBox(wtitle.c_str(), ws.c_str());
 
-        irr::IEventReceiver* savedER = MenuManager::getInstance()->getCurrentEventReceiver();
+        irr::IEventReceiver* savedER = 0;
+        if (MenuManager::getInstance()) savedER = MenuManager::getInstance()->getCurrentEventReceiver();
 
         ModalEventReceiver* mer = new ModalEventReceiver();
         TheGame::getInstance()->getEnv()->setUserEventReceiver(mer);
