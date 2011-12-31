@@ -24,6 +24,7 @@ MenuPageOptions* MenuPageOptions::menuPageOptions = 0;
 MenuPageOptions::MenuPageOptions()
     : window(0),
       tableKB(0),
+      comboBoxDifficulty(0),
       comboBoxDriverType(0),
       comboBoxResolution(0),
       comboBoxDisplayBits(0),
@@ -77,6 +78,23 @@ MenuPageOptions::MenuPageOptions()
     irr::gui::IGUITab* tabGame = tc->addTab(L"Game", 0);
 
     unsigned int line = PADDING;
+    TheGame::getInstance()->getEnv()->addStaticText(L"Difficulty",
+        irr::core::recti(irr::core::position2di(PADDING, line), irr::core::dimension2di(FTW, 16)),
+        false,
+        false,
+        tabGame);
+
+    comboBoxDifficulty = TheGame::getInstance()->getEnv()->addComboBox(
+        irr::core::recti(irr::core::position2di(FTW+(PADDING*2), line), irr::core::dimension2di(tabGame->getRelativePosition().getSize().Width-(4*PADDING)-LTW-FTW, 16)),
+        tabGame,
+        MI_COMBOBOXDIFFICULTY);
+    comboBoxDifficulty->addItem(L"Very hard");
+    comboBoxDifficulty->addItem(L"Hard");
+    comboBoxDifficulty->addItem(L"Medium");
+    comboBoxDifficulty->addItem(L"Easy");
+    comboBoxDifficulty->addItem(L"Very easy");
+    
+    line += 20;
     TheGame::getInstance()->getEnv()->addStaticText(L"Scan joystick (*)",
         irr::core::recti(irr::core::position2di(PADDING, line), irr::core::dimension2di(FTW, 16)),
         false,
@@ -258,7 +276,7 @@ MenuPageOptions::MenuPageOptions()
         irr::core::recti(irr::core::position2di(((tabKB->getRelativePosition().getSize().Width-16)*3)/4, 0), irr::core::dimension2di((tabKB->getRelativePosition().getSize().Width-16)/4-2, 20)),
         tabKB,
         MI_BUTTONSECONDARY,
-        L"Set Secondary");
+        L"Set Alternative");
 
     tableKB = TheGame::getInstance()->getEnv()->addTable(
         irr::core::recti(irr::core::position2di(0, 22), irr::core::dimension2di(tabKB->getRelativePosition().getSize().Width, tabKB->getRelativePosition().getSize().Height-22)),
@@ -272,7 +290,7 @@ MenuPageOptions::MenuPageOptions()
     tableKB->addColumn(L"Primary");
     tableKB->setColumnWidth(1, (tableKB->getRelativePosition().getSize().Width-16)/4);
     tableKB->setColumnOrdering(1, irr::gui::EGCO_NONE);
-    tableKB->addColumn(L"Secondary");
+    tableKB->addColumn(L"Alternative");
     tableKB->setColumnWidth(2, (tableKB->getRelativePosition().getSize().Width-16)/4);
     tableKB->setColumnOrdering(2, irr::gui::EGCO_NONE);
 
@@ -381,6 +399,8 @@ bool MenuPageOptions::OnEvent(const irr::SEvent &event)
                         return true;
                         break;
                     }
+                    case MI_COMBOBOXDIFFICULTY:
+                        Settings::getInstance()->difficulty = comboBoxDifficulty->getSelected();
                 };
                 break;
             }
@@ -502,6 +522,8 @@ void MenuPageOptions::refreshGraphics()
             j++;
         }
     }
+
+    comboBoxDifficulty->setSelected(Settings::getInstance()->difficulty);
 
     cbDesktopResolution->setChecked(Settings::getInstance()->desktopResolution);
     cbFullScreen->setChecked(Settings::getInstance()->fullScreen);

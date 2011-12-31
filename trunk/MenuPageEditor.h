@@ -97,6 +97,17 @@ public:
     void refreshAction();
     void activateAction();
 
+    void setCurrentAction(Action action)
+    {
+        currentAction = action;
+    }
+
+    Action getCurrentAction()
+    {
+        return currentAction;
+    }
+
+
     // mouse button hit
     static void action();
     // render editor stuff

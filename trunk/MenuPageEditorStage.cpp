@@ -494,6 +494,29 @@ bool MenuPageEditorStage::OnEvent(const irr::SEvent &event)
                 };
                 break;
             }
+            case irr::gui::EGET_TAB_CHANGED:
+            {
+                if (id == MI_TABCONTROL)
+                {
+                    irr::gui::IGUITabControl* tc = (irr::gui::IGUITabControl*)event.GUIEvent.Caller;
+                    switch (tc->getTab(tc->getActiveTab())->getID())
+                    {
+                        case MI_TABWP:
+                            MenuPageEditor::menuPageEditor->setCurrentAction(MenuPageEditor::A_AddWayPoint);
+                            MenuPageEditor::menuPageEditor->refreshAction();
+                            break;
+                        case MI_TABHM:
+                            if (MenuPageEditor::menuPageEditor->getCurrentAction() != MenuPageEditor::A_AddHeightModifierLine &&
+                                MenuPageEditor::menuPageEditor->getCurrentAction() != MenuPageEditor::A_AddHeightModifierSquare)
+                            {
+                                MenuPageEditor::menuPageEditor->setCurrentAction(MenuPageEditor::A_AddHeightModifier);
+                                MenuPageEditor::menuPageEditor->refreshAction();
+                            }
+                            break;
+                    }
+                }
+                break;
+            }
         };
     }
     return false;

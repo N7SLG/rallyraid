@@ -34,6 +34,7 @@ public:
     bool                    useTerrainDetail;
     bool                    showNames;
     unsigned int            difficulty;
+    unsigned int            difficultyStageTimeAdjustment;
     bool                    navigationAssistant;
     unsigned int            resolutionX;
     unsigned int            resolutionY;
