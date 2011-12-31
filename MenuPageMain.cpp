@@ -111,7 +111,7 @@ MenuPageMain::MenuPageMain()
     havok_image->setUseAlphaChannel(true);
     havok_image->setImage(havok_logo);
 
-    irr::gui::IGUIStaticText* s = TheGame::getInstance()->getEnv()->addStaticText(L"Version: 1.0 - Build: 168",
+    irr::gui::IGUIStaticText* s = TheGame::getInstance()->getEnv()->addStaticText(L"Version: 1.0 - Build: 169",
         irr::core::recti(irr::core::position2di(window->getRelativePosition().getSize().Width - 110, window->getRelativePosition().getSize().Height - 20), havok_logo->getOriginalSize()),
         false, false, window, 0, false);
     s->setOverrideFont(FontManager::getInstance()->getFont(FontManager::FONT_BUILTIN));
@@ -375,6 +375,7 @@ void MenuPageMain::refresh()
 
     const RaceManager::raceMap_t& raceMap = RaceManager::getInstance()->getRaceMap();
     unsigned int i = 0;
+    int selectedIndex = -1;
     for (RaceManager::raceMap_t::const_iterator rit = raceMap.begin();
          rit != raceMap.end();
          rit++, i++)
@@ -388,14 +389,22 @@ void MenuPageMain::refresh()
         tableRaces->setCellText(i, 0, str.c_str());
         tableRaces->setCellData(i, 0, (void*)rit->second);
         
-        if (i==0)
+        if ((selectedRace != 0 && selectedRace == rit->second) || (selectedRace == 0 && i==0))
         {
             selectedRace = rit->second;
+            selectedIndex = i;
         }
     }
     if (!raceMap.empty())
     {
-        tableRaces->setSelected(0);
+        if (selectedIndex != -1)
+        {
+            tableRaces->setSelected(selectedIndex);
+        }
+        else
+        {
+            tableRaces->setSelected(0);
+        }
         refreshRaceData((Race*)tableRaces->getCellData(tableRaces->getSelected(), 0));
     }
 
@@ -406,6 +415,7 @@ void MenuPageMain::refresh()
 
     const VehicleTypeManager::vehicleTypeMap_t& vehicleTypeMap = VehicleTypeManager::getInstance()->getVehicleTypeMap();
     i = 0;
+    selectedIndex = -1;
     /*
     for (VehicleTypeManager::vehicleTypeMap_t::const_iterator vit = vehicleTypeMap.begin();
          vit != vehicleTypeMap.end();
@@ -422,15 +432,24 @@ void MenuPageMain::refresh()
         tableVehicles->setCellText(i, 0, str.c_str());
         tableVehicles->setCellData(i, 0, (void*)vit->second);
         
-        if (i==VehicleTypeManager::getInstance()->getVehicleTypeMap().size()-1)
+        if ((selectedVehicleType != 0 && selectedVehicleType == vit->second) ||
+            (selectedVehicleType == 0 && i==VehicleTypeManager::getInstance()->getVehicleTypeMap().size()-1))
         {
             selectedVehicleType = vit->second;
+            selectedIndex = i;
         }
         i++;
     }
     if (!VehicleTypeManager::getInstance()->getVehicleTypeMap().empty())
     {
-        tableVehicles->setSelected(VehicleTypeManager::getInstance()->getVehicleTypeMap().size()-1);
+        if (selectedIndex != -1)
+        {
+            tableVehicles->setSelected(selectedIndex);
+        }
+        else
+        {
+            tableVehicles->setSelected(VehicleTypeManager::getInstance()->getVehicleTypeMap().size()-1);
+        }
         refreshVehicleData((VehicleType*)tableVehicles->getCellData(tableVehicles->getSelected(), 0));
     }
 }

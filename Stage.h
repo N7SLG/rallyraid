@@ -10,6 +10,7 @@
 #include "ItinerManager.h"
 #include "AIPoint.h"
 #include "WayPointManager.h"
+#include "Settings.h"
 
 
 class Stage
@@ -150,7 +151,9 @@ inline Day* Stage::getParent() const
 
 inline unsigned int Stage::getStageTime() const
 {
-    return stageTime;
+    int sta = (Settings::getInstance()->difficulty * Settings::getInstance()->difficultyStageTimeAdjustment) - Settings::getInstance()->difficultyStageTimeAdjustment;
+    if (stageTime < Settings::getInstance()->difficultyStageTimeAdjustment && sta < 0) return stageTime;
+    return stageTime + sta;
 }
 
 inline irr::video::ITexture* Stage::getImage()

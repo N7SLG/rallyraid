@@ -35,6 +35,7 @@ Settings::Settings()
       useTerrainDetail(true),
       showNames(true),
       difficulty(2),
+      difficultyStageTimeAdjustment(45),
       navigationAssistant(true),
       resolutionX(1280),
       resolutionY(800),
@@ -117,6 +118,9 @@ void Settings::read()
             {
                 difficulty = StringConverter::parseUnsignedInt(valName, 2);
                 if (difficulty > 4) difficulty = 4;
+            } else if (keyName == "difficulty_stage_time_adjustment")
+            {
+                difficultyStageTimeAdjustment = StringConverter::parseUnsignedInt(valName, 45);
             } else if (keyName == "navigation_assistant")
             {
                 navigationAssistant = StringConverter::parseBool(valName, true);
@@ -221,6 +225,7 @@ void Settings::write()
     ret = fprintf(f, "use_terrain_detail=%s\n", useTerrainDetail?"yes":"no");
     ret = fprintf(f, "show_names=%s\n", showNames?"yes":"no");
     ret = fprintf(f, "difficulty=%u\n", difficulty);
+    ret = fprintf(f, "difficulty_stage_time_adjustment=%u\n", difficultyStageTimeAdjustment);
     ret = fprintf(f, "navigation_assistant=%s\n", navigationAssistant?"yes":"no");
     ret = fprintf(f, "resolution_x=%u\n", resolutionX);
     ret = fprintf(f, "resolution_y=%u\n", resolutionY);

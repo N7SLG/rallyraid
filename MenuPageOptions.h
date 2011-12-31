@@ -22,6 +22,7 @@ public:
 
         MI_TABLEKB,
 
+        MI_COMBOBOXDIFFICULTY,
         MI_COMBOBOXDRIVERTYPE,
         MI_COMBOBOXRESOLUTION,
         MI_COMBOBOXDISPLAYBITS,
@@ -62,6 +63,7 @@ private:
 private:
     irr::gui::IGUIWindow*   window;
     irr::gui::IGUITable*    tableKB;
+    irr::gui::IGUIComboBox* comboBoxDifficulty;
     irr::gui::IGUIComboBox* comboBoxDriverType;
     irr::gui::IGUIComboBox* comboBoxResolution;
     irr::gui::IGUIComboBox* comboBoxDisplayBits;
