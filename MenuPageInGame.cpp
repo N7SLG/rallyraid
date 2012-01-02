@@ -28,6 +28,7 @@
 #include "FontManager.h"
 #include "Player.h"
 #include "Vehicle.h"
+#include "RaceEngine.h"
 #include <assert.h>
 
 
@@ -39,6 +40,7 @@ MenuPageInGame::MenuPageInGame()
       tableStages(0),
       tableCompetitors(0),
       tableCompetitorsG(0),
+      tableCompetitorsInStage(0),
       buttonLoad(0),
       willOpenOtherWindow(false)
 {
@@ -122,7 +124,7 @@ MenuPageInGame::MenuPageInGame()
         true,
         0);
 
-    irr::gui::IGUITab* tabStage = tc->addTab(L"Stage", 0);
+    irr::gui::IGUITab* tabStage = tc->addTab(L"Stage (Finished)", 0);
 
     tableCompetitors = TheGame::getInstance()->getEnv()->addTable(
         irr::core::recti(irr::core::position2di(0, 0), tabStage->getRelativePosition().getSize()),
@@ -182,6 +184,40 @@ MenuPageInGame::MenuPageInGame()
     tableCompetitorsG->addColumn(L"Penalty");
     tableCompetitorsG->setColumnWidth(6, 85);
     tableCompetitorsG->setColumnOrdering(6, irr::gui::EGCO_NONE);
+
+    irr::gui::IGUITab* tabInStage = tc->addTab(L"Stage (Ongoing)", 0);
+
+    tableCompetitorsInStage = TheGame::getInstance()->getEnv()->addTable(
+        irr::core::recti(irr::core::position2di(0, 0), tabGlobal->getRelativePosition().getSize()),
+        tabInStage,
+        MI_TABLECOMPETITORSINSTAGE,
+        true);
+
+    tableCompetitorsInStage->addColumn(L"Start Pos.");
+    tableCompetitorsInStage->setColumnWidth(0, 60);
+    tableCompetitorsInStage->setColumnOrdering(0, irr::gui::EGCO_NONE);
+    tableCompetitorsInStage->addColumn(L"No");
+    tableCompetitorsInStage->setColumnWidth(1, 40);
+    tableCompetitorsInStage->setColumnOrdering(1, irr::gui::EGCO_NONE);
+    tableCompetitorsInStage->addColumn(L"Name");
+    tableCompetitorsInStage->setColumnWidth(2, 210);
+    tableCompetitorsInStage->setColumnOrdering(2, irr::gui::EGCO_NONE);
+    tableCompetitorsInStage->addColumn(L"Vehicle");
+    tableCompetitorsInStage->setColumnWidth(3, 160);
+    tableCompetitorsInStage->setColumnOrdering(3, irr::gui::EGCO_NONE);
+    tableCompetitorsInStage->addColumn(L"Start Time");
+    tableCompetitorsInStage->setColumnWidth(4, 80);
+    tableCompetitorsInStage->setColumnOrdering(4, irr::gui::EGCO_NONE);
+    tableCompetitorsInStage->addColumn(L"%");
+    tableCompetitorsInStage->setColumnWidth(5, 50);
+    tableCompetitorsInStage->setColumnOrdering(5, irr::gui::EGCO_NONE);
+    tableCompetitorsInStage->addColumn(L"Penalty");
+    tableCompetitorsInStage->setColumnWidth(6, 70);
+    tableCompetitorsInStage->setColumnOrdering(6, irr::gui::EGCO_NONE);
+    tableCompetitorsInStage->addColumn(L"Repair");
+    tableCompetitorsInStage->setColumnWidth(7, 70);
+    tableCompetitorsInStage->setColumnOrdering(7, irr::gui::EGCO_NONE);
+
 
     window->setVisible(false);
 }
@@ -511,5 +547,120 @@ void MenuPageInGame::refreshCompetitors(StageState* stageState)
         if ((*it)->globalPenaltyTime) WStringConverter::addTimeToStr(str, (*it)->globalPenaltyTime);
         tableCompetitorsG->setCellText(i, 6, str.c_str());
         if (player) tableCompetitorsG->setCellColor(i, 6, playerColor);
+    }
+
+    tableCompetitorsInStage->clearRows();
+
+    if (GamePlay::getInstance()->raceEngine)
+    {
+        const RaceEngine::starterList_t& starters = GamePlay::getInstance()->raceEngine->starters;
+        unsigned int baseCD = 0;
+        i = 0;
+        for (RaceEngine::starterList_t::const_iterator it = starters.begin();
+             it != starters.end();
+             it++, i++)
+        {
+            irr::core::stringw str;
+            player = ((*it)->competitor == Player::getInstance()->getCompetitor());
+        
+            tableCompetitorsInStage->addRow(i);
+
+            str = L"";
+            str += (i+1);
+            tableCompetitorsInStage->setCellText(i, 0, str.c_str());
+            if (player) tableCompetitorsInStage->setCellColor(i, 0, playerColor);
+
+            str = L"";
+            str += (*it)->competitor->getNum();
+            tableCompetitorsInStage->setCellText(i, 1, str.c_str());
+            if (player) tableCompetitorsInStage->setCellColor(i, 1, playerColor);
+
+            str = L"";
+            str += (*it)->competitor->getName().c_str();
+            tableCompetitorsInStage->setCellText(i, 2, str.c_str());
+            if (player) tableCompetitorsInStage->setCellColor(i, 2, playerColor);
+
+            VehicleType* vt = VehicleTypeManager::getInstance()->getVehicleType((*it)->competitor->getVehicleTypeName());
+            str = L"";
+            if (vt)
+            {
+                str += vt->getLongName().c_str();
+            }
+            else
+            {
+                str += L"-";
+            }
+            tableCompetitorsInStage->setCellText(i, 3, str.c_str());
+            if (player) tableCompetitorsInStage->setCellColor(i, 3, playerColor);
+
+            str = L"";
+            if ((*it)->startingCD)
+            {
+                baseCD += (*it)->startingCD;
+                WStringConverter::addTimeToStr(str, baseCD);
+            }
+            else
+            {
+                str += L"started";
+            }
+            tableCompetitorsInStage->setCellText(i, 4, str.c_str());
+            if (player) tableCompetitorsInStage->setCellColor(i, 4, playerColor);
+
+            str = L"";
+            if ((*it)->startingCD)
+            {
+                str += L"-";
+            }
+            else
+            {
+                unsigned int perc = 0;
+                if (player)
+                {
+                    //str += L"~";
+                    if (RaceManager::getInstance()->getCurrentStage()->getAIPointList().size())
+                    {
+                        perc = (unsigned int)((Player::getInstance()->getVehicle()->getDistance() * 100.f) / RaceManager::getInstance()->getCurrentStage()->getAIPointList().back()->getGlobalDistance());
+                        if (perc > 100)
+                        {
+                            perc = 100;
+                        }
+                    }
+                }
+                else
+                {
+                    if (RaceManager::getInstance()->getCurrentStage()->getAIPointList().size())
+                    {
+                        perc = ((*it)->prevPointNum * 100) / RaceManager::getInstance()->getCurrentStage()->getAIPointList().size();
+                    }
+                }
+                str += perc;
+                str += L"%";
+            }
+            tableCompetitorsInStage->setCellText(i, 5, str.c_str());
+            if (player) tableCompetitorsInStage->setCellColor(i, 5, playerColor);
+
+            str = L"";
+            if ((*it)->startingCD == 0 && (*it)->penaltyTime)
+            {
+                WStringConverter::addTimeToStr(str, (*it)->penaltyTime);
+            }
+            tableCompetitorsInStage->setCellText(i, 6, str.c_str());
+            if (player) tableCompetitorsInStage->setCellColor(i, 6, playerColor);
+
+            str = L"";
+            if ((*it)->startingCD == 0)
+            {
+                if ((*it)->crashedForever)
+                {
+                    str += L"out";
+                }
+                else if ((*it)->crashTime)
+                {
+                    WStringConverter::addTimeToStr(str, (*it)->crashTime);
+                }
+            }
+            tableCompetitorsInStage->setCellText(i, 7, str.c_str());
+            if (player) tableCompetitorsInStage->setCellColor(i, 7, playerColor);
+        }
     }
 }

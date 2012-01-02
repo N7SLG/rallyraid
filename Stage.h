@@ -151,8 +151,9 @@ inline Day* Stage::getParent() const
 
 inline unsigned int Stage::getStageTime() const
 {
-    int sta = (Settings::getInstance()->difficulty * Settings::getInstance()->difficultyStageTimeAdjustment) - Settings::getInstance()->difficultyStageTimeAdjustment;
-    if (stageTime < Settings::getInstance()->difficultyStageTimeAdjustment && sta < 0) return stageTime;
+    unsigned int stab = Settings::getInstance()->difficultyStageTimeAdjustment > 0 ? Settings::getInstance()->difficultyStageTimeAdjustment : stageTime / 60;
+    int sta = (Settings::getInstance()->difficulty * stab) - stab;
+    if (stageTime < stab && sta < 0) return stageTime;
     return stageTime + sta;
 }
 

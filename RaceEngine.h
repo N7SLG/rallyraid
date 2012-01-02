@@ -141,6 +141,9 @@ private:
     unsigned int lastCTick;
     unsigned int currentTime;
     bool raceFinished;
+
+
+    friend class MenuPageInGame;
 };
 
 #endif // RACEENGINE_H

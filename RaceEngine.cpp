@@ -220,10 +220,18 @@ bool Starter::update(unsigned int currentTime, const irr::core::vector3df& apos,
 
             if (distToFinish < 32.f)
             {
+                unsigned int missedWPs = (RaceManager::getInstance()->getCurrentStage()->getWayPointList().size() - Player::getInstance()->getPassedWayPointsCount());
+                unsigned int WPPenalty =  missedWPs * (WP_MISS_PENALTY - (15*Settings::getInstance()->difficulty));
+                unsigned int originalPenalty = penaltyTime;
+
+                penaltyTime += WPPenalty;
+                
                 finishTime = currentTime - startTime;
                 globalTime += finishTime;
                 globalPenaltyTime += penaltyTime;
-        
+
+                Player::getInstance()->setStageTime(finishTime, penaltyTime);
+
                 unsigned int position = raceEngine->insertIntoFinishedState(this);
                 irr::core::stringw str = L"";
             
@@ -232,6 +240,25 @@ bool Starter::update(unsigned int currentTime, const irr::core::vector3df& apos,
                 str += competitor->getName().c_str();
                 str += L" finished the stage, time: ";
                 WStringConverter::addTimeToStr(str, finishTime+penaltyTime);
+                if (penaltyTime)
+                {
+                    str += L", including penalty: ";
+                    if (originalPenalty)
+                    {
+                        WStringConverter::addTimeToStr(str, originalPenalty);
+                        if (WPPenalty)
+                        {
+                            str += L" + ";
+                        }
+                    }
+                    if (WPPenalty)
+                    {
+                        WStringConverter::addTimeToStr(str, WPPenalty);
+                        str += L" because of ";
+                        str += missedWPs;
+                        str += L" missed WPs";
+                    }
+                }
                 str += L",  position: ";
                 str += position;
                 MessageManager::getInstance()->addText(str.c_str(), 12);

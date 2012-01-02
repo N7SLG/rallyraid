@@ -24,6 +24,7 @@ public:
         MI_TABLESTAGES,
         MI_TABLECOMPETITORS,
         MI_TABLECOMPETITORSG,
+        MI_TABLECOMPETITORSINSTAGE,
 
         NUMBER_OF_MENUITEMS
     };
@@ -50,6 +51,7 @@ private:
     irr::gui::IGUITable*    tableStages;
     irr::gui::IGUITable*    tableCompetitors;
     irr::gui::IGUITable*    tableCompetitorsG;
+    irr::gui::IGUITable*    tableCompetitorsInStage;
     irr::gui::IGUIButton*   buttonLoad;
     irr::gui::IGUIButton*   buttonNextStage;
 
