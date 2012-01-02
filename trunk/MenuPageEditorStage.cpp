@@ -608,7 +608,7 @@ void MenuPageEditorStage::refreshEditBoxes()
     editBoxShortDescription->setText(str.c_str());
 
     str = L"";
-    str += RaceManager::getInstance()->editorStage->getStageTime();
+    str += RaceManager::getInstance()->editorStage->stageTime;
     editBoxStageTime->setText(str.c_str());
 
     str = L"";

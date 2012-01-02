@@ -19,7 +19,7 @@
 #include "Player.h"
 #include "Competitor.h"
 #include <assert.h>
-
+#include <sstream>
 
 MenuPageLoadSave* MenuPageLoadSave::menuPageLoadSave = 0;
 
@@ -230,10 +230,19 @@ void MenuPageLoadSave::open()
         {
             if (RaceManager::getInstance()->getCurrentRace() && RaceManager::getInstance()->getCurrentDay() && RaceManager::getInstance()->getCurrentStage())
             {
-                saveName = Player::getInstance()->getCompetitor()->getName() + "_" +
+                std::ostringstream ss;
+                ss << Player::getInstance()->getCompetitor()->getName() << "_" <<
+                    RaceManager::getInstance()->getCurrentRace()->getName() << "_" <<
+                    RaceManager::getInstance()->getCurrentDay()->getName() << "_" <<
+                    RaceManager::getInstance()->getCurrentStage()->getName() << "_" <<
+                    (unsigned int)(Player::getInstance()->getVehicle()->getDistance()/1000.f) << "km";
+                /*saveName = Player::getInstance()->getCompetitor()->getName() + "_" +
                     RaceManager::getInstance()->getCurrentRace()->getName() + "_" +
                     RaceManager::getInstance()->getCurrentDay()->getName() + "_" +
-                    RaceManager::getInstance()->getCurrentStage()->getName();
+                    RaceManager::getInstance()->getCurrentStage()->getName() + "_" +
+                    (unsigned int)(Player::getInstance()->getVehicle()->getDistance()/1000.f) + "km";
+                    */
+                saveName = ss.str();
             }
             else
             {
