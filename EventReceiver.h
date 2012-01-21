@@ -43,6 +43,7 @@ private:
         CHANGE_VIEW,
         OPEN_EDITOR,
         RESET_VEHICLE,
+        REPAIR_VEHICLE,
         SWITCH_INPUT,
         EXIT_TO_MENU,
         ROADBOOK_NEXT,

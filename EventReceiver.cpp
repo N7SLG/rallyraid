@@ -137,6 +137,9 @@ EventReceiver::EventReceiver()
     keyNameMap["reset_vehicle"] = RESET_VEHICLE;
     kp.keyLongName = "Reset vehicle";
     keyMap[RESET_VEHICLE] = kp;
+    keyNameMap["repair_vehicle"] = REPAIR_VEHICLE;
+    kp.keyLongName = "Repair vehicle";
+    keyMap[REPAIR_VEHICLE] = kp;
     keyNameMap["switch_input"] = SWITCH_INPUT;
     kp.keyLongName = "Switch input while editor (game/editor)";
     keyMap[SWITCH_INPUT] = kp;
@@ -725,6 +728,11 @@ void EventReceiver::checkEvents()
                     TheGame::getInstance()->getCamera()->getPosition().X,
                     TheEarth::getInstance()->getHeight(TheGame::getInstance()->getCamera()->getPosition())+2.5f,
                     TheGame::getInstance()->getCamera()->getPosition().Z));
+        }
+
+        if (IS_PRESSED(REPAIR_VEHICLE))
+        {
+            Player::getInstance()->repairVehicle();
         }
 
         if (IS_PRESSED(SWITCH_INPUT))

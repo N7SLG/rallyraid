@@ -56,6 +56,7 @@ public:
     bool                    desktopResolution;
     bool                    generatePreImages;
     bool                    linearSteering;
+    bool                    useDamage;
 };
 
 #endif // SETTINGS_H

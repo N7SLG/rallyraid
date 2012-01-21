@@ -139,7 +139,7 @@ private:
         {
             speed = vehicle->getLinearVelocity().getLength() * 3.6f;
         }
-        
+
         if (sound)
         {
             // play sound
@@ -170,6 +170,25 @@ private:
             , localNormal.X, localNormal.Y, localNormal.Z,
             speed
             );
+
+        // damage
+        if (Settings::getInstance()->useDamage)
+        {
+            irr::core::vector2df localPoint2D(localPoint.X, localPoint.Z);
+            float angle = (float)localPoint2D.getAngle();
+            normalizeAngle180(angle);
+            angle = fabsf(angle);
+            float damage = speed / 1000.f;
+
+            if (angle < 45.f)
+            {
+                vehicle->conditionSteer -= damage /* 0.6f*/;
+                if (vehicle->conditionSteer < 0.0f) vehicle->conditionSteer = 0.0f;
+            }
+
+            vehicle->condition -= damage /* 0.6f*/;
+            if (vehicle->condition < 0.0f) vehicle->condition = 0.0f;
+        }
 
         // check for penalties
         if (vehicle && otherVehicle &&
@@ -531,7 +550,8 @@ VehicleTyre::~VehicleTyre()
 // -------------------------------------------------------
 
 Vehicle::Vehicle(const std::string& vehicleTypeName, const irr::core::vector3df& apos, const irr::core::vector3df& rotation,
-    bool manual, bool sequential, float suspensionSpringModifier, float suspensionDamperModifier, float brakeBalance)
+    bool manual, bool sequential, float suspensionSpringModifier, float suspensionDamperModifier, float brakeBalance,
+    float initialCondition, float initialConditionSteer)
     : vehicleType(0),
       collisionListener(0),
       matrix(),
@@ -541,6 +561,8 @@ Vehicle::Vehicle(const std::string& vehicleTypeName, const irr::core::vector3df&
       tyres(),
       hkVehicle(0),
       engineSound(0),
+      groundSound(0),
+      puffSound(0),
       linearVelocity(),
       distance(0.0f),
       lastPos(),
@@ -553,7 +575,12 @@ Vehicle::Vehicle(const std::string& vehicleTypeName, const irr::core::vector3df&
       suspensionSpringModifier(suspensionSpringModifier),
       suspensionDamperModifier(suspensionDamperModifier),
       brakeBalance(brakeBalance),
-      nameText(0)
+      nameText(0),
+      lastOnGround(true),
+      lastOnGroundTick(0),
+      lastNotOnGroundTick(0),
+      condition(initialCondition),
+      conditionSteer(initialConditionSteer)
 {
     dprintf(MY_DEBUG_NOTE, "Vehicle::Vehicle(): %p, [%s]\n", this, vehicleTypeName.c_str());
     vehicleType = VehicleTypeManager::getInstance()->getVehicleType(vehicleTypeName);
@@ -681,16 +708,15 @@ Vehicle::Vehicle(const std::string& vehicleTypeName, const irr::core::vector3df&
     // ------------------------------------------------
     hkpVehicleDefaultEngine* engine = static_cast< hkpVehicleDefaultEngine*>(hkVehicle->m_engine);
     engine->m_maxTorque = vehicleType->maxTorqueRate /*500.0f*/;
-    engine->m_minRPM = vehicleType->maxTorque / 8.0f /*1000.0f*/;
-    engine->m_optRPM = (vehicleType->maxTorque * 3.0f) / 4.0f /*5500.0f*/;
+    engine->m_minRPM = vehicleType->maxTorque * 0.2f /*1000.0f*/;
+    engine->m_optRPM = vehicleType->maxTorque * 0.75f /*5500.0f*/;
     // This value is also used to calculate the m_primaryTransmissionRatio.
     engine->m_maxRPM = vehicleType->maxTorque /*7500.0f*/;
-    engine->m_torqueFactorAtMinRPM = 0.8f;
-    engine->m_torqueFactorAtMaxRPM = 0.8f;
-    engine->m_resistanceFactorAtMinRPM = 0.1f;
+    engine->m_torqueFactorAtMinRPM = 0.4f;
+    engine->m_torqueFactorAtMaxRPM = 0.75f;
+    engine->m_resistanceFactorAtMinRPM = 0.15f;
     engine->m_resistanceFactorAtOptRPM = 0.3f;
     engine->m_resistanceFactorAtMaxRPM = 0.8f;
-
 
     // ------------------------------------------------
     // setupComponent( *hkVehicle->m_data, *static_cast< hkpVehicleDefaultTransmission*>(hkVehicle->m_transmission) );
@@ -699,14 +725,27 @@ Vehicle::Vehicle(const std::string& vehicleTypeName, const irr::core::vector3df&
     transmission->m_gearsRatio.setSize(vehicleType->gearMap.size());
     transmission->m_wheelsTorqueRatio.setSize(hkVehicle->m_data->m_numWheels);
 
-    transmission->m_downshiftRPM = vehicleType->maxTorque / 2.5f /*3500.0f*/;
-    transmission->m_upshiftRPM = (vehicleType->maxTorque * 4.0f) / 5.0f /*6500.0f*/;
+    transmission->m_downshiftRPM = vehicleType->maxTorque * 0.6f /*3500.0f*/;
+    transmission->m_upshiftRPM = vehicleType->maxTorque * 0.9f /*6500.0f*/;
+    
+    float baseGearRatio = vehicleType->gearMap[1] * 1.3f;
 
     for (unsigned int i = 0; i < vehicleType->gearMap.size(); i++)
     {
-        transmission->m_gearsRatio[i] = vehicleType->gearMap[i+1];
+        //transmission->m_gearsRatio[i] = vehicleType->gearMap[i+1];
+        baseGearRatio /= 1.3f;
+        transmission->m_gearsRatio[i] = baseGearRatio;
         dprintf(MY_DEBUG_NOTE, "\t%d. gear ration: %f\n", i, transmission->m_gearsRatio[i]);
     }
+
+    /*float baseGearRatio = 1.0f / 1.5f;
+    for (int i = vehicleType->gearMap.size()-1; i >= 0; i--)
+    {
+        //transmission->m_gearsRatio[i] = vehicleType->gearMap[i+1];
+        baseGearRatio *= 1.5f;
+        transmission->m_gearsRatio[i] = baseGearRatio;
+        dprintf(MY_DEBUG_NOTE, "\t%d. gear ration: %f\n", i, transmission->m_gearsRatio[i]);
+    }*/
 
     transmission->m_clutchDelayTime = vehicleType->changeGearTime / 50.0f;
     transmission->m_reverseGearRatio = 1.5f;
@@ -895,6 +934,21 @@ Vehicle::Vehicle(const std::string& vehicleTypeName, const irr::core::vector3df&
         engineSound->setMinDistance(4.0f);
         // engineSound->setIsPaused(true);
     }
+
+    groundSound = MySoundEngine::getInstance()->play3D("data/sounds/surfaces/sand.wav", irr::core::vector3df(), true, true, true);
+    if (groundSound)
+    {
+        groundSound->setMinDistance(3.0);
+        groundSound->setVolume(0.1f);
+    }
+
+    puffSound = MySoundEngine::getInstance()->play3D("data/sounds/puff.wav", irr::core::vector3df(), false, true, true);
+    if (puffSound)
+    {
+        puffSound->setMinDistance(3.0f);
+        puffSound->setVolume(0.1f);
+    }
+
     VehicleManager::getInstance()->addVehicle(this);
     memset(smokes, 0, MAX_SMOKES*sizeof(Smoke*));
     
@@ -929,6 +983,18 @@ Vehicle::~Vehicle()
     {
         delete engineSound;
         engineSound = 0;
+    }
+
+    if (groundSound)
+    {
+        delete groundSound;
+        groundSound = 0;
+    }
+
+    if (puffSound)
+    {
+        delete puffSound;
+        puffSound = 0;
     }
 
     VehicleManager::getInstance()->removeVehicle(this);
@@ -1046,6 +1112,41 @@ void Vehicle::handleUpdatePos(bool phys)
             }
         }
 
+        if (onGround)
+        {
+            if (!lastOnGround && TheGame::getInstance()->getTick() - lastOnGroundTick > 300 /* ms */)
+            {
+                if (puffSound)
+                {
+                    puffSound->setPosition(soundPos);
+                    puffSound->play();
+                }
+            }
+            if(groundSound)
+            {
+                if (angularVelocity > 2.0f)
+                {
+                    groundSound->setPosition(soundPos);
+                    groundSound->setPlaybackSpeed(ssSpeed);
+                    groundSound->setIsPaused(false);
+                }
+                else
+                {
+                    groundSound->setIsPaused(true);
+                }
+            }
+            lastOnGroundTick = TheGame::getInstance()->getTick();
+        }
+        else
+        {
+            if(groundSound)
+            {
+                groundSound->setIsPaused(true);
+            }
+            lastNotOnGroundTick = TheGame::getInstance()->getTick();
+        }
+        lastOnGround = onGround;
+
         /*
             Debug
         */
@@ -1079,6 +1180,10 @@ void Vehicle::handleUpdatePos(bool phys)
         if (engineSound)
         {
             engineSound->setPosition(soundPos);
+        }
+        if (groundSound)
+        {
+            groundSound->setPosition(soundPos);
         }
     }
     updateNameTextPos();
@@ -1130,6 +1235,13 @@ void Vehicle::reset(const irr::core::vector3df& pos)
     //hkBody->applyLinearImpulse(/*hkVector4(-hkBody->getLinearVelocity()(0), -hkBody->getLinearVelocity()(1), -hkBody->getLinearVelocity()(2))*/hkVector4(0.0f, 1.0f, 0.0f));
     //hkBody->applyLinearImpulse(hkVector4(10000.0f, 0.0f, 0.0f));
     updateToMatrix();
+}
+
+void Vehicle::repair()
+{
+    dprintf(MY_DEBUG_NOTE, "repair car\n");
+    condition = 1.0f;
+    conditionSteer = 1.0f;
 }
 
 void Vehicle::addStartImpulse(float initialSpeed, const irr::core::vector3df& dir)
@@ -1214,14 +1326,18 @@ void Vehicle::setSteer(float value)
 {
     //hkVehicle->getChassis()->activate();
     hkpVehicleDriverInputAnalogStatus* deviceStatus = (hkpVehicleDriverInputAnalogStatus*)hkVehicle->m_deviceStatus;
-    deviceStatus->m_positionX = hkMath::clamp(-value, -1.0f, 1.0f);
+    //deviceStatus->m_positionX = hkMath::clamp(-value, -1.0f, 1.0f);
+    value *= conditionSteer;
+    deviceStatus->m_positionX = hkMath::clamp(-value, -conditionSteer, conditionSteer);
 }
 
 void Vehicle::setTorque(float value)
 {
     hkpVehicleDriverInputAnalogStatus* deviceStatus = (hkpVehicleDriverInputAnalogStatus*)hkVehicle->m_deviceStatus;
     if (((VehicleTransmission*)hkVehicle->m_transmission)->manual && ((VehicleTransmission*)hkVehicle->m_transmission)->gear < 0) value *= -1.0f;
-    deviceStatus->m_positionY = hkMath::clamp(value, -1.0f, 1.0f);
+    //deviceStatus->m_positionY = hkMath::clamp(value, -1.0f, 1.0f);
+    value *= condition;
+    deviceStatus->m_positionY = hkMath::clamp(value, -condition, condition);
 }
 
 void Vehicle::setHandbrake(float value)
@@ -1325,6 +1441,12 @@ void Vehicle::pause()
         engineSound->setPlaybackSpeed(1.f);
         engineSound->setVelocity(irr::core::vector3df());
         engineSound->setIsPaused(true);
+    }
+    if (groundSound)
+    {
+        groundSound->setPlaybackSpeed(1.f);
+        groundSound->setVelocity(irr::core::vector3df());
+        groundSound->setIsPaused(true);
     }
 }
 

@@ -36,6 +36,7 @@ public:
         MI_CBMANUALSHIFTING,
         MI_CBSEQUENTIALSHIFTING,
         MI_CBLINEARSTEERING,
+        MI_CBDAMAGE,
 
         NUMBER_OF_MENUITEMS
     };
@@ -76,6 +77,7 @@ private:
     irr::gui::IGUICheckBox* cbManualShifting;
     irr::gui::IGUICheckBox* cbSequentialShifting;
     irr::gui::IGUICheckBox* cbLinearSteering;
+    irr::gui::IGUICheckBox* cbDamage;
 
     std::map<int, int>      resolutionMap;
     int                     lastKeyName;

@@ -89,7 +89,7 @@ static float normalizeAngle180(float &angle)
 #define SPEEDOMETER_RPM_STICK_HSIZE     (SPEEDOMETER_RPM_STICK_SIZE/2)
 
 #define SPEEDOMETER_POS_X               (HUD_PADDING)
-#define SPEEDOMETER_POS_Y               (TheGame::getInstance()->getDriver()->getScreenSize().Height-(HUD_PADDING*4)-(3*28)-SPEEDOMETER_SIZE) // The time and speed text
+#define SPEEDOMETER_POS_Y               (TheGame::getInstance()->getDriver()->getScreenSize().Height-(HUD_PADDING*4)-(4*28)-SPEEDOMETER_SIZE) // The time and speed text
 #define SPEEDOMETER_STICK_POS_X         (SPEEDOMETER_POS_X+SPEEDOMETER_STICK_HDIFF)
 #define SPEEDOMETER_STICK_POS_Y         (SPEEDOMETER_POS_Y+SPEEDOMETER_STICK_HDIFF)
 #define SPEEDOMETER_RPM_STICK_POS_X     (SPEEDOMETER_POS_X+SPEEDOMETER_RPM_STICK_HDIFF)
@@ -140,7 +140,7 @@ Hud::Hud()
       editorText(0)
 {
     miniMapQuad = new ScreenQuad(TheGame::getInstance()->getDriver(),
-        irr::core::position2di(HUD_PADDING, TheGame::getInstance()->getDriver()->getScreenSize().Height - MINIMAP_SIZE - (5*HUD_PADDING) - (3*28) - SPEEDOMETER_SIZE),
+        irr::core::position2di(HUD_PADDING, TheGame::getInstance()->getDriver()->getScreenSize().Height - MINIMAP_SIZE - (5*HUD_PADDING) - (4*28) - SPEEDOMETER_SIZE),
         irr::core::dimension2du(MINIMAP_SIZE, MINIMAP_SIZE), false);
 //        irr::core::position2di(HUD_PADDING, TheGame::getInstance()->getDriver()->getScreenSize().Height - MINIMAP_SIZE*3 - (3*HUD_PADDING) - (2*25)),
 //        irr::core::dimension2du(MINIMAP_SIZE*3, MINIMAP_SIZE*3), false);
@@ -303,15 +303,15 @@ Hud::Hud()
 
     speedText = TheGame::getInstance()->getEnv()->addStaticText(L"000.00",
         irr::core::recti(irr::core::position2di(HUD_PADDING,
-        TheGame::getInstance()->getDriver()->getScreenSize().Height - (2*HUD_PADDING) - 56),
-        irr::core::dimension2di(380, 56)),
+        TheGame::getInstance()->getDriver()->getScreenSize().Height - (2*HUD_PADDING) - (3*28)),
+        irr::core::dimension2di(380, 3*31 /*28*/)),
         false, true, 0, -1, false);
     speedText->setOverrideFont(FontManager::getInstance()->getFont(FontManager::FONT_SPECIAL_BIGFONT/*SPECIAL16*/));
     speedText->setOverrideColor(irr::video::SColor(255, 255, 255, 255));
 
     stageTimeText = TheGame::getInstance()->getEnv()->addStaticText(L"0:00:00",
         irr::core::recti(irr::core::position2di(HUD_PADDING,
-        TheGame::getInstance()->getDriver()->getScreenSize().Height - (3*HUD_PADDING) - (3*28)),
+        TheGame::getInstance()->getDriver()->getScreenSize().Height - (3*HUD_PADDING) - (4*28)),
         irr::core::dimension2di(380, 28)),
         false, false, 0, -1, false);
     stageTimeText->setOverrideFont(FontManager::getInstance()->getFont(FontManager::FONT_SPECIAL_BIGFONT/*SPECIAL16*/));
@@ -532,6 +532,7 @@ void Hud::preRender(float p_angle)
     int speed = (int)(Player::getInstance()->getVehicleSpeed());
     int gear = (Player::getInstance()->getVehicleGear());
     int rpm = (int)(Player::getInstance()->getVehicle()->getRPM());
+    unsigned int damage= Player::getInstance()->getVehicle()->getDamagePercentage();
     if (speed < 10)
     {
         str += L"00";
@@ -544,6 +545,9 @@ void Hud::preRender(float p_angle)
     str += speed;
     str += L" Km/h\n  RPM: ";
     str += rpm;
+    str += L"\nDamage: ";
+    str += damage;
+    str += L"%";
     speedText->setText(str.c_str());
     
     if (Player::getInstance()->getStageTime() >= 3600 && Player::getInstance()->getStagePenaltyTime() > 0)

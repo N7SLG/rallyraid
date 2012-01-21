@@ -56,7 +56,9 @@ Player::Player()
       loaded(false),
       savedPos(),
       savedRot(),
-      savedSpeed(),
+      savedSpeed(0.0f),
+      savedCondition(1.0f),
+      savedConditionSteer(1.0f),
       prevItinerIt(helperItinerPointList.end()),
       currItinerIt(helperItinerPointList.end()),
       savedPrevItinerIt(helperItinerPointList.end()),
@@ -78,7 +80,8 @@ void Player::initializeVehicle(const std::string& vehicleTypeName, const irr::co
     assert(vehicle == 0);
     competitor->setVehicleTypeName(vehicleTypeName);
     vehicle = new Vehicle(vehicleTypeName, apos, rotation, Settings::getInstance()->manualGearShifting,
-        Settings::getInstance()->sequentialGearShifting, suspensionSpringModifier, suspensionDamperModifier, brakeBalance);
+        Settings::getInstance()->sequentialGearShifting, suspensionSpringModifier, suspensionDamperModifier, brakeBalance,
+        savedCondition, savedConditionSteer);
     recenterView = true;
     firstPressed = false;
     distance = savedDistance;
@@ -111,6 +114,8 @@ void Player::initializeVehicle(const std::string& vehicleTypeName, const irr::co
     savedPassedWayPoints.clear();
     savedStageTime = 0;
     savedStagePenaltyTime = 0;
+    savedCondition = 1.0f;
+    savedConditionSteer = 1.0f;
     loaded = false;
 }
 
@@ -170,7 +175,11 @@ bool Player::save(const std::string& filename)
     {
         ret = fprintf(f, "%u\n", *it);
     }
-    
+
+
+    ret = fprintf(f, "%f\n", vehicle->getCondition());
+    ret = fprintf(f, "%f\n", vehicle->getConditionSteer());
+    ret = fprintf(f, "%u\n", viewNum);
 
     fclose(f);
 
@@ -328,6 +337,27 @@ bool Player::load(const std::string& filename, Stage* stage)
         savedPassedWayPoints.insert(num);
     }
 
+    ret = fscanf_s(f, "%f\n", &savedCondition);
+    if (ret < 1)
+    {
+        printf("player file unable to read condition: %s, could be normal if using old savegame\n", filename.c_str());
+        savedCondition = 1.0f;
+    }
+
+    ret = fscanf_s(f, "%f\n", &savedConditionSteer);
+    if (ret < 1)
+    {
+        printf("player file unable to read condition steer: %s, could be normal if using old savegame\n", filename.c_str());
+        savedConditionSteer = 1.0f;
+    }
+
+    ret = fscanf_s(f, "%u\n", &viewNum);
+    if (ret < 1)
+    {
+        printf("player file unable to read view num: %s, could be normal if using old savegame\n", filename.c_str());
+        viewNum = VIEW_0;
+    }
+
     fclose(f);
     for (unsigned int i = 0; i < strlen(name); i++) if (name[i] == '¤') name[i] = ' ';
     competitor->setName(name);
@@ -351,11 +381,31 @@ void Player::resetVehicle(const irr::core::vector3df& newPos)
         {
             unsigned int penalty = (RESET_PENALTY - (15*Settings::getInstance()->difficulty));
             starter->penaltyTime += penalty;
-            irr::core::stringw str = L"Unfair behaviour!\n\nAdd ";
+            irr::core::stringw str = L"Add ";
             WStringConverter::addTimeToStr(str, penalty);
-            str += L" penality, because of restoring car.";
+            str += L" penality, because of restore the car.";
             MessageManager::getInstance()->addText(str.c_str(), 2);
         }
+    }
+}
+
+void Player::repairVehicle()
+{
+    if (vehicle)
+    {
+        if (starter)
+        {
+            unsigned int penalty = (REPAIR_PENALTY-Settings::getInstance()->difficulty)*vehicle->getDamagePercentage();
+            if (penalty)
+            {
+                starter->penaltyTime += penalty;
+                irr::core::stringw str = L"Add ";
+                WStringConverter::addTimeToStr(str, penalty);
+                str += L" penality, because of repair the car.";
+                MessageManager::getInstance()->addText(str.c_str(), 2);
+            }
+        }
+        vehicle->repair();
     }
 }
 
