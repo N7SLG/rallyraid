@@ -299,8 +299,11 @@ void MenuPageLoadSave::refreshLoadableGames()
     GamePlay::getInstance()->refreshLoadableGames();
     const GamePlay::loadableGames_t& loadableGames = GamePlay::getInstance()->loadableGames;
     unsigned int i = 0;
-    for (GamePlay::loadableGames_t::const_iterator it = loadableGames.begin();
-         it != loadableGames.end();
+    //for (GamePlay::loadableGames_t::const_iterator it = loadableGames.begin();
+    //     it != loadableGames.end();
+    //     it++, i++)
+    for (GamePlay::loadableGames_t::const_reverse_iterator it = loadableGames.rbegin();
+         it != loadableGames.rend();
          it++, i++)
     {
         irr::core::stringw str;

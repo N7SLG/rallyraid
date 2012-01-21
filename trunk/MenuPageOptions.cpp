@@ -37,6 +37,7 @@ MenuPageOptions::MenuPageOptions()
       cbManualShifting(0),
       cbSequentialShifting(0),
       cbLinearSteering(0),
+      cbDamage(0),
       resolutionMap(),
       lastKeyName(0),
       primary(true)
@@ -165,6 +166,18 @@ MenuPageOptions::MenuPageOptions()
         irr::core::recti(irr::core::position2di(FTW+(PADDING*2), line), irr::core::dimension2di(16, 16)),
         tabGame,
         MI_CBLINEARSTEERING);
+
+    line += 20;
+    TheGame::getInstance()->getEnv()->addStaticText(L"Damage",
+        irr::core::recti(irr::core::position2di(PADDING, line), irr::core::dimension2di(FTW, 16)),
+        false,
+        false,
+        tabGame);
+
+    cbDamage = TheGame::getInstance()->getEnv()->addCheckBox(Settings::getInstance()->useDamage,
+        irr::core::recti(irr::core::position2di(FTW+(PADDING*2), line), irr::core::dimension2di(16, 16)),
+        tabGame,
+        MI_CBDAMAGE);
 
     // ----------------------------
     // Graphics
@@ -452,6 +465,10 @@ bool MenuPageOptions::OnEvent(const irr::SEvent &event)
                         Settings::getInstance()->linearSteering = ((irr::gui::IGUICheckBox*)event.GUIEvent.Caller)->isChecked();
                         return true;
                         break;
+                    case MI_CBDAMAGE:
+                        Settings::getInstance()->useDamage = ((irr::gui::IGUICheckBox*)event.GUIEvent.Caller)->isChecked();
+                        return true;
+                        break;
                 };
                 break;
             }
@@ -489,6 +506,7 @@ void MenuPageOptions::refreshGame()
     cbManualShifting->setChecked(Settings::getInstance()->manualGearShifting);
     cbSequentialShifting->setChecked(Settings::getInstance()->sequentialGearShifting);
     cbLinearSteering->setChecked(Settings::getInstance()->linearSteering);
+    cbDamage->setChecked(Settings::getInstance()->useDamage);
 }
 
 void MenuPageOptions::refreshGraphics()

@@ -464,6 +464,7 @@ void TheGame::loop()
                 {
                     eventReceiver->checkEvents();
                     lastEventReceiverTick = eventReceiverTick;
+                    if (!inGame) continue;
                 }
                 /*
                 if (eventReceiver)

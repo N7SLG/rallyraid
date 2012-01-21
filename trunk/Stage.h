@@ -12,6 +12,11 @@
 #include "WayPointManager.h"
 #include "Settings.h"
 
+// use in RaceEngine.cpp when calculate AI speed
+#define DIFFICULTY_SPEED_STEP_DIVIDER   24.f
+
+// use calculate stage time
+//#define DIFFICULTY_SPEED_STEP           7   // 180 km/h / DIFFICULTY_SPEED_STEP_DIVIDER
 
 class Stage
 {
@@ -151,10 +156,26 @@ inline Day* Stage::getParent() const
 
 inline unsigned int Stage::getStageTime() const
 {
-    unsigned int stab = Settings::getInstance()->difficultyStageTimeAdjustment > 0 ? Settings::getInstance()->difficultyStageTimeAdjustment : stageTime / 60;
-    int sta = (Settings::getInstance()->difficulty * stab) - stab;
-    if (stageTime < stab && sta < 0) return stageTime;
-    return stageTime + sta;
+    if (Settings::getInstance()->difficultyStageTimeAdjustment > 0)
+    {
+        unsigned int stab = Settings::getInstance()->difficultyStageTimeAdjustment;
+        int sta = (Settings::getInstance()->difficulty * stab) - stab;
+        if (stageTime < stab && sta < 0) return stageTime;
+        return (stageTime + sta);
+    }
+    else
+    {
+        unsigned int difficultyStageTimeStep = 40; // sec
+        if (!AIPointList.empty() && stageTime)
+        {
+            const float stageSpeed = (AIPointList.back()->getGlobalDistance()/(float)stageTime);
+            const float stageSpeedStep = stageSpeed / DIFFICULTY_SPEED_STEP_DIVIDER;
+            const float desiredSpeed = stageSpeed + stageSpeedStep - (stageSpeedStep*(float)Settings::getInstance()->difficulty);
+            if (desiredSpeed < 0.0001f) return stageTime;
+            return (unsigned int)(AIPointList.back()->getGlobalDistance()/desiredSpeed);
+        }
+        return stageTime;
+    }
 }
 
 inline irr::video::ITexture* Stage::getImage()

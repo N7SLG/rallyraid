@@ -63,6 +63,7 @@ public:
     void lookCenter(bool set); // inline
     void switchToNextView(); // inline
     void resetVehicle(const irr::core::vector3df& newPos);
+    void repairVehicle();
 
     float getDistance() const; // inline
     void resetDistance(); // inline
@@ -123,6 +124,8 @@ private:
     irr::core::vector3df savedPos;
     irr::core::vector3df savedRot;
     float           savedSpeed;
+    float           savedCondition;
+    float           savedConditionSteer;
 
     ItinerManager::itinerPointList_t::const_iterator prevItinerIt;
     ItinerManager::itinerPointList_t::const_iterator currItinerIt;

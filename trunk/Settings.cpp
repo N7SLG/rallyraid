@@ -56,7 +56,8 @@ Settings::Settings()
       AIPlayer(false),
       desktopResolution(true),
       generatePreImages(false),
-      linearSteering(false)
+      linearSteering(false),
+      useDamage(true)
 {
     read();
 }
@@ -196,6 +197,9 @@ void Settings::read()
             } else if (keyName == "linear_steering")
             {
                 linearSteering = StringConverter::parseBool(valName, false);
+            } else if (keyName == "use_damage")
+            {
+                useDamage = StringConverter::parseBool(valName, true);
             }
         }
     }
@@ -247,6 +251,7 @@ void Settings::write()
     ret = fprintf(f, "desktop_resolution=%s\n", desktopResolution?"yes":"no");
     ret = fprintf(f, "generate_pre_images=%s\n", generatePreImages?"yes":"no");
     ret = fprintf(f, "linear_steering=%s\n", linearSteering?"yes":"no");
+    ret = fprintf(f, "use_damage=%s\n", useDamage?"yes":"no");
 
     fclose(f);
 }
