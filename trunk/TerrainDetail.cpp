@@ -10,6 +10,8 @@
 #include "Settings.h"
 #include "stdafx.h"
 #include "RaceManager.h"
+#include "RoadManager.h"
+#include "Road.h"
 
 
 #include <string.h>
@@ -58,6 +60,35 @@ const static float m[4][4] =
     {1.0f/6.0f,  3.0f/6.0f,  3.0f/6.0f, -3.0f/6.0f},
     {     0.0f,       0.0f,       0.0f,  1.0f/6.0f}
 };
+
+char* TerrainDetail::adjustMap = 0;
+float* TerrainDetail::adjustMap2 = 0;
+
+void TerrainDetail::initialize()
+{
+    if (!adjustMap)
+    {
+        adjustMap = new char[TILE_DETAIL_POINTS_NUM*TILE_DETAIL_POINTS_NUM];
+    }
+    if (!adjustMap2)
+    {
+        adjustMap2 = new float[TILE_DETAIL_POINTS_NUM*TILE_DETAIL_POINTS_NUM];
+    }
+}
+
+void TerrainDetail::finalize()
+{
+    if (adjustMap)
+    {
+        delete [] adjustMap;
+        adjustMap = 0;
+    }
+    if (adjustMap2)
+    {
+        delete [] adjustMap2;
+        adjustMap2 = 0;
+    }
+}
 
 TerrainDetail::TerrainDetail(const irr::core::vector3di& posi, TheEarth* earth)
     : Terrain("detail"),
@@ -396,9 +427,48 @@ void TerrainDetail::load(TheEarth* earth)
             terrain->getPosition().Z <= it->pos.Z && it->pos.Z <= terrain->getPosition().Z+TILE_SIZE_F)
         {
             //printf("++++find HM add++++\n");
-            add(abs((int)(it->pos.X/TILE_DETAIL_SCALE_F)-offsetX), abs((int)(it->pos.Z/TILE_DETAIL_SCALE_F)-offsetY), it->pos.Y);
+            int x = /*abs*/((int)(it->pos.X/TILE_DETAIL_SCALE_F)-offsetX);
+            int y = /*abs*/((int)(it->pos.Z/TILE_DETAIL_SCALE_F)-offsetY);
+            assert(x>0);
+            assert(y>0);
+            add(x, y, it->pos.Y);
         }
     }
+
+    // road heightModifiers
+    {
+        memset(adjustMap, 0, TILE_DETAIL_POINTS_NUM*TILE_DETAIL_POINTS_NUM*sizeof(char));
+
+        /*
+            non-fix road:
+                - adjust the height at the road points and their radius
+
+            fix road:
+                1. mark and adjust road points
+                2. average the road points and write
+                3. adjust radius points
+        */
+
+        firstPassRoad();
+        secondPassRoad();
+        thirdPassRoad();
+
+        /*
+        FILE* f = fopen("terrain_detail.txt", "w");
+        assert(f);
+        for (int yy = 0, fy = 0;
+             yy < TILE_DETAIL_POINTS_NUM;
+             yy++, fy += TILE_DETAIL_POINTS_NUM)
+        {
+            for (int xx = 0; xx < TILE_DETAIL_POINTS_NUM; xx++)
+            {
+                fprintf(f, "[%hu]", adjustMap[xx+fy]);
+            }
+            fprintf(f, "\n");
+        }
+        fclose(f);
+        */
+    } // end road HM
 
     terrain->loadHeightMap(this, offsetX, offsetY, TILE_DETAIL_POINTS_NUM+1/*, image*/);
     if (!image)
@@ -418,3 +488,183 @@ void TerrainDetail::load(TheEarth* earth)
     postLoad();
 }
 
+void TerrainDetail::firstPassRoad()
+{
+    // first pass:
+    //      - non-fix road adjust (radius)
+    //      - fix road adjust and mark only road point
+    for (roadRoadChunkSet_t::const_iterator it = RoadManager::getInstance()->getVisibleRoadChunkSet().begin();
+            it != RoadManager::getInstance()->getVisibleRoadChunkSet().end();
+            it++)
+    {
+        //printf("%p: r: %u, hm: %f\n", it->road, it->road->getHMRadius(), it->road->getHM());
+        if (it->road->getHMRadius() && (fabsf(it->road->getHM()) > 0.0001f || it->road->getHMFix()))
+        {
+            const int radius = (int)it->road->getHMRadius();
+            for (unsigned int i = it->roadChunk.first; i < it->roadChunk.second; i++)
+            {
+                vector3dd pos = it->road->getRoadPointVector()[i].p;
+                const int x = /*abs*/((int)((pos.X/TILE_DETAIL_SCALE_F)+0.5f)-offsetX);
+                const int y = /*abs*/((int)((pos.Z/TILE_DETAIL_SCALE_F)-0.5f)-offsetY);
+
+                if (!it->road->getHMFix())
+                {
+                    for (int yy = y - radius, fy = TILE_DETAIL_POINTS_NUM*(y-radius);
+                            yy <= y + radius;
+                            yy++, fy += TILE_DETAIL_POINTS_NUM)
+                    {
+                        for (int xx = x - radius; xx <= x + radius; xx++)
+                        {
+                            //unsigned int dist = abs(xx-x) + abs(yy-y);
+                            if (0 <= xx && xx < TILE_DETAIL_POINTS_NUM &&
+                                0 <= yy && yy < TILE_DETAIL_POINTS_NUM &&
+                                adjustMap[xx+fy]==0)
+                            {
+                                add(xx, yy, it->road->getHM());
+                                adjustMap[xx+fy] = 1 /*+ dist*/;
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    if (0 <= x && x < TILE_DETAIL_POINTS_NUM &&
+                        0 <= y && y < TILE_DETAIL_POINTS_NUM &&
+                        adjustMap[x+(y*TILE_DETAIL_POINTS_NUM)]==0)
+                    {
+                        add(x, y, it->road->getHM());
+                        adjustMap[x+(y*TILE_DETAIL_POINTS_NUM)] = 1 /*+ dist*/;
+                        adjustMap2[x+(y*TILE_DETAIL_POINTS_NUM)] = get(x, y) /*+ dist*/;
+                    }
+                }
+            }
+        }
+    }
+}
+
+void TerrainDetail::secondPassRoad()
+{
+    // secons pass, only fix roads: adjust the radius non road points
+    for (roadRoadChunkSet_t::const_iterator it = RoadManager::getInstance()->getVisibleRoadChunkSet().begin();
+            it != RoadManager::getInstance()->getVisibleRoadChunkSet().end();
+            it++)
+    {
+        //printf("%p: r: %u, hm: %f\n", it->road, it->road->getHMRadius(), it->road->getHM());
+        if (it->road->getHMRadius() && (fabsf(it->road->getHM()) > 0.0001f || it->road->getHMFix()))
+        {
+            const int radius = (int)it->road->getHMRadius();
+            for (unsigned int i = it->roadChunk.first; i < it->roadChunk.second; i++)
+            {
+                vector3dd pos = it->road->getRoadPointVector()[i].p;
+                const int x = /*abs*/((int)((pos.X/TILE_DETAIL_SCALE_F)+0.5f)-offsetX);
+                const int y = /*abs*/((int)((pos.Z/TILE_DETAIL_SCALE_F)-0.5f)-offsetY);
+
+                if (it->road->getHMFix())
+                {
+                    if (0 <= x && x < TILE_DETAIL_POINTS_NUM &&
+                        0 <= y && y < TILE_DETAIL_POINTS_NUM &&
+                        adjustMap[x+(y*TILE_DETAIL_POINTS_NUM)]==1)
+                    {
+                        float avg = getRoadAverage2(x, y, radius*2);
+                        set(x, y, avg);
+                        adjustMap[x+(y*TILE_DETAIL_POINTS_NUM)] = 2 /*+ dist*/;
+                    }
+                }
+            }
+        }
+    }
+}
+
+void TerrainDetail::thirdPassRoad()
+{
+    // secons pass, only fix roads: adjust the radius non road points
+    for (roadRoadChunkSet_t::const_iterator it = RoadManager::getInstance()->getVisibleRoadChunkSet().begin();
+            it != RoadManager::getInstance()->getVisibleRoadChunkSet().end();
+            it++)
+    {
+        //printf("%p: r: %u, hm: %f\n", it->road, it->road->getHMRadius(), it->road->getHM());
+        if (it->road->getHMRadius() && (fabsf(it->road->getHM()) > 0.0001f || it->road->getHMFix()))
+        {
+            const int radius = (int)it->road->getHMRadius();
+            for (unsigned int i = it->roadChunk.first; i < it->roadChunk.second; i++)
+            {
+                vector3dd pos = it->road->getRoadPointVector()[i].p;
+                const int x = /*abs*/((int)((pos.X/TILE_DETAIL_SCALE_F)+0.5f)-offsetX);
+                const int y = /*abs*/((int)((pos.Z/TILE_DETAIL_SCALE_F)-0.5f)-offsetY);
+
+                if (it->road->getHMFix())
+                {
+                    for (int yy = y - radius, fy = TILE_DETAIL_POINTS_NUM*(y-radius);
+                            yy <= y + radius;
+                            yy++, fy += TILE_DETAIL_POINTS_NUM)
+                    {
+                        for (int xx = x - radius; xx <= x + radius; xx++)
+                        {
+                            //unsigned int dist = abs(xx-x) + abs(yy-y);
+                            if (0 <= xx && xx < TILE_DETAIL_POINTS_NUM &&
+                                0 <= yy && yy < TILE_DETAIL_POINTS_NUM &&
+                                adjustMap[xx+fy]==0)
+                            {
+                                float avg = getRoadAverage(xx, yy, radius);
+                                set(xx, yy, avg);
+                                adjustMap[xx+fy] = 3 /*+ dist*/;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+float TerrainDetail::getRoadAverage(int x, int y, int radius)
+{
+    float balance = 0.0f;
+    float sum = 0.0f;
+
+    for (int yy = y - radius, fy = TILE_DETAIL_POINTS_NUM*(y-radius);
+            yy <= y + radius;
+            yy++, fy += TILE_DETAIL_POINTS_NUM)
+    {
+        for (int xx = x - radius; xx <= x + radius; xx++)
+        {
+            if (0 <= xx && xx < TILE_DETAIL_POINTS_NUM &&
+                0 <= yy && yy < TILE_DETAIL_POINTS_NUM &&
+                adjustMap[xx+fy]==2 /* average road */)
+            {
+                const unsigned int dist = (abs(xx-x) + abs(yy-y));
+                assert(dist);
+                const float distf = 1 / (float)dist;
+
+                sum += get(xx, yy)*distf;
+                balance += distf;
+            }
+        }
+    }
+
+    return (balance > 0.0001) ? (sum / balance) : get(x, y);
+}
+
+float TerrainDetail::getRoadAverage2(int x, int y, int radius)
+{
+    float balance = 0.0f;
+    float sum = 0.0f;
+
+    for (int yy = y - radius, fy = TILE_DETAIL_POINTS_NUM*(y-radius);
+            yy <= y + radius;
+            yy++, fy += TILE_DETAIL_POINTS_NUM)
+    {
+        for (int xx = x - radius; xx <= x + radius; xx++)
+        {
+            if (0 <= xx && xx < TILE_DETAIL_POINTS_NUM &&
+                0 <= yy && yy < TILE_DETAIL_POINTS_NUM &&
+                (adjustMap[xx+fy]==1 || adjustMap[xx+fy]==2 /* road */))
+            {
+                sum += adjustMap2[xx+fy];
+                balance += 1.f;
+            }
+        }
+    }
+
+    return (balance > 0.0001) ? (sum / balance) : get(x, y);
+}

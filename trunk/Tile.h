@@ -173,6 +173,16 @@ private:
         adjusted[pos/8] |= (0x1 << (pos%8));
     }
 
+/*    bool getAdjustedHeight(unsigned int pos) const
+    {
+        return (adjustedHeight[pos/8] & (0x1 << (pos%8))) == (0x1 << (pos%8));
+    }
+
+    void setAdjustedHeight(unsigned int pos)
+    {
+        adjustedHeight[pos/8] |= (0x1 << (pos%8));
+    }
+*/
 public:
     bool getInUse() const {return inUse;}
     bool isInUse() const {return inUse;}
@@ -201,6 +211,7 @@ private:
     irr::video::SColor* fineColors;
     irr::video::SColor* fineDensity;
     unsigned char*      adjusted;
+//    unsigned char*      adjustedHeight;
     
     roadRoadChunkList_t roadRoadChunkList;
 

@@ -7,7 +7,7 @@
 #define TILE_FINE_SCALE         4 //2
 #define TILE_FINE_RATE          (TILE_SCALE / TILE_FINE_SCALE)
 #define TILE_FINE_POINTS_NUM    (TILE_POINTS_NUM * TILE_FINE_RATE)
-#define TILE_DETAIL_SCALE       16 // 8
+#define TILE_DETAIL_SCALE       16 // 16 // 8
 #define TILE_DETAIL_RATE        (TILE_SCALE / TILE_DETAIL_SCALE)
 #define TILE_DETAIL_FINE_RATE   (TILE_DETAIL_SCALE / TILE_FINE_SCALE)
 #define TILE_DETAIL_POINTS_NUM  (TILE_POINTS_NUM * TILE_DETAIL_RATE)
@@ -16,7 +16,7 @@
 #define TILE_SCALE_F            64.f
 #define TILE_FINE_SCALE_F       4.f //2.f
 #define TILE_FINE_RATE_F        (TILE_SCALE_F / TILE_FINE_SCALE_F)
-#define TILE_DETAIL_SCALE_F     16.f //8.f
+#define TILE_DETAIL_SCALE_F     16.f // 16.f //8.f
 #define TILE_DETAIL_RATE_F      (TILE_SCALE_F / TILE_DETAIL_SCALE_F)
 #define TILE_SIZE_F             ((float)TILE_POINTS_NUM * TILE_SCALE_F)
 #define TILE_HSIZE_F            (TILE_SIZE_F * 0.5f)

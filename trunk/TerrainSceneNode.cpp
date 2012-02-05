@@ -26,10 +26,14 @@
 #include "IMesh.h"
 #include "IImage.h"
 
+#include <IrrlichtDevice.h>
+#include "TheGame.h"
 #include "TheEarth.h"
 #include "TerrainDetail.h"
 #include "TerrainLarge.h"
 #include <assert.h>
+
+//time: extern void addRunTime2(unsigned int time);
 
 namespace irr
 {
@@ -53,7 +57,7 @@ namespace scene
 	CameraMovementDelta(10.0f), CameraRotationDelta(1.0f),CameraFOVDelta(0.1f),
 	TCoordScale1(1.0f), TCoordScale2(1.0f), FileSystem(fs)/*, texture(0), image(0)*/, type(0)
 	{
-        //printf("TerrainSceneNode: ctor\n");
+        //printf("TerrainSceneNode: ctor: %p\n", this);
 		#ifdef _DEBUG
 		setDebugName("TerrainSceneNode");
 		#endif
@@ -1126,10 +1130,27 @@ namespace scene
 		if (!IsVisible || !SceneManager->getActiveCamera())
 			return;
 
+        //if (ForceRecalculation) printf("onreg force: %p\n", this);
+
 		preRenderLODCalculations();
 		preRenderIndicesCalculations();
 		ISceneNode::OnRegisterSceneNode();
 		ForceRecalculation = false;
+	}
+
+	void TerrainSceneNode::OnRegisterSceneNode2()
+	{
+        //printf("onreg2: %d\n", IsVisible);
+		if (/*!IsVisible || */!SceneManager->getActiveCamera())
+			return;
+
+		video::IVideoDriver* driver = SceneManager->getVideoDriver();
+
+		preRenderLODCalculations();
+		preRenderIndicesCalculations();
+        //driver->preloadMeshBuffer(RenderBuffer);
+		ForceRecalculation = false;
+        //printf("onreg2: %d %p\n", IsVisible, this);
 	}
 
 
@@ -1289,12 +1310,15 @@ namespace scene
 
 		RenderBuffer->getIndexBuffer().set_used(IndicesToRender);
 
+        //time: unsigned int btime = TheGame::getInstance()->getDevice()->getTimer()->getRealTime();
 		// For use with geomorphing
 		driver->drawMeshBuffer(RenderBuffer);
+        //time: addRunTime2(TheGame::getInstance()->getDevice()->getTimer()->getRealTime() - btime);
 
 		RenderBuffer->getIndexBuffer().set_used(RenderBuffer->getIndexBuffer().allocated_size());
 
 		// for debug purposes only:
+#if 0
 		if (DebugDataVisible)
 		{
 			video::SMaterial m;
@@ -1356,7 +1380,7 @@ namespace scene
 				}
 				driver->setTransform(video::ETS_WORLD, AbsoluteTransformation);
 			}
-#if 0
+
 			static u32 lastTime = 0;
 
 			const u32 now = os::Timer::getRealTime();
@@ -1368,8 +1392,8 @@ namespace scene
 
 				lastTime = now;
 			}
+		}
 #endif // 0
-        }
 	}
 
 

@@ -57,6 +57,7 @@ public:
     bool                    generatePreImages;
     bool                    linearSteering;
     bool                    useDamage;
+    bool                    fpsStepAdd;
 };
 
 #endif // SETTINGS_H

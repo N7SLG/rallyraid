@@ -8,6 +8,7 @@
 #include "OffsetManager.h"
 #include "TheEarth.h"
 #include "TheGame.h"
+#include "StringConverter.h"
 
 #include "stdafx.h"
 #include <assert.h>
@@ -18,6 +19,9 @@ Road::Road(const std::string& roadFilename, bool& ret, bool global, bool read)
       roadName(),
       roadDataFilename(),
       roadType(0),
+      HMRadius(0),
+      HM(0.0f),
+      HMFix(false),
       loaded(false),
       global(global),
       roadPointVector(),
@@ -35,11 +39,17 @@ Road::Road(const std::string&   roadFilename,
            const std::string&   roadName,
            const std::string&   roadDataFilename,
            RoadType*            roadType,
+           unsigned int         HMRadius,
+           float                HM,
+           bool                 HMFix,
            bool                 global)
     : roadFilename(roadFilename),
       roadName(roadName),
       roadDataFilename(roadDataFilename),
       roadType(roadType),
+      HMRadius(HMRadius),
+      HM(HM),
+      HMFix(HMFix),
       global(global),
       roadPointVector(),
       firstSaved(-1),
@@ -82,6 +92,15 @@ bool Road::readHeader()
             } else if (keyName == "data")
             {
                 roadDataFilename = valName;
+            } else if (keyName == "hm_radius")
+            {
+                HMRadius = StringConverter::parseUnsignedInt(valName, 0);
+            } else if (keyName == "hm")
+            {
+                HM = StringConverter::parseFloat(valName, 0.0f);
+            } else if (keyName == "hm_fix")
+            {
+                HMFix = StringConverter::parseBool(valName, false);
             }
         }
     }
@@ -108,6 +127,9 @@ bool Road::writeHeader()
     ret = fprintf(f, "name=%s\n", roadName.c_str());
     ret = fprintf(f, "type=%s\n", roadType->getName().c_str());
     ret = fprintf(f, "data=%s\n", roadDataFilename.c_str());
+    ret = fprintf(f, "hm_radius=%u\n", HMRadius);
+    ret = fprintf(f, "hm=%f\n", HM);
+    ret = fprintf(f, "hm_fix=%s\n", HMFix?"yes":"no");
 
     fclose(f);
     return true;

@@ -118,6 +118,7 @@ private:
 
         float speed = 0.0f;
         MySound* sound = hitSound;
+        bool terrain = false;
         if (otherBody->hasProperty(hk::materialType::vehicleId))
         {
             if (otherBody->areContactListenersAdded())
@@ -128,6 +129,7 @@ private:
         else if (otherBody->hasProperty(hk::materialType::terrainId))
         {
             sound = hitSoundGround;
+            terrain = true;
         }
 
         if (otherVehicle)
@@ -179,6 +181,11 @@ private:
             normalizeAngle180(angle);
             angle = fabsf(angle);
             float damage = speed / 1000.f;
+
+            if (terrain)
+            {
+                damage *= 0.1f;
+            }
 
             if (angle < 45.f)
             {
@@ -1319,7 +1326,7 @@ void Vehicle::updateToMatrix()
 void Vehicle::updateAngle()
 {
     soundPosAdjustment = rot.rotationToDirection(irr::core::vector3df(2.0f, 0.0f, 0.0f));
-    angle = irr::core::vector2df(soundPosAdjustment.X, soundPosAdjustment.Z).getAngle();
+    angle = (float)irr::core::vector2df(soundPosAdjustment.X, soundPosAdjustment.Z).getAngle();
 }
 
 void Vehicle::setSteer(float value)

@@ -399,10 +399,12 @@ void TheGame::readSettings(irr::SIrrlichtCreationParameters& params)
     //assert(0);
     if (Settings::getInstance()->editorMode == false && (params.WindowSize.Width < 1280 || params.WindowSize.Height < 768))
     {
-         PrintMessage(3, "Your current resolution (%ux%u) is lower then 1280x768!\nThe game was not tested on this resolution!",
+         PrintMessage(3, "Your current resolution (%ux%u) is lower than 1280x768!\nThe game was not tested on this resolution!",
              Settings::getInstance()->resolutionX, Settings::getInstance()->resolutionY);
     }
 }
+
+// time: extern void addRunTime(unsigned int time);
 
 void TheGame::loop()
 {
@@ -579,7 +581,7 @@ void TheGame::loop()
                             str += L"0";
                         }
                         str += L"     FPS speed: ";
-                        str += (int)(getFPSSpeed()*(1.0f / Settings::getInstance()->fpsStep));
+                        str += (int)(getFPSSpeed()*(100.0f / Settings::getInstance()->fpsStep));
                         
                         hud->getEditorText()->setText(str.c_str());
                     }
@@ -622,7 +624,9 @@ void TheGame::loop()
             //earth->registerVisual();
             hud->preRender(cameraAngle);
             //printf("scene mgr drawAll\n");
-            smgr->drawAll();
+            //unsigned int btime = device->getTimer()->getRealTime();
+            smgr->drawAllSimple();
+            // time: addRunTime(smgr->getMyDebugTime());
             //printf("menu and env render\n");
             messageManager->updateText(tick);
             if (Settings::getInstance()->editorMode)
@@ -729,6 +733,7 @@ void TheGame::switchCamera()
     smgr->setActiveCamera(camera);
     camera->setPosition(pos);
     camera->setTarget(tar);
+    camera->updateAbsolutePosition();
     if (cameraOffsetObject) cameraOffsetObject->setNode(camera);
 }
 
@@ -753,10 +758,20 @@ void TheGame::setFPSSpeed(float speed)
 void TheGame::incFPSSpeed()
 {
     float fpsSpeed = getFPSSpeed();
-    fpsSpeed += Settings::getInstance()->fpsStep;
-    if (fpsSpeed > 2.0f)
+    if (Settings::getInstance()->fpsStepAdd)
     {
-        fpsSpeed = 2.0f;
+        fpsSpeed += Settings::getInstance()->fpsStep;
+        if (fpsSpeed > 2.0f)
+        {
+            fpsSpeed = 2.0f;
+        }
+    }
+    else
+    {
+        if (fpsSpeed < 2.0f)
+        {
+            fpsSpeed *= 1.25f;
+        }
     }
     setFPSSpeed(fpsSpeed);
 }
@@ -764,10 +779,17 @@ void TheGame::incFPSSpeed()
 void TheGame::decFPSSpeed()
 {
     float fpsSpeed = getFPSSpeed();
-    fpsSpeed -= Settings::getInstance()->fpsStep;
-    if (fpsSpeed < Settings::getInstance()->fpsStep)
+    if (Settings::getInstance()->fpsStepAdd)
     {
-        fpsSpeed = Settings::getInstance()->fpsStep;
+        fpsSpeed -= Settings::getInstance()->fpsStep;
+        if (fpsSpeed < Settings::getInstance()->fpsStep)
+        {
+            fpsSpeed = Settings::getInstance()->fpsStep;
+        }
+    }
+    else
+    {
+        fpsSpeed *= 0.8f;
     }
     setFPSSpeed(fpsSpeed);
 }

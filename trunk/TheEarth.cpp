@@ -212,6 +212,7 @@ irr::video::SColor TheEarth::baseColor;
 
 void TheEarth::initialize()
 {
+    TerrainDetail::initialize();
     if (theEarth == 0)
     {
         theEarth = new TheEarth();
@@ -225,6 +226,7 @@ void TheEarth::finalize()
         delete theEarth;
         theEarth = 0;
     }
+    TerrainDetail::finalize();
 }
     
     
@@ -1064,6 +1066,35 @@ void TheEarth::createFirst(const irr::core::vector3df& apos, const irr::core::ve
 
 }
 
+#if 0
+// time:
+static std::list<unsigned int> runTimes;
+static bool printTimes = false;
+static unsigned int lastTime = 0;
+void addRunTime2(unsigned int time)
+{
+    runTimes.push_back(time/*-lastTime*/);
+    //lastTime = time;
+    if (runTimes.size() > 50) runTimes.pop_front();
+}
+
+void addRunTime(unsigned int time)
+{
+    addRunTime2(time);
+    if (printTimes)
+    {
+        printf("run times: ");
+        for (std::list<unsigned int>::const_iterator it = runTimes.begin(); it != runTimes.end(); it++)
+        {
+            printf("%u ", *it);
+        }
+        printf("\n");
+        runTimes.clear();
+        printTimes = false;
+    }
+}
+#endif // time: 0 v 1
+
 void TheEarth::update(const irr::core::vector3df& apos, const irr::core::vector3df& dir)
 {
     //return;
@@ -1081,13 +1112,31 @@ void TheEarth::update(const irr::core::vector3df& apos, const irr::core::vector3
     else if (newReadyVisualPart)
     {
         dprintf(MY_DEBUG_NOTE, "switch to new, set visible true ... \n");
+        
+        //unsigned int oTime = TheGame::getInstance()->getDevice()->getTimer()->getRealTime();
+        //printf("delete: %u\n", oTime-lastTime);
+        
         delete visualPart;
         //TheGame::getInstance()->getDriver()->removeAllHardwareBuffers();
         visualPart = newReadyVisualPart;
         newReadyVisualPart = 0;
+        
+        //unsigned int nTime = TheGame::getInstance()->getDevice()->getTimer()->getRealTime();
+        //printf("set visible: %u\n", nTime-oTime);
+        //oTime = nTime;
+        
         visualPart->setVisible(true);
+
+        //nTime = TheGame::getInstance()->getDevice()->getTimer()->getRealTime();
+        //printf("road switch to new: %u\n", nTime-oTime);
+        //oTime = nTime;
+        
         RoadManager::getInstance()->switchToNewVisual();
         dprintf(MY_DEBUG_NOTE, "switch to new, set visible true ... done\n");
+        
+        //nTime = TheGame::getInstance()->getDevice()->getTimer()->getRealTime();
+        //printf("end: %u\n", nTime-oTime);
+        //printTimes = true;
         
         return;
     }
@@ -1143,7 +1192,7 @@ void TheEarth::run()
 
 void TheEarth::registerVisual()
 {
-    //assert(0);
+    assert(0);
     if (visualPart)
     {
         visualPart->registerMembers();

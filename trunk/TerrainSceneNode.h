@@ -130,6 +130,8 @@ namespace scene
 		//! generated for that patch.
 		virtual void OnRegisterSceneNode();
 
+		void OnRegisterSceneNode2();
+
 		//! Render the scene node
 		virtual void render();
 

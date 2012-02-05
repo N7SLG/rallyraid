@@ -7,12 +7,19 @@
 #include "StringConverter.h"
 #include <assert.h>
 
+
+float AIPoint::editorSpeed = 0.0f;
+
 AIPoint::AIPoint(const irr::core::vector3df& apos,
         float globalDistance,
-        float localDistance)
+        float localDistance,
+        float speed,
+        unsigned int time)
     : ObjectWireGlobalObject(0, apos),
       globalDistance(globalDistance),
-      localDistance(localDistance)
+      localDistance(localDistance),
+      speed(speed),
+      time(time)
 {
 }
 
@@ -80,6 +87,8 @@ void AIPoint::updateVisible()
     while (seci.hasMoreElements())
     {
         irr::core::vector3df apos;
+        float speed = 0.0f;
+        unsigned int time = 0;
 
         secName = seci.peekNextKey();
         dprintf(MY_DEBUG_NOTE, "\tSection: %s\n", secName.c_str());
@@ -94,6 +103,14 @@ void AIPoint::updateVisible()
             if (keyName == "pos")
             {
                 StringConverter::parseFloat3(valName, apos.X, apos.Y, apos.Z);
+            }
+            else if (keyName == "speed")
+            {
+                speed = StringConverter::parseFloat(valName, 0.0f);
+            }
+            else if (keyName == "time")
+            {
+                time = StringConverter::parseUnsignedInt(valName, 0);
             }
         }
 
@@ -110,7 +127,7 @@ void AIPoint::updateVisible()
             }
             globalDistance += localDistance;
             lastPos = apos;
-            AIPoint* aiPoint = new AIPoint(apos, globalDistance, localDistance);
+            AIPoint* aiPoint = new AIPoint(apos, globalDistance, localDistance, speed, time);
             AIPointList.push_back(aiPoint);
         }
     }
@@ -163,6 +180,8 @@ void AIPoint::updateVisible()
         fprintf_s(f, "[%s%u]\n", fillZero, id);
 
         fprintf_s(f, "pos=%f %f %f\n", (*it)->getPos().X, (*it)->getPos().Y, (*it)->getPos().Z);
+        fprintf_s(f, "speed=%f\n", (*it)->getSpeed());
+        fprintf_s(f, "time=%u\n", (*it)->getTime());
 
         id++;
     }

@@ -577,7 +577,8 @@ bool MenuPageEditor::OnEvent(const irr::SEvent &event)
                         break;
                     case MI_BUTTONCREATEROAD:
                     {
-                        dprintf(MY_DEBUG_NOTE, "editor::newRoad\n");
+                        dprintf(MY_DEBUG_NOTE, "editor::newRoad: NYI\n");
+                        /*
                         std::string roadName;
                         std::string roadFilename;
                         std::string roadDataFilename;
@@ -599,6 +600,7 @@ bool MenuPageEditor::OnEvent(const irr::SEvent &event)
                                 roadName.c_str(), 
                                 RoadTypeManager::getInstance()->editorRoadType?RoadTypeManager::getInstance()->editorRoadType->name.c_str():"<empty>");
                         }
+                        */
                         return true;
                         break;
                     }
@@ -1683,7 +1685,7 @@ void MenuPageEditor::actionP()
                     ld = lastPos.getDistanceFrom(apos);
                     gd = ld + RaceManager::getInstance()->editorStage->AIPointList.back()->getGlobalDistance();
                 }
-                AIPoint* aip = new AIPoint(apos, gd ,ld);
+                AIPoint* aip = new AIPoint(apos, gd ,ld, AIPoint::editorSpeed, 0);
                 RaceManager::getInstance()->editorStage->AIPointList.push_back(aip);
                 refreshSelected();
             }

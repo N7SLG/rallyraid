@@ -38,6 +38,7 @@ private:
         CLUTCH,
         PHYSICS,
         FPS_CAMERA,
+        SWITCH_HUD,
         LOOK_LEFT,
         LOOK_RIGHT,
         CHANGE_VIEW,
