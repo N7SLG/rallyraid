@@ -12,6 +12,7 @@ class VehicleTypeManager;
 class VehicleManager;
 class MySoundEngine;
 class ObjectWire;
+class ObjectWireNear;
 class Player;
 class RaceManager;
 class MenuManager;
@@ -97,6 +98,7 @@ private:
     VehicleManager*                 vehicleManager;
     MySoundEngine*                  soundEngine;
     ObjectWire*                     objectWire;
+    ObjectWireNear*                 objectWireNear;
     Player*                         player;
     RaceManager*                    raceManager;
     MenuManager*                    menuManager;

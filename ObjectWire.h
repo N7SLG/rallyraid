@@ -14,7 +14,7 @@ class ObjectWireGlobalObject;
 class ObjectWireTile : public OffsetObjectUpdateCB, public irr::scene::ISceneNode
 {
 private:
-    ObjectWireTile(const irr::core::vector2df& apos, const irr::core::vector2di& rpos);
+    ObjectWireTile(const irr::core::vector2df& apos, const irr::core::vector2di& rpos, bool _near);
     ~ObjectWireTile();
 
     virtual void render() {}
@@ -29,9 +29,11 @@ private:
     irr::core::aabbox3d<irr::f32>   bbox;
     OffsetObject*               offsetObject;
     std::list<OffsetObject*>    objectList;
+    bool                        _near;
 
 
     friend class ObjectWire;
+    friend class ObjectWireNear;
     friend class MenuPageEditor;
 };
 
@@ -71,6 +73,33 @@ private:
     irr::core::vector2di    lastWireCenter;
    // devided by objectWireSize
     globalObjectWire_t      globalObjectWire;
+
+
+    friend class MenuPageEditor;
+};
+
+class ObjectWireNear
+{
+public:
+    static void initialize();
+    static void finalize();
+    static ObjectWireNear* getInstance() {return objectWireNear;}
+private:
+    static ObjectWireNear* objectWireNear;
+
+public:
+    ObjectWireNear();
+    ~ObjectWireNear();
+    
+    // called by TheGame::loop()
+    bool update(const irr::core::vector3df& newPos, bool force = false);
+    
+    // called by GamePlay::startGame()
+    void reset();
+
+private:
+    ObjectWireTile**        tiles;
+    irr::core::vector2di    lastWireCenter;
 
 
     friend class MenuPageEditor;

@@ -17,7 +17,8 @@ ObjectPool::ObjectPool(const std::string& name,
                        bool physics, ObjectType objectType,
                        const std::string& materialName, const std::string& material2Name,
                        unsigned int num, unsigned int category, float friction, float mass,
-                       const irr::core::vector3df& center)
+                       const irr::core::vector3df& center,
+                       bool _near)
     : name(name),
       objectList(),
       objectMesh(0),
@@ -34,7 +35,8 @@ ObjectPool::ObjectPool(const std::string& name,
       center(center),
       num(num),
       inUse(0),
-      receiveShadow(false)
+      receiveShadow(false),
+      _near(_near)
 {
     if (textureFilename != "")
     {

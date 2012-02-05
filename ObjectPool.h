@@ -45,7 +45,7 @@ public:
         bool physics, ObjectType objectType,
         const std::string& materialName, const std::string& material2Name,
         unsigned int num, unsigned int category,
-        float friction, float mass, const irr::core::vector3df& center);
+        float friction, float mass, const irr::core::vector3df& center, bool _near);
     ~ObjectPool();
 
     OffsetObject* getObject(const irr::core::vector3df& apos, const irr::core::vector3df& scale = irr::core::vector3df(1.0f, 1.0f, 1.0f), const irr::core::vector3df& rot = irr::core::vector3df(), bool addToOffsetManager = true);
@@ -53,10 +53,11 @@ public:
 
     OffsetObject* createNewInstance();
     
-    int getCategory() {return category;}
-    unsigned int getNum() {return num;}
-    const std::string& getName() {return name;}
-    float getMass() {return mass;}
+    int getCategory() const {return category;}
+    unsigned int getNum() const {return num;}
+    const std::string& getName() const {return name;}
+    float getMass() const {return mass;}
+    bool getNear() const {return _near;}
     
     // read mso object, which is my format can be edited by a simple text editor
     static irr::scene::SAnimatedMesh* readMySimpleObject(const std::string& meshFilename, float scale = 1.0f);
@@ -91,7 +92,7 @@ private:
     
     unsigned int                inUse;
     bool                        receiveShadow;
-    
+    bool                        _near;
     
     friend class MenuPageEditor;
 };

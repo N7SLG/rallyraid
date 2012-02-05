@@ -329,6 +329,7 @@ void GamePlay::startStage(Stage* stage, VehicleType* vehicleType, const irr::cor
     }
 
     ObjectWire::getInstance()->reset();
+    ObjectWireNear::getInstance()->reset();
     Player::getInstance()->finalizeVehicle();
     OffsetManager::getInstance()->reset();
     TheGame::getInstance()->reset(initialPos, initialDir);
