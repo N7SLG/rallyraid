@@ -5,6 +5,7 @@
 #include <string>
 #include <set>
 #include <map>
+#include <list>
 #include <irrlicht.h>
 
 class ObjectPool;
@@ -19,6 +20,7 @@ public:
     static ObjectPoolManager* getInstance() {return objectPoolManager;}
 
     typedef std::map<std::string, ObjectPool*> objectPoolMap_t;
+    typedef std::list<ObjectPool*> objectPoolList_t;
     typedef std::set<irr::scene::ISceneNode*> sceneNodeSet_t;
 
 private:
@@ -39,12 +41,17 @@ public:
     void putObject(OffsetObject* offsetObject);
     
     const objectPoolMap_t& getObjectPoolMap() const; // inline
+    const objectPoolList_t& getObjectPoolNearList() const; // inline
+    const objectPoolList_t& getObjectPoolFarList() const; // inline
     const sceneNodeSet_t& getShadowNodeSet() const; // inline
     void addShadowNode(irr::scene::ISceneNode* node); // inline
     void removeShadowNode(irr::scene::ISceneNode* node); // inline
 
 private:
     objectPoolMap_t objectPoolMap;
+    // some quick list for the object wire
+    objectPoolList_t objectPoolNearList;
+    objectPoolList_t objectPoolFarList;
 
     ObjectPool*     editorPool;
     float           editorScale;
@@ -58,6 +65,16 @@ private:
 inline const ObjectPoolManager::objectPoolMap_t& ObjectPoolManager::getObjectPoolMap() const
 {
     return objectPoolMap;
+}
+
+inline const ObjectPoolManager::objectPoolList_t& ObjectPoolManager::getObjectPoolNearList() const
+{
+    return objectPoolNearList;
+}
+
+inline const ObjectPoolManager::objectPoolList_t& ObjectPoolManager::getObjectPoolFarList() const
+{
+    return objectPoolFarList;
 }
 
 inline const ObjectPoolManager::sceneNodeSet_t& ObjectPoolManager::getShadowNodeSet() const

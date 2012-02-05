@@ -31,6 +31,8 @@ Settings::Settings()
       nonshaderLight(false),
       objectWireSize(250),
       objectWireNum(7),
+      objectWireNearSize(100),
+      objectWireNearNum(3),
       objectDensity(10),
       useTerrainDetail(true),
       showNames(true),
@@ -101,12 +103,18 @@ void Settings::read()
             } else if (keyName == "nonshader_light")
             {
                 nonshaderLight = StringConverter::parseBool(valName, false);
-            //} else if (keyName == "object_wire_size")
-            //{
-            //    objectWireSize = StringConverter::parseUnsignedInt(valName, 250);
-            //} else if (keyName == "object_wire_num")
-            //{
-            //    objectWireNum = StringConverter::parseUnsignedInt(valName, 7);
+            } else if (keyName == "object_wire_size")
+            {
+                objectWireSize = StringConverter::parseUnsignedInt(valName, 250);
+            } else if (keyName == "object_wire_num")
+            {
+                objectWireNum = StringConverter::parseUnsignedInt(valName, 7);
+            } else if (keyName == "object_wire_near_size")
+            {
+                objectWireNearSize = StringConverter::parseUnsignedInt(valName, 100);
+            } else if (keyName == "object_wire_near_num")
+            {
+                objectWireNearNum = StringConverter::parseUnsignedInt(valName, 3);
             } else if (keyName == "object_density")
             {
                 objectDensity = StringConverter::parseUnsignedInt(valName, 10);
@@ -229,6 +237,8 @@ void Settings::write()
     ret = fprintf(f, "nonshader_light=%s\n", nonshaderLight?"yes":"no");
     ret = fprintf(f, "object_wire_size=%u\n", objectWireSize);
     ret = fprintf(f, "object_wire_num=%u\n", objectWireNum);
+    ret = fprintf(f, "object_wire_near_size=%u\n", objectWireNearSize);
+    ret = fprintf(f, "object_wire_near_num=%u\n", objectWireNearNum);
     ret = fprintf(f, "object_density=%u\n", objectDensity);
     ret = fprintf(f, "use_terrain_detail=%s\n", useTerrainDetail?"yes":"no");
     ret = fprintf(f, "show_names=%s\n", showNames?"yes":"no");

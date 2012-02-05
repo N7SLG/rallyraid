@@ -30,6 +30,8 @@ public:
     bool                    nonshaderLight;
     unsigned int            objectWireSize;
     unsigned int            objectWireNum;
+    unsigned int            objectWireNearSize;
+    unsigned int            objectWireNearNum;
     unsigned int            objectDensity;
     bool                    useTerrainDetail;
     bool                    showNames;

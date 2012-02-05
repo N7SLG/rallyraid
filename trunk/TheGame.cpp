@@ -75,6 +75,7 @@ TheGame::TheGame()
       vehicleManager(0),
       soundEngine(0),
       objectWire(0),
+      objectWireNear(0),
       player(0),
       raceManager(0),
       menuManager(0),
@@ -214,6 +215,8 @@ TheGame::TheGame()
         dprintf(MY_DEBUG_NOTE, "Initialize object wire\n");
         ObjectWire::initialize();
         objectWire = ObjectWire::getInstance();
+        ObjectWireNear::initialize();
+        objectWireNear = ObjectWireNear::getInstance();
         loadingThread->setLargeSteps(84, 90);
         dprintf(MY_DEBUG_NOTE, "Initialize player\n");
         Player::initialize();
@@ -288,6 +291,7 @@ TheGame::~TheGame()
     vehicleManager = 0;
     vehicleTypeManager = 0;
     soundEngine = 0;
+    objectWireNear = 0;
     objectWire = 0;
     player = 0;
     raceManager = 0;
@@ -313,6 +317,8 @@ TheGame::~TheGame()
     ItinerManager::finalize();
     dprintf(MY_DEBUG_NOTE, "Finalize player\n");
     Player::finalize();
+    dprintf(MY_DEBUG_NOTE, "Finalize object wire near\n");
+    ObjectWireNear::finalize();
     dprintf(MY_DEBUG_NOTE, "Finalize object wire\n");
     ObjectWire::finalize();
     dprintf(MY_DEBUG_NOTE, "Finalize soundEngine\n");
@@ -483,6 +489,7 @@ void TheGame::loop()
                 //    camera->getPosition().X, camera->getPosition().Z);
                 bool ou = offsetManager->update(offsetManager->getOffset()+camera->getPosition());
                 objectWire->update(offsetManager->getOffset()+camera->getPosition());
+                objectWireNear->update(offsetManager->getOffset()+camera->getPosition());
                 //printf("off: %f, %f (%f, %f)\n", offsetManager->getOffset().X, offsetManager->getOffset().Z,
                 //    camera->getPosition().X, camera->getPosition().Z);
                 //assert(0);
@@ -708,6 +715,7 @@ void TheGame::doFewSteps(unsigned int stepCnt)
     {
         offsetManager->update(offsetManager->getOffset()+camera->getPosition());
         objectWire->update(offsetManager->getOffset()+camera->getPosition());
+        objectWireNear->update(offsetManager->getOffset()+camera->getPosition());
         hk::step(step_sec);
         OffsetObject::updateDynamicToPhys();
         if (gpu < 2)

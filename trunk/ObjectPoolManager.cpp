@@ -45,6 +45,8 @@ ObjectPoolManager::~ObjectPoolManager()
         delete it->second;
     }
     objectPoolMap.clear();
+    objectPoolNearList.clear();
+    objectPoolFarList.clear();
 }
 
 void ObjectPoolManager::read()
@@ -75,6 +77,7 @@ void ObjectPoolManager::read()
         float friction = 0.5f;
         float mass = 0.0f;
         irr::core::vector3df center;
+        bool _near = false;
 
         objectName = seci.peekNextKey();
         dprintf(MY_DEBUG_NOTE, "\tObject: %s\n", objectName.c_str());
@@ -132,13 +135,25 @@ void ObjectPoolManager::read()
             } else if (keyName == "center")
             {
                 StringConverter::parseFloat3(valName, center.X, center.Y, center.Z);
+            } else if (keyName == "near")
+            {
+                _near = StringConverter::parseBool(valName, false);
             }
         }
         
         if (objectName != "")
         {
-            objectPoolMap[objectName] = new ObjectPool(objectName, meshFilename, textureFilename, texture2Filename,
-                physics, objectType, material, material2, num, category, friction, mass, center);
+            ObjectPool* objectPool = new ObjectPool(objectName, meshFilename, textureFilename, texture2Filename,
+                physics, objectType, material, material2, num, category, friction, mass, center, _near);
+            objectPoolMap[objectName] = objectPool;
+            if (_near)
+            {
+                objectPoolNearList.push_back(objectPool);
+            }
+            else
+            {
+                objectPoolFarList.push_back(objectPool);
+            }
             LoadingThread::getInstance()->stepSmall();
         }
     }
