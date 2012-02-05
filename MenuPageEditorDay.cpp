@@ -34,7 +34,10 @@ MenuPageEditorDay::MenuPageEditorDay()
       editBoxNewStage(0),
       editBoxNewRoadFilename(0),
       editBoxNewRoadName(0),
-      editBoxNewRoadDataFilename(0)
+      editBoxNewRoadDataFilename(0),
+      editBoxNewRoadHMRadius(0),
+      editBoxNewRoadHM(0),
+      cbRoadHMFix(0)
 {
     window = TheGame::getInstance()->getEnv()->addWindow(
         irr::core::recti(TheGame::getInstance()->getScreenSize().Width-350, 50, TheGame::getInstance()->getScreenSize().Width-10, TheGame::getInstance()->getScreenSize().Height-150),
@@ -181,8 +184,36 @@ MenuPageEditorDay::MenuPageEditorDay()
         tabRoads,
         MI_EBNEWROADDATAFILENAME);
 
+    TheGame::getInstance()->getEnv()->addStaticText(L"Road HM radius",
+        irr::core::recti(irr::core::position2di(0, 3*22), irr::core::dimension2di(EXP_TEXT_WIDTH, 20)),
+        false,
+        false,
+        tabRoads)->setTextAlignment(irr::gui::EGUIA_UPPERLEFT, irr::gui::EGUIA_CENTER);
+    editBoxNewRoadHMRadius = TheGame::getInstance()->getEnv()->addEditBox(L"0",
+        irr::core::recti(irr::core::position2di(EXP_TEXT_WIDTH, 3*22), irr::core::dimension2di(tabRoads->getRelativePosition().getSize().Width-EXP_TEXT_WIDTH, 20)),
+        true,
+        tabRoads,
+        MI_EBNEWROADHMRADIUS);
+
+    TheGame::getInstance()->getEnv()->addStaticText(L"Road Height",
+        irr::core::recti(irr::core::position2di(0, 4*22), irr::core::dimension2di(EXP_TEXT_WIDTH, 20)),
+        false,
+        false,
+        tabRoads)->setTextAlignment(irr::gui::EGUIA_UPPERLEFT, irr::gui::EGUIA_CENTER);
+    editBoxNewRoadHM = TheGame::getInstance()->getEnv()->addEditBox(L"0.0",
+        irr::core::recti(irr::core::position2di(EXP_TEXT_WIDTH, 4*22), irr::core::dimension2di(tabRoads->getRelativePosition().getSize().Width-(EXP_TEXT_WIDTH*3), 20)),
+        true,
+        tabRoads,
+        MI_EBNEWROADHM);
+
+    cbRoadHMFix = TheGame::getInstance()->getEnv()->addCheckBox(false,
+        irr::core::recti(irr::core::position2di(tabRoads->getRelativePosition().getSize().Width-EXP_TEXT_WIDTH, 4*22), irr::core::dimension2di(tabRoads->getRelativePosition().getSize().Width-(EXP_TEXT_WIDTH*3), 20)),
+        tabRoads,
+        MI_CBROADHMFIX,
+        L"Fix");
+
     tableRoads = TheGame::getInstance()->getEnv()->addTable(
-        irr::core::recti(irr::core::position2di(0, 3*22), irr::core::dimension2di(tabRoads->getRelativePosition().getSize().Width, tabRoads->getRelativePosition().getSize().Height-(3*22))),
+        irr::core::recti(irr::core::position2di(0, 5*22), irr::core::dimension2di(tabRoads->getRelativePosition().getSize().Width, tabRoads->getRelativePosition().getSize().Height-(5*22))),
         //irr::core::recti(irr::core::position2di(0, 0), tabRoads->getRelativePosition().getSize()),
         tabRoads,
         MI_TABLEROADS,
@@ -190,14 +221,18 @@ MenuPageEditorDay::MenuPageEditorDay()
 
     tableRoads->addColumn(L"#");
     tableRoads->addColumn(L"name");
-    tableRoads->setColumnWidth(1, 60);
+    tableRoads->setColumnWidth(1, 50);
     tableRoads->addColumn(L"type");
-    tableRoads->setColumnWidth(2, 60);
+    tableRoads->setColumnWidth(2, 50);
+    tableRoads->addColumn(L"HMR");
+    tableRoads->setColumnWidth(3, 20);
+    tableRoads->addColumn(L"HM");
+    tableRoads->setColumnWidth(4, 20);
     tableRoads->addColumn(L"size");
     tableRoads->addColumn(L"loaded");
-    tableRoads->setColumnWidth(4, 30);
-    tableRoads->addColumn(L"filename");
-    tableRoads->addColumn(L"data");
+    tableRoads->setColumnWidth(6, 30);
+    //tableRoads->addColumn(L"filename");
+    //tableRoads->addColumn(L"data");
 
     window->setVisible(false);
 }
@@ -273,9 +308,13 @@ bool MenuPageEditorDay::OnEvent(const irr::SEvent &event)
                         std::string roadName;
                         std::string roadFilename;
                         std::string roadDataFilename;
+                        unsigned int HMRadius = 0;
+                        float HM = 0.0f;
                         WStringConverter::toString(editBoxNewRoadFilename->getText(), roadFilename);
                         WStringConverter::toString(editBoxNewRoadName->getText(), roadName);
                         WStringConverter::toString(editBoxNewRoadDataFilename->getText(), roadDataFilename);
+                        WStringConverter::toUnsignedInt(editBoxNewRoadHMRadius->getText(), HMRadius);
+                        WStringConverter::toFloat(editBoxNewRoadHM->getText(), HM);
                         RoadManager::roadMap_t::const_iterator rit = RaceManager::getInstance()->editorDay->roadMap.find(roadName);
                         if (rit == RaceManager::getInstance()->editorDay->roadMap.end() &&
                             !roadName.empty() &&
@@ -287,7 +326,7 @@ bool MenuPageEditorDay::OnEvent(const irr::SEvent &event)
                             if (ret)
                             {
                                 RaceManager::getInstance()->editorDay->roadMap[roadName] =
-                                    new Road(roadFilename, roadName, roadDataFilename, RoadTypeManager::getInstance()->editorRoadType, false);
+                                    new Road(roadFilename, roadName, roadDataFilename, RoadTypeManager::getInstance()->editorRoadType, HMRadius, HM, cbRoadHMFix->isChecked(), false);
                                 refreshRoads();
                             }
                         }
@@ -512,16 +551,24 @@ void MenuPageEditorDay::refreshRoads()
         tableRoads->setCellText(i, 2, str.c_str());
 
         str = L"";
-        str += rit->second->roadPointVector.size();
+        str += rit->second->HMRadius;
         tableRoads->setCellText(i, 3, str.c_str());
+
+        str = L"";
+        str += rit->second->HM;
+        tableRoads->setCellText(i, 4, str.c_str());
+
+        str = L"";
+        str += rit->second->roadPointVector.size();
+        tableRoads->setCellText(i, 5, str.c_str());
 
         str = L"false";
         if (rit->second->isLoaded())
         {
             str = L"true";
         }
-        tableRoads->setCellText(i, 4, str.c_str());
-
+        tableRoads->setCellText(i, 6, str.c_str());
+        /*
         str = L"";
         str += rit->second->roadFilename.c_str();
         tableRoads->setCellText(i, 5, str.c_str());
@@ -529,6 +576,7 @@ void MenuPageEditorDay::refreshRoads()
         str = L"";
         str += rit->second->roadDataFilename.c_str();
         tableRoads->setCellText(i, 6, str.c_str());
+        */
     }
 
 }

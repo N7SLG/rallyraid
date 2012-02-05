@@ -65,6 +65,7 @@ hkpWorld* hk::hkWorld = 0;
 hkJobThreadPool* hk::threadPool;
 int hk::totalNumThreadsUsed;
 hkJobQueue* hk::jobQueue;
+MyLock* hk::hkLock = 0;
 
 static void HK_CALL errorReportFunction(const char* str, void*)
 {
@@ -145,6 +146,8 @@ void hk::initialize()
     winfo.setupSolverInfo(hkpWorldCinfo::SOLVER_TYPE_4ITERS_MEDIUM);
     hkWorld = new hkpWorld(winfo);
 
+    //hkLock = new MyLock();
+
     hk::lock();
 // Register all agents.
     hkpAgentRegisterUtil::registerAllAgents(hkWorld->getCollisionDispatcher());
@@ -167,6 +170,7 @@ void hk::finalize()
         hkResult result = hkMemoryInitUtil::quit();
         hkWorld = 0;
     }
+    //delete hkLock;
 //    delete jobQueue;
 //    threadPool->removeReference();
     //printf("Base system shut down.\n");
@@ -176,5 +180,7 @@ void hk::finalize()
 void hk::step(float step_sec)
 {
     //hkWorld->stepDeltaTime(step_sec);
+    //hkLock->lock();
     hkWorld->stepMultithreaded(jobQueue, threadPool, step_sec);
+    //hkLock->unlock();
 }

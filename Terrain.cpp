@@ -79,6 +79,9 @@ void Terrain::postConstruct()
 void Terrain::postLoad()
 {
     //terrain->setPosition(terrain->getPosition()-OffsetManager::getInstance()->getOffset());
+
+    terrain->scaleTexture(1.0f, /*TILE_SIZE_F*/(float)TILE_POINTS_NUM);
+    //terrain->OnRegisterSceneNode2();
 }
 
 void Terrain::setVisible(bool p_visible)
@@ -92,6 +95,7 @@ void Terrain::setVisible(bool p_visible)
         // must be here DO NOT update in thread
         if (hkShape && offsetObject->getBody() == 0)
         {
+#if 1
             //dprintf(MY_DEBUG_NOTE, "create terrain object\n");
             hk::lock();
             hkpRigidBodyCinfo groundInfo;
@@ -111,6 +115,7 @@ void Terrain::setVisible(bool p_visible)
             hk::hkWorld->addEntity(hkBody);
             hk::unlock();
             offsetObject->setBody(hkBody);
+#endif // 0 v. 1
         }
         //printf("add to manager %s ... \n", prefix.c_str());
         offsetObject->addToManager(/*skipUpdate*/);
@@ -142,9 +147,9 @@ void Terrain::setVisible(bool p_visible)
                 terrain->setMaterialFlag(irr::video::EMF_LIGHTING, false);
             }
             //terrain->setMaterialFlag(irr::video::EMF_TEXTURE_WRAP, true);
-            terrain->scaleTexture(1.0f, /*TILE_SIZE_F*/(float)TILE_POINTS_NUM);
-            terrain->setMaterialType(Shaders::getInstance()->materialMap["terrain"]);
             //terrain->setMaterialFlag(irr::video::EMF_WIREFRAME, true);
+            terrain->setMaterialType(Shaders::getInstance()->materialMap["terrain"]);
+            //terrain->scaleTexture(1.0f, /*TILE_SIZE_F*/(float)TILE_POINTS_NUM);
             //image->drop();
         }
         else

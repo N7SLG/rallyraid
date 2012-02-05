@@ -9,6 +9,10 @@
 class TerrainDetail : public Terrain
 {
 public:
+    static void initialize();
+    static void finalize();
+
+public:
     TerrainDetail(const irr::core::vector3di& posi, TheEarth* earth);
     virtual ~TerrainDetail();
 
@@ -22,6 +26,16 @@ private:
     void set(int x, int y, float val); // inline
     void set(int pos, float val); // inline
     void add(int x, int y, float val); // inline
+
+    void firstPassRoad();
+    void secondPassRoad();
+    void thirdPassRoad();
+    float getRoadAverage(int x, int y, int radius);
+    float getRoadAverage2(int x, int y, int radius);
+
+private:
+    static char* adjustMap;
+    static float* adjustMap2;
 
 private:
     float* fineHeights;

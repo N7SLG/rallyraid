@@ -52,7 +52,7 @@ private:
 
 public:
     Road* getRoad(const std::string& roadName); // inline
-    const roadMap_t& getRoadMap(); // inline
+    const roadMap_t& getRoadMap() const; // inline
 
     void addStageRoad(Road* road);  // call when start a new stage: add race, day and stage roads
     void addStageRoad(const roadMap_t& p_roadMap);  // call when start a new stage: add race, day and stage roads
@@ -80,6 +80,10 @@ public:
 
     // call from the earth stuff, the non-threaded part at the end
     void switchToNewVisual();
+    
+    // call in TerrainDetails, to modify the height where the road is running.
+    const roadRoadChunkSet_t& getVisibleRoadChunkSet() const; // inline
+
 
     // general static finctions
     static void readRoads(const std::string& dirName, roadMap_t& roadMap, bool global, bool doRead = false);
@@ -122,9 +126,14 @@ inline Road* RoadManager::getRoad(const std::string& roadName)
     return rit->second;
 }
 
-inline const RoadManager::roadMap_t& RoadManager::getRoadMap()
+inline const RoadManager::roadMap_t& RoadManager::getRoadMap() const
 {
     return roadMap;
+}
+
+inline const roadRoadChunkSet_t& RoadManager::getVisibleRoadChunkSet() const
+{
+    return visibleRoadChunkSet;
 }
 
 #endif // ROADMANAGER_H

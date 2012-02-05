@@ -33,7 +33,11 @@ public:
         MI_EBNEWROADFILENAME,
         MI_EBNEWROADNAME,
         MI_EBNEWROADDATAFILENAME,
+        MI_EBNEWROADHMRADIUS,
+        MI_EBNEWROADHM,
         MI_EBIMAGE,
+
+        MI_CBROADHMFIX,
 
         NUMBER_OF_MENUITEMS
     };
@@ -68,7 +72,10 @@ private:
     irr::gui::IGUIEditBox*  editBoxNewRoadFilename;
     irr::gui::IGUIEditBox*  editBoxNewRoadName;
     irr::gui::IGUIEditBox*  editBoxNewRoadDataFilename;
+    irr::gui::IGUIEditBox*  editBoxNewRoadHMRadius;
+    irr::gui::IGUIEditBox*  editBoxNewRoadHM;
     irr::gui::IGUIEditBox*  editBoxImage;
+    irr::gui::IGUICheckBox* cbRoadHMFix;
 };
 
 #endif // MENUPAGEEDITORRACE_H

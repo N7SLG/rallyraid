@@ -57,7 +57,8 @@ Settings::Settings()
       desktopResolution(true),
       generatePreImages(false),
       linearSteering(false),
-      useDamage(true)
+      useDamage(true),
+      fpsStepAdd(false)
 {
     read();
 }
@@ -200,6 +201,9 @@ void Settings::read()
             } else if (keyName == "use_damage")
             {
                 useDamage = StringConverter::parseBool(valName, true);
+            } else if (keyName == "fps_step_add")
+            {
+                fpsStepAdd = StringConverter::parseBool(valName, false);
             }
         }
     }
@@ -248,6 +252,7 @@ void Settings::write()
     ret = fprintf(f, "steer_rate_pressed=%f\n", steerRatePressed);
     ret = fprintf(f, "ground_friction=%f\n", groundFriction);
     ret = fprintf(f, "fps_step=%f\n", fpsStep);
+    ret = fprintf(f, "fps_step_add=%s\n", fpsStepAdd?"yes":"no");
     ret = fprintf(f, "desktop_resolution=%s\n", desktopResolution?"yes":"no");
     ret = fprintf(f, "generate_pre_images=%s\n", generatePreImages?"yes":"no");
     ret = fprintf(f, "linear_steering=%s\n", linearSteering?"yes":"no");

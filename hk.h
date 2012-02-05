@@ -14,6 +14,8 @@
 #include <Physics/Vehicle/hkpVehicle.h>
 #include <Physics/Collide/Filter/Group/hkpGroupFilter.h>
 
+#include "MyLock.h"
+
 class hk
 {
 public:
@@ -34,24 +36,28 @@ public:
     static void lock()
     {
         //hkWorld->lock();
+        //hkLock->lock();
         hkWorld->markForWrite();
     }
 
     static void unlock()
     {
         hkWorld->unmarkForWrite();
+        //hkLock->unlock();
         //hkWorld->unlock();
     }
 
     static void lockRead()
     {
         //hkWorld->lock();
+        //hkLock->lock();
         hkWorld->markForRead();
     }
 
     static void unlockRead()
     {
         hkWorld->unmarkForRead();
+        //hkLock->unlock();
         //hkWorld->unlock();
     }
 
@@ -62,6 +68,7 @@ private:
     static hkJobThreadPool* threadPool;
     static int              totalNumThreadsUsed;
     static hkJobQueue*      jobQueue;
+    static MyLock*          hkLock;
 };
 
 #endif // HK_H

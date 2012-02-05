@@ -37,10 +37,15 @@ public:
         MI_EBNEWROADFILENAME,
         MI_EBNEWROADNAME,
         MI_EBNEWROADDATAFILENAME,
+        MI_EBNEWROADHMRADIUS,
+        MI_EBNEWROADHM,
         MI_EBSTAGETIME,
         MI_EBIMAGE,
         MI_EBHMHEIGHT,
         MI_EBHMRADIUS,
+        MI_EBAISPEED,
+
+        MI_CBROADHMFIX,
 
         MI_COMBOBOXWPTYPE,
 
@@ -81,10 +86,14 @@ private:
     irr::gui::IGUIEditBox*  editBoxNewRoadFilename;
     irr::gui::IGUIEditBox*  editBoxNewRoadName;
     irr::gui::IGUIEditBox*  editBoxNewRoadDataFilename;
+    irr::gui::IGUIEditBox*  editBoxNewRoadHMRadius;
+    irr::gui::IGUIEditBox*  editBoxNewRoadHM;
     irr::gui::IGUIEditBox*  editBoxStageTime;
     irr::gui::IGUIEditBox*  editBoxImage;
     irr::gui::IGUIEditBox*  editBoxHMHeight;
     irr::gui::IGUIEditBox*  editBoxHMRadius;
+    irr::gui::IGUIEditBox*  editBoxAISpeed;
+    irr::gui::IGUICheckBox* cbRoadHMFix;
     irr::gui::IGUIComboBox* comboBoxWPType;
 };
 

@@ -128,6 +128,9 @@ EventReceiver::EventReceiver()
     keyNameMap["fps_camera"] = FPS_CAMERA;
     kp.keyLongName = "Change FPS camera";
     keyMap[FPS_CAMERA] = kp;
+    keyNameMap["switch_hud"] = SWITCH_HUD;
+    kp.keyLongName = "Turn on/off HUD";
+    keyMap[SWITCH_HUD] = kp;
     keyNameMap["change_view"] = CHANGE_VIEW;
     kp.keyLongName = "Change view";
     keyMap[CHANGE_VIEW] = kp;
@@ -689,6 +692,12 @@ void EventReceiver::checkEvents()
         {
             dprintf(MY_DEBUG_NOTE, "switch camera\n");
             TheGame::getInstance()->switchCamera();
+        }
+
+        if (IS_PRESSED(SWITCH_HUD))
+        {
+            dprintf(MY_DEBUG_NOTE, "switch hud\n");
+            Hud::getInstance()->setVisible(!Hud::getInstance()->getVisible());
         }
 
         if (IS_PRESSED(LOOK_LEFT) && getPressed(LOOK_LEFT))

@@ -28,6 +28,9 @@ public:
          const std::string& roadName,
          const std::string& roadDataFilename,
          RoadType*          roadType,
+         unsigned int       HMRadius,
+         float              HM,
+         bool               HMFix,
          bool               global);
     ~Road();
 
@@ -37,6 +40,9 @@ public:
     void editorRender(bool editorRoad = false);
     const roadPointVector_t& getRoadPointVector() const; // inline
     RoadType* getRoadType(); // inline
+    unsigned int getHMRadius() const; // inline
+    float getHM() const; // inline
+    bool getHMFix() const; // inline
 
 private:
     bool readHeader();
@@ -62,6 +68,10 @@ private:
     std::string             roadDataFilename;
 
     RoadType*               roadType;
+    unsigned int            HMRadius;
+    float                   HM;
+    bool                    HMFix;
+
     bool                    loaded;
     bool                    global;
 
@@ -96,6 +106,21 @@ inline const Road::roadPointVector_t& Road::getRoadPointVector() const
 inline RoadType* Road::getRoadType()
 {
     return roadType;
+}
+
+inline unsigned int Road::getHMRadius() const
+{
+    return HMRadius;
+}
+
+inline float Road::getHM() const
+{
+    return HM;
+}
+
+inline bool Road::getHMFix() const
+{
+    return HMFix;
 }
 
 #endif // ROAD_H

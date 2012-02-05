@@ -21,10 +21,12 @@ Tile::Tile(unsigned int posx, unsigned int posy, unsigned int tileNum,
       fineColors(new irr::video::SColor[TILE_FINE_POINTS_NUM*TILE_FINE_POINTS_NUM]),
       fineDensity(new irr::video::SColor[TILE_FINE_POINTS_NUM*TILE_FINE_POINTS_NUM]),
       adjusted(new unsigned char[(TILE_FINE_POINTS_NUM*TILE_FINE_POINTS_NUM)/8+1]),
+      //adjustedHeight(new unsigned char[(TILE_DETAIL_POINTS_NUM*TILE_DETAIL_POINTS_NUM)/8+1]),
       roadRoadChunkList()
 {
     memset(height, 0, (TILE_POINTS_NUM*TILE_POINTS_NUM)*sizeof(unsigned short));
     memset(adjusted, 0, (TILE_FINE_POINTS_NUM*TILE_FINE_POINTS_NUM)/8+1);
+//    memset(adjustedHeight, 0, (TILE_DETAIL_POINTS_NUM*TILE_DETAIL_POINTS_NUM)/8+1);
     if (autoRead)
     {
         read();
@@ -257,6 +259,11 @@ Tile::~Tile()
         delete [] adjusted;
         adjusted = 0;
     }
+/*    if (adjustedHeight)
+    {
+        delete [] adjustedHeight;
+        adjustedHeight = 0;
+    }*/
 }
 
 bool Tile::setHeight(unsigned int x, unsigned int y, unsigned short val)
