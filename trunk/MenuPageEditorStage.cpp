@@ -114,7 +114,7 @@ MenuPageEditorStage::MenuPageEditorStage()
         false,
         false,
         window)->setTextAlignment(irr::gui::EGUIA_UPPERLEFT, irr::gui::EGUIA_CENTER);
-    editBoxStageTime = TheGame::getInstance()->getEnv()->addEditBox(L"1000",
+    editBoxStageTime = TheGame::getInstance()->getEnv()->addEditBox(L"10",
         irr::core::recti(irr::core::position2di(EXP_TEXT_WIDTH+2, 110), irr::core::dimension2di(window->getRelativePosition().getSize().Width - 4 - EXP_TEXT_WIDTH, 20)),
         true,
         window,

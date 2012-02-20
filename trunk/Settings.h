@@ -36,7 +36,6 @@ public:
     bool                    useTerrainDetail;
     bool                    showNames;
     unsigned int            difficulty;
-    unsigned int            difficultyStageTimeAdjustment;
     bool                    navigationAssistant;
     unsigned int            resolutionX;
     unsigned int            resolutionY;
@@ -44,7 +43,6 @@ public:
     std::string             driverType;
     bool                    fullScreen;
     bool                    vsync;
-    bool                    scanForJoystick;
     unsigned int            shadowMapSize;
     float                   joystickDeadZone;
     bool                    manualGearShifting;

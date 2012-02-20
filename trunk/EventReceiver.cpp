@@ -57,17 +57,10 @@ EventReceiver::EventReceiver()
     }
     keyboard = static_cast<OIS::Keyboard*>(inputManager->createInputObject(OIS::OISKeyboard, false));
     //mouse = static_cast<OIS::Mouse*>(inputManager->createInputObject(OIS::OISMouse, false));
-    dprintf(MY_DEBUG_ERROR, "If crash here turn the scan_for_joystick off in the settings file\n");
-    if (Settings::getInstance()->scanForJoystick && inputManager->getNumberOfDevices(OIS::OISJoyStick) > 0)
+    dprintf(MY_DEBUG_ERROR, "If crash here report me the error\n");
+    if (inputManager->getNumberOfDevices(OIS::OISJoyStick) > 0)
     {
         joystick = static_cast<OIS::JoyStick*>(inputManager->createInputObject(OIS::OISJoyStick, false));
-    }
-    else
-    {
-        if (Settings::getInstance()->scanForJoystick)
-        {
-            PrintMessage(2, "Unable to detect joystick. Program will continue.\nYou can turn off joystick check in the Options.");
-        }
     }
 
     recalibrate();
