@@ -37,7 +37,6 @@ Settings::Settings()
       useTerrainDetail(true),
       showNames(true),
       difficulty(2),
-      difficultyStageTimeAdjustment(45),
       navigationAssistant(true),
       resolutionX(1280),
       resolutionY(800),
@@ -45,7 +44,6 @@ Settings::Settings()
       driverType("opengl"),
       fullScreen(true),
       vsync(false),
-      scanForJoystick(true),
       shadowMapSize(2048),
       joystickDeadZone(0.01f),
       manualGearShifting(false),
@@ -128,9 +126,6 @@ void Settings::read()
             {
                 difficulty = StringConverter::parseUnsignedInt(valName, 2);
                 if (difficulty > 4) difficulty = 4;
-            } else if (keyName == "difficulty_stage_time_adjustment")
-            {
-                difficultyStageTimeAdjustment = StringConverter::parseUnsignedInt(valName, 45);
             } else if (keyName == "navigation_assistant")
             {
                 navigationAssistant = StringConverter::parseBool(valName, true);
@@ -164,9 +159,6 @@ void Settings::read()
             } else if (keyName == "vsync")
             {
                 vsync = StringConverter::parseBool(valName, false);
-            } else if (keyName == "scan_for_joystick")
-            {
-                scanForJoystick = StringConverter::parseBool(valName, true);
             } else if (keyName == "shadow_map_size")
             {
                 shadowMapSize = StringConverter::parseUnsignedInt(valName, 2048);
@@ -243,7 +235,6 @@ void Settings::write()
     ret = fprintf(f, "use_terrain_detail=%s\n", useTerrainDetail?"yes":"no");
     ret = fprintf(f, "show_names=%s\n", showNames?"yes":"no");
     ret = fprintf(f, "difficulty=%u\n", difficulty);
-    ret = fprintf(f, "difficulty_stage_time_adjustment=%u\n", difficultyStageTimeAdjustment);
     ret = fprintf(f, "navigation_assistant=%s\n", navigationAssistant?"yes":"no");
     ret = fprintf(f, "resolution_x=%u\n", resolutionX);
     ret = fprintf(f, "resolution_y=%u\n", resolutionY);
@@ -251,7 +242,6 @@ void Settings::write()
     ret = fprintf(f, "driver_type=%s\n", driverType.c_str());
     ret = fprintf(f, "full_screen=%s\n", fullScreen?"yes":"no");
     ret = fprintf(f, "vsync=%s\n", vsync?"yes":"no");
-    ret = fprintf(f, "scan_for_joystick=%s\n", scanForJoystick?"yes":"no");
     ret = fprintf(f, "shadow_map_size=%u\n", shadowMapSize);
     ret = fprintf(f, "joystick_dead_zone=%f\n", joystickDeadZone);
     ret = fprintf(f, "manual_gear_shifting=%s\n", manualGearShifting?"yes":"no");

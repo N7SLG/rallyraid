@@ -95,7 +95,7 @@ MenuPageOptions::MenuPageOptions()
     comboBoxDifficulty->addItem(L"Easy");
     comboBoxDifficulty->addItem(L"Very easy");
     
-    line += 20;
+    /*line += 20;
     TheGame::getInstance()->getEnv()->addStaticText(L"Scan joystick (*)",
         irr::core::recti(irr::core::position2di(PADDING, line), irr::core::dimension2di(FTW, 16)),
         false,
@@ -105,7 +105,7 @@ MenuPageOptions::MenuPageOptions()
     cbScanJoystick = TheGame::getInstance()->getEnv()->addCheckBox(Settings::getInstance()->scanForJoystick,
         irr::core::recti(irr::core::position2di(FTW+(PADDING*2), line), irr::core::dimension2di(16, 16)),
         tabGame,
-        MI_CBSCANJOYSTICK);
+        MI_CBSCANJOYSTICK);*/
 
     line += 20;
     TheGame::getInstance()->getEnv()->addStaticText(L"Show Names",
@@ -433,10 +433,10 @@ bool MenuPageOptions::OnEvent(const irr::SEvent &event)
                         Settings::getInstance()->vsync = ((irr::gui::IGUICheckBox*)event.GUIEvent.Caller)->isChecked();
                         return true;
                         break;
-                    case MI_CBSCANJOYSTICK:
+                    /*case MI_CBSCANJOYSTICK:
                         Settings::getInstance()->scanForJoystick = ((irr::gui::IGUICheckBox*)event.GUIEvent.Caller)->isChecked();
                         return true;
-                        break;
+                        break;*/
                     case MI_CBSHOWNAMES:
                         Settings::getInstance()->showNames = ((irr::gui::IGUICheckBox*)event.GUIEvent.Caller)->isChecked();
                         return true;
@@ -500,7 +500,7 @@ void MenuPageOptions::refresh()
 
 void MenuPageOptions::refreshGame()
 {
-    cbScanJoystick->setChecked(Settings::getInstance()->scanForJoystick);
+    //cbScanJoystick->setChecked(Settings::getInstance()->scanForJoystick);
     cbShowNames->setChecked(Settings::getInstance()->showNames);
     cbNavigationAssistant->setChecked(Settings::getInstance()->navigationAssistant);
     cbManualShifting->setChecked(Settings::getInstance()->manualGearShifting);

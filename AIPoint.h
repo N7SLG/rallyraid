@@ -32,6 +32,8 @@ public:
     
     float getSpeed() const; // inline
     unsigned int getTime() const; // inline
+    // only called by the player when AI
+    void setTime(unsigned int); // inline
     
 private:
     //virtual void updateVisible();
@@ -71,6 +73,11 @@ inline float AIPoint::getSpeed() const
 inline unsigned int AIPoint::getTime() const
 {
     return time;
+}
+
+inline void AIPoint::setTime(unsigned int time)
+{
+    this->time = time;
 }
 
 #endif // AIPOINT_H

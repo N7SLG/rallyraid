@@ -152,6 +152,7 @@ void Stage::readWayPointList()
 void Stage::readAIPointList()
 {
     AIPoint::readAIPointList(STAGE_DIR(raceName, dayName, stageName) + "/" + AIPOINTS_CFG, AIPointList);
+    if (!AIPointList.empty() && AIPointList.back()->getTime() != 0) stageTime = AIPointList.back()->getTime();
 }
 
 void Stage::readHeightModifierList()
@@ -163,6 +164,9 @@ bool Stage::write()
 {
     if (!preLoaded) readPreData();
     if (!loaded) readData();
+
+    if (!AIPointList.empty() && AIPointList.back()->getTime() != 0) stageTime = AIPointList.back()->getTime();
+
     bool ret = writeCfg();
     ret &= writeShortDescription();
     ret &= writeGlobalObjects();
@@ -170,6 +174,19 @@ bool Stage::write()
     ret &= writeWayPointList();
     ret &= writeAIPointList();
     ret &= writeHeightModifierList();
+    return ret;
+}
+
+bool Stage::updateStageTimeAndWriteAIPoints()
+{
+    assert(preLoaded);
+
+    if (AIPointList.empty() || AIPointList.back()->getTime() == 0) return false;
+
+    stageTime = AIPointList.back()->getTime();
+
+    bool ret = writeCfg();
+    ret &= writeAIPointList();
     return ret;
 }
 

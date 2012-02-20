@@ -74,6 +74,8 @@ public:
     void activate();
     void deactivate();
 
+    bool updateStageTimeAndWriteAIPoints();
+
 private:
     Day*                            parent;
     std::string                     raceName;
@@ -156,26 +158,15 @@ inline Day* Stage::getParent() const
 
 inline unsigned int Stage::getStageTime() const
 {
-    if (Settings::getInstance()->difficultyStageTimeAdjustment > 0)
+    if (!AIPointList.empty() && stageTime)
     {
-        unsigned int stab = Settings::getInstance()->difficultyStageTimeAdjustment;
-        int sta = (Settings::getInstance()->difficulty * stab) - stab;
-        if (stageTime < stab && sta < 0) return stageTime;
-        return (stageTime + sta);
+        const float stageSpeed = (AIPointList.back()->getGlobalDistance()/(float)stageTime);
+        const float stageSpeedStep = stageSpeed / DIFFICULTY_SPEED_STEP_DIVIDER;
+        const float desiredSpeed = stageSpeed + stageSpeedStep - (stageSpeedStep*(float)Settings::getInstance()->difficulty);
+        if (desiredSpeed < 0.0001f) return stageTime;
+        return (unsigned int)(AIPointList.back()->getGlobalDistance()/desiredSpeed);
     }
-    else
-    {
-        unsigned int difficultyStageTimeStep = 40; // sec
-        if (!AIPointList.empty() && stageTime)
-        {
-            const float stageSpeed = (AIPointList.back()->getGlobalDistance()/(float)stageTime);
-            const float stageSpeedStep = stageSpeed / DIFFICULTY_SPEED_STEP_DIVIDER;
-            const float desiredSpeed = stageSpeed + stageSpeedStep - (stageSpeedStep*(float)Settings::getInstance()->difficulty);
-            if (desiredSpeed < 0.0001f) return stageTime;
-            return (unsigned int)(AIPointList.back()->getGlobalDistance()/desiredSpeed);
-        }
-        return stageTime;
-    }
+    return stageTime;
 }
 
 inline irr::video::ITexture* Stage::getImage()
