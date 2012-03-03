@@ -48,18 +48,6 @@
     <ClInclude Include="Settings.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="IrrCg.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="IrrCgExtensionHandler.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="IrrCgMaterial.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="IrrCgSceneNode.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Shaders.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -294,15 +282,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Settings.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="IrrCg.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="IrrCgMaterial.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="IrrCgSceneNode.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Shaders.cpp">

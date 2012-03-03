@@ -102,10 +102,6 @@
     <ClInclude Include="GamePlay_defs.h" />
     <ClInclude Include="hk.h" />
     <ClInclude Include="Hud.h" />
-    <ClInclude Include="IrrCg.h" />
-    <ClInclude Include="IrrCgExtensionHandler.h" />
-    <ClInclude Include="IrrCgMaterial.h" />
-    <ClInclude Include="IrrCgSceneNode.h" />
     <ClInclude Include="IteratorWrapper.h" />
     <ClInclude Include="ItinerManager.h" />
     <ClInclude Include="ItinerPoint.h" />
@@ -189,9 +185,6 @@
     <ClCompile Include="GamePlay.cpp" />
     <ClCompile Include="hk.cpp" />
     <ClCompile Include="Hud.cpp" />
-    <ClCompile Include="IrrCg.cpp" />
-    <ClCompile Include="IrrCgMaterial.cpp" />
-    <ClCompile Include="IrrCgSceneNode.cpp" />
     <ClCompile Include="ItinerManager.cpp" />
     <ClCompile Include="ItinerPoint.cpp" />
     <ClCompile Include="KeyConfig.cpp" />

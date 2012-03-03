@@ -111,7 +111,7 @@ MenuPageMain::MenuPageMain()
     havok_image->setUseAlphaChannel(true);
     havok_image->setImage(havok_logo);
 
-    irr::gui::IGUIStaticText* s = TheGame::getInstance()->getEnv()->addStaticText(L"Version: 1.0 - Build: 181",
+    irr::gui::IGUIStaticText* s = TheGame::getInstance()->getEnv()->addStaticText(L"Version: 1.0 - Build: 182",
         irr::core::recti(irr::core::position2di(window->getRelativePosition().getSize().Width - 110, window->getRelativePosition().getSize().Height - 20), havok_logo->getOriginalSize()),
         false, false, window, 0, false);
     s->setOverrideFont(FontManager::getInstance()->getFont(FontManager::FONT_BUILTIN));
