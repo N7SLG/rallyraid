@@ -51,7 +51,6 @@ Settings::Settings()
       editorMode(false),
       steerRate(1.0f),
       steerRatePressed(0.1f),
-      groundFriction(0.8f),
       fpsStep(0.1f),
       AIPlayer(false),
       desktopResolution(true),
@@ -183,9 +182,6 @@ void Settings::read()
             } else if (keyName == "steer_rate_pressed")
             {
                 steerRatePressed = StringConverter::parseFloat(valName, 0.1f);
-            } else if (keyName == "ground_friction")
-            {
-                groundFriction = StringConverter::parseFloat(valName, 0.8f);
             } else if (keyName == "fps_step")
             {
                 fpsStep = StringConverter::parseFloat(valName, 0.1f);
@@ -250,7 +246,6 @@ void Settings::write()
     ret = fprintf(f, "ai_player=%s\n", AIPlayer?"yes":"no");
     ret = fprintf(f, "steer_rate=%f\n", steerRate);
     ret = fprintf(f, "steer_rate_pressed=%f\n", steerRatePressed);
-    ret = fprintf(f, "ground_friction=%f\n", groundFriction);
     ret = fprintf(f, "fps_step=%f\n", fpsStep);
     ret = fprintf(f, "fps_step_add=%s\n", fpsStepAdd?"yes":"no");
     ret = fprintf(f, "desktop_resolution=%s\n", desktopResolution?"yes":"no");

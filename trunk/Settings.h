@@ -50,7 +50,6 @@ public:
     bool                    editorMode;
     float                   steerRate;
     float                   steerRatePressed;
-    float                   groundFriction;
     float                   fpsStep;
     bool                    AIPlayer;
     bool                    desktopResolution;
