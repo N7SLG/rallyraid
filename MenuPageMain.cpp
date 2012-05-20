@@ -111,7 +111,7 @@ MenuPageMain::MenuPageMain()
     havok_image->setUseAlphaChannel(true);
     havok_image->setImage(havok_logo);
 
-    irr::gui::IGUIStaticText* s = TheGame::getInstance()->getEnv()->addStaticText(L"Version: 1.0 - Build: 182",
+    irr::gui::IGUIStaticText* s = TheGame::getInstance()->getEnv()->addStaticText(L"Version: 1.0 - Build: 184",
         irr::core::recti(irr::core::position2di(window->getRelativePosition().getSize().Width - 110, window->getRelativePosition().getSize().Height - 20), havok_logo->getOriginalSize()),
         false, false, window, 0, false);
     s->setOverrideFont(FontManager::getInstance()->getFont(FontManager::FONT_BUILTIN));
@@ -243,16 +243,28 @@ bool MenuPageMain::OnEvent(const irr::SEvent &event)
                     case MI_BUTTONSTART:
                         dprintf(MY_DEBUG_NOTE, "mainmenu::startbutton::clicked: selected race: %s, vehicle: %s\n",
                             selectedRace?selectedRace->getName().c_str():"-", selectedVehicleType?selectedVehicleType->getName().c_str():"-");
-                        if (selectedRace && selectedVehicleType)
+                        if (selectedVehicleType)
                         {
-                            willOpenOtherWindow = true;
-                            MenuPageStage::menuPageStage->selectedRace = selectedRace;
-                            MenuPageStage::menuPageStage->selectedStage = 0;
-                            MenuPageStage::menuPageStage->selectedVehicleType = selectedVehicleType;
-                            MenuPageStage::menuPageStage->newRace = true;
-                            MenuManager::getInstance()->close();
-                            MenuManager::getInstance()->open(MenuManager::MP_STAGE);
-                            //GamePlay::getInstance()->startNewGame(selectedRace, selectedVehicleType);
+                            if (selectedRace)
+                            {
+                                willOpenOtherWindow = true;
+                                MenuPageStage::menuPageStage->selectedRace = selectedRace;
+                                MenuPageStage::menuPageStage->selectedStage = 0;
+                                MenuPageStage::menuPageStage->selectedVehicleType = selectedVehicleType;
+                                MenuPageStage::menuPageStage->newRace = true;
+                                MenuManager::getInstance()->close();
+                                MenuManager::getInstance()->open(MenuManager::MP_STAGE);
+                                //GamePlay::getInstance()->startNewGame(selectedRace, selectedVehicleType);
+                            }
+                            else
+                            {
+                                if (Settings::getInstance()->editorMode)
+                                {
+                                    willOpenOtherWindow = false;
+                                    MenuManager::getInstance()->close();
+                                    GamePlay::getInstance()->startStage(0, selectedVehicleType);
+                                }
+                            }
                         }
                         return true;
                         break;

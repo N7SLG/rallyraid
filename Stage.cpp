@@ -23,7 +23,7 @@ Stage::Stage(Day* parent, const std::string& raceName, const std::string& dayNam
       AIPointList(),
       active(false),
       roadMap(),
-      stageTime(1000),
+      stageTime(10),
       image(0),
       groundFriction(0.8f),
       heightModifierList(),
@@ -112,7 +112,7 @@ bool Stage::readCfg()
                 stageLongName = valName;
             } else if (keyName == "stage_time")
             {
-                stageTime = StringConverter::parseUnsignedInt(valName, 1000);
+                stageTime = StringConverter::parseUnsignedInt(valName, 10);
             } else if (keyName == "image")
             {
                 imageName = valName;

@@ -18,6 +18,7 @@ public:
         MI_BUTTONRESET,
         MI_BUTTONRELOAD,
         MI_BUTTONJUMPEND,
+        MI_BUTTONCREATERACE,
         MI_TABCONTROL,
 
         MI_TABSELECTED,
@@ -55,6 +56,7 @@ public:
         MI_EBRESETZ,
         MI_EBSCALE,
         MI_EBROT,
+        MI_EBNEWRACENAME,
 
         MI_CBRENDER,
         MI_CBRENDERALLROADS,
@@ -161,6 +163,7 @@ private:
     irr::gui::IGUIEditBox*  editBoxResetZ;
     irr::gui::IGUIEditBox*  editBoxScale;
     irr::gui::IGUIEditBox*  editBoxRot;
+    irr::gui::IGUIEditBox*  editBoxNewRace;
     irr::gui::IGUICheckBox* checkBoxRender;
     irr::gui::IGUICheckBox* checkBoxRenderAllRoads;
     irr::gui::IGUIStaticText* staticTextItinerGD;

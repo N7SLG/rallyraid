@@ -64,6 +64,7 @@ MenuPageEditor::MenuPageEditor()
       editBoxResetZ(0),
       editBoxScale(0),
       editBoxRot(0),
+      editBoxNewRace(0),
       checkBoxRender(0),
       checkBoxRenderAllRoads(0),
       staticTextItinerGD(0),
@@ -348,8 +349,27 @@ MenuPageEditor::MenuPageEditor()
     // ----------------------------
     irr::gui::IGUITab* tabRaceManager = tc->addTab(L"RaM", MI_TABRACEMANAGER);
 
+    TheGame::getInstance()->getEnv()->addStaticText(L"Race id",
+        irr::core::recti(irr::core::position2di(0, 0), irr::core::dimension2di(EXP_TEXT_WIDTH, 20)),
+        false,
+        false,
+        tabRaceManager)->setTextAlignment(irr::gui::EGUIA_UPPERLEFT, irr::gui::EGUIA_CENTER);
+    editBoxNewRace = TheGame::getInstance()->getEnv()->addEditBox(L"dakar2013",
+        irr::core::recti(irr::core::position2di(EXP_TEXT_WIDTH, 0), irr::core::dimension2di(tabRaceManager->getRelativePosition().getSize().Width-EXP_TEXT_WIDTH*2, 20)),
+        true,
+        tabRaceManager,
+        MI_EBNEWRACENAME);
+
+    TheGame::getInstance()->getEnv()->addButton(
+        irr::core::recti(irr::core::position2di(tabRaceManager->getRelativePosition().getSize().Width-EXP_TEXT_WIDTH, 0),
+            irr::core::dimension2di(EXP_TEXT_WIDTH, 20)),
+        tabRaceManager,
+        MI_BUTTONCREATERACE,
+        L"create", L"create new race");
+
     tableRaceManager = TheGame::getInstance()->getEnv()->addTable(
-        irr::core::recti(irr::core::position2di(0, 0), tabRaceManager->getRelativePosition().getSize()),
+        irr::core::recti(irr::core::position2di(0, 22), irr::core::dimension2di(tabRaceManager->getRelativePosition().getSize().Width, tabRaceManager->getRelativePosition().getSize().Height-22)),
+        //irr::core::recti(irr::core::position2di(0, 0), tabRaceManager->getRelativePosition().getSize()),
         tabRaceManager,
         MI_TABLERACEMANAGER,
         true);
@@ -685,6 +705,25 @@ bool MenuPageEditor::OnEvent(const irr::SEvent &event)
                         else
                         {
                             PrintMessage(104, "Unable to jump to the end because %s.", RaceManager::getInstance()->editorStage==0?"no stage selected":"itiner point list is empty of the stage");
+                        }
+                        return true;
+                        break;
+                    }
+                    case MI_BUTTONCREATERACE:
+                    {
+                        dprintf(MY_DEBUG_NOTE, "editor::newRace\n");
+                        std::string race;
+                        WStringConverter::toString(editBoxNewRace->getText(), race);
+                        RaceManager::raceMap_t::const_iterator rit = RaceManager::getInstance()->raceMap.find(race);
+                        if (rit == RaceManager::getInstance()->raceMap.end())
+                        {
+                            bool ret;
+                            ret = ConfigDirectory::mkdir(RACE_DIR(race));
+                            if (ret)
+                            {
+                                RaceManager::getInstance()->raceMap[race] = new Race(race, ret);
+                                refreshRaceManager();
+                            }
                         }
                         return true;
                         break;
