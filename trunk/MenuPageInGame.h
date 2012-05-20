@@ -53,6 +53,7 @@ private:
     irr::gui::IGUITable*    tableCompetitorsG;
     irr::gui::IGUITable*    tableCompetitorsInStage;
     irr::gui::IGUIButton*   buttonLoad;
+    irr::gui::IGUIButton*   buttonSave;
     irr::gui::IGUIButton*   buttonNextStage;
 
     bool                    willOpenOtherWindow;

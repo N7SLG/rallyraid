@@ -42,6 +42,7 @@ MenuPageInGame::MenuPageInGame()
       tableCompetitorsG(0),
       tableCompetitorsInStage(0),
       buttonLoad(0),
+      buttonSave(0),
       willOpenOtherWindow(false)
 {
     menuPageInGame = this;
@@ -74,7 +75,7 @@ MenuPageInGame::MenuPageInGame()
         L"Load Game");
 
     line += 30;
-    TheGame::getInstance()->getEnv()->addButton(
+    buttonSave = TheGame::getInstance()->getEnv()->addButton(
         irr::core::recti(10,line,140,line+20),
         window,
         MI_BUTTONSAVE,
@@ -361,9 +362,10 @@ void MenuPageInGame::close()
 
 void MenuPageInGame::refresh()
 {
-    assert(!GamePlay::getInstance()->raceState.empty());
+    //assert(!GamePlay::getInstance()->raceState.empty());
 
     buttonLoad->setEnabled(!GamePlay::getInstance()->loadableGames.empty());
+    buttonSave->setEnabled(!Settings::getInstance()->editorMode);
     buttonNextStage->setEnabled(RaceManager::getInstance()->getNextStage()!=0 && Player::getInstance()->getStarter()==0);
 
     if (RaceManager::getInstance()->getCurrentRace())
@@ -374,7 +376,10 @@ void MenuPageInGame::refresh()
     }
 
     refreshStages();
-    refreshCompetitors(GamePlay::getInstance()->raceState.back());
+    if (!GamePlay::getInstance()->raceState.empty())
+    {
+        refreshCompetitors(GamePlay::getInstance()->raceState.back());
+    }
 }
 
 void MenuPageInGame::refreshStages()
