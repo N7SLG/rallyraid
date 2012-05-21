@@ -1,0 +1,9 @@
+#summary Editor - Main window - Selection tab
+
+= Introduction =
+
+This picture will show if you press _F3_ key to open editor window:
+
+http://rallyraid.googlecode.com/svn/images/wiki/editor_main_s2.png
+
+==Description==
