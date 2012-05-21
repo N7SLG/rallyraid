@@ -14,4 +14,4 @@ http://rallyraid.googlecode.com/svn/images/wiki/editor_infobar.png
 || *Polygon count* || the number of the currently draw polygons ||
 || *Detail pos* || Every _tile_ has 32 x 32 height data. The distance between two height point is 64 meters (32 x 64 = 2048 meters = ~2 km = _tile size_). 64 meters is to rare so the game interpolates the height (_detail point_) points between two height data points. There are 3 _detail point_ between the height points, so the distance of the _detail points_ are 64 / 4 = 16 meters (_detail scale_). The _detail pos_ is the position / _detail scale_  ||
 || *Distance to the last itinerary point* || Distance to the last itinerary point. ||
-|| *FPS speed* || is the camera speed in FPS mode (_F_ key by default) ||
+|| *FPS speed* || is the camera speed in FPS mode (_F_ key by default), you can increase the camera speed to 125% by _O_ key or decrease to 80% by _L_ key of the current speed ||
