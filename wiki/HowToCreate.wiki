@@ -73,7 +73,7 @@ Now you have a race with an empty stage. You will need to edit the stage. Close 
  * type _F_ to switch free flight mode, where you can navigate with the cursor and mouse
  * you can increse the speed of the camera by _O_, decrease by _L_
  * you can see some status in the editor infobar at the top-left corner
-[http://code.google.com/p/rallyraid/wiki/EditorInfobar http://rallyraid.googlecode.com/svn/images/wiki/editor_infobar.png]
+[EditorInfobar http://rallyraid.googlecode.com/svn/images/wiki/editor_infobar.png]
 
 ===Action===
 
