@@ -6,6 +6,7 @@ The info bar is placed on the left-top of the game window and gives you informat
 
 http://rallyraid.googlecode.com/svn/images/wiki/editor_infobar.png
 
+== Description ==
 
 || *Secs* || how many seconds have you started the game. ||
 || *Pos* || This is your real position inside the _render world_, that is not your position in the _real world_ (except the _Y_ coordinate) ||
