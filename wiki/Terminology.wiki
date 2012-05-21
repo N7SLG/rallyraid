@@ -43,7 +43,7 @@ The speciality of the game that you can reach almost every place of the whole
 Earth at one load. So once you load a stage, than you can go everywhere you
 want to. It only depends on if you have the height data.
 The height data of the whole earth is quite large (10 GB). So I chopped it
-into [#Earth_Tile _tiles_]. The every 100 x 100 _tiles_ are grouped into _tile category_. The _tile categories_ are stored in separate zip files under data/earthdata/tiles. So you can deliver a race only with the required _tile categories_ (the
+into [#Earth_Tile tiles]. The every 100 x 100 [#Earth_Tile tiles] are grouped into _tile category_. The _tile categories_ are stored in separate zip files under data/earthdata/tiles. So you can deliver a race only with the required _tile categories_ (the
 Dakar 2012 Game contained ~480 MB of it which is 52 _tile categories_).
 The dismemberment can be found in the game base (see downloads) in the following
 files:
