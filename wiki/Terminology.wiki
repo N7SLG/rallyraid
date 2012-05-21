@@ -41,10 +41,10 @@ rallies there can be more stages at one day.
 The speciality of the game that you can reach almost every place of the whole
 Earth at one load. So once you load a stage, than you can go everywhere you
 want to. It only depends on if you have the height data.
-The height data of the whole earth is quite large (10 GB). So I choped it
-up to tiles. So you can deliver a race only with the required tiles (the
-Dakar 2012 Game contained ~480 MB of it which is 52 tiles).
-The dismemberment can be found in the game base (see donwloads) in the following
+The height data of the whole earth is quite large (10 GB). So I chopped it
+into _tiles_. The every 100 x 100 _tiles_ are grouped into _tile category_. The _tile categories_ are stored in separate zip files under data/earthdata/tiles. So you can deliver a race only with the required _tile categories_ (the
+Dakar 2012 Game contained ~480 MB of it which is 52 _tile categories_).
+The dismemberment can be found in the game base (see downloads) in the following
 files:
  * data/earthdata/earth`_`data`_`hasDetail`_`cat`_`num.png
  * data/earthdata/earth`_`data`_`texture`_`cat.png
