@@ -19,3 +19,13 @@ The S (selected) tab of the main window is the central point of the editor. You 
 
 || *Refresh* || refresh the content of the main window (every tab), you don't need to use it ||
 || *action* / *ACTION* || you can switch to action mode, if you click the _action_ button the button title will change to _ACTION_, that means you are in [Terminology#Action_Mode action mode]. *ATTENTION*: if the button title is _ACTION_ you cannot use the editor windows, and the mouse click will do the action! ||
+|| *activate race* || activate the selected [Terminology#Race race] and [Terminology#Stage stage], which means deactivate the old ones, remove _objects_/_roads_ everything that belongs to the old [Terminology#Stage stage] and add _objects_/_roads_/_itinerary points_ to the scene from the new stage. ||
+|| *reset* || put you and your car to the [Terminology#Earth_Tile tile] that you wrote into the _tile inputs_ on the _S_ tab on on the main window ||
+|| *reload* || reload , but you will be left at the position where you were. ||
+|| *jump end* || jump to the last itinerary point. Useful when you have to close the program and leave during the editing and you need to continue later. ||
+
+
+==Tabs==
+
+|| *S* || see this page :) ||
+|| *Tls* || gives you some information about the currently used [Terminology#Earth_Tile tiles] ||
