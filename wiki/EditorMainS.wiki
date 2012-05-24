@@ -4,6 +4,8 @@
  * [#Introduction Introduction]
  * [#Description Description]
   * [#Buttons Buttons]
+  * [#Tabs Tabs]
+  * [#Render_Helpers Render Helpers]
 
 = Introduction =
 
@@ -29,3 +31,17 @@ The S (selected) tab of the main window is the central point of the editor. You 
 
 || *S* || see this page :) ||
 || *Tls* || gives you some information about the currently used [Terminology#Earth_Tile tiles] ||
+|| *OW_G* || gives you some information about global object in the _object wire_. _Object wire_ is used to display the objects that are near to you. ||
+|| *OW_T* || _Object wire_ use _tiles_, a _tile_ is an object batch, easy to handle. This tab contains information about the _object wire tiles_. ||
+|| *OPool* || [EditorMainOpool Object Pool] ||
+|| *RaM* || [EditorMainRam Race Manager settings] ||
+|| *RoM* || [EditorMainRom Road Manager settings] ||
+|| *Iti* || [EditorMainIti Itinerary settings] ||
+
+==Tab content==
+
+===Render Helpers===
+If it is checked, then it is use special draw elements to indicate the stage elements (object, road points, itinerary points, way points).
+
+===Render All Roads===
+If it is checked render helpers of all road points of all [Terminology#Road roads] will be rendered. Otherwise only the currently selected will be rendered.
