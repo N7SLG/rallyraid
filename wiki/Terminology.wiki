@@ -31,6 +31,8 @@ In normal mode you can use the editor windows and their content as usual: you ca
  * add/remove road point
  * etc.
 
+*Turn on* - click on _action_ button in the [EditorMainS editor main window].
+*Turn off* - press _F4_
 
 ===AI Point===
 
