@@ -6,6 +6,7 @@ This page contains the terminology that is used by the Rally Raid Game.
 
 
 ==Content==
+ * [#Action_Mode Action Mode]
  * [#AI_Point AI Point]
  * [#Day Day]
  * [#Earth Earth]
@@ -17,6 +18,18 @@ This page contains the terminology that is used by the Rally Raid Game.
  * [#Road Road]
  * [#Stage Stage]
  * [#Way_Point Way Point]
+
+
+===Action Mode===
+
+There is two mode inside the editor when the editor window is open:
+ * normal mode
+ * action mode
+
+In normal mode you can use the editor windows and their content as usual: you can click on the buttons, type in the editor boxes. But in _action mode_ the inputs is not forwarded to the window handler, so you cannot click on the buttons. The click in editor mode make an action:
+ * put/remove an object
+ * add/remove road point
+ * etc.
 
 
 ===AI Point===
