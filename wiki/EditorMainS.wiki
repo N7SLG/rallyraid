@@ -1,9 +1,21 @@
 #summary Editor - Main window - Selection tab
 
+= Content =
+ * [#Introduction Introduction]
+ * [#Description Description]
+  * [#Buttons Buttons]
+
 = Introduction =
 
 This picture will show if you press _F3_ key to open editor window:
 
 http://rallyraid.googlecode.com/svn/images/wiki/editor_main_s2.png
 
-==Description==
+=Description=
+
+The S (selected) tab of the main window is the central point of the editor. You can start the actions here (put objects, add road point). Place yourself anywhere you want. You will you the quite often during the stage editing.
+
+==Buttons==
+
+|| *Refresh* || refresh the content of the main window (every tab), you don't need to use it ||
+|| *action* / *ACTION* || you can switch to action mode, if you click the _action_ button the button title will change to _ACTION_, that means you are in [Terminology#Action_Mode action mode]. *ATTENTION*: if the button title is _ACTION_ you cannot use the editor windows, and the mouse click will indicate the action! ||
