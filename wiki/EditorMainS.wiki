@@ -64,12 +64,12 @@ Selection table contains the currently selected:
  * [Terminology#Day day]
  * [Terminology#Stage stage]
  * [Terminology#road road]
- * [EditorMainRoM road type]
+ * [EditorMainRom road type]
  * [EditorMainIti itinerary images]
- * [EditorStageWP way point type]
+ * [EditorStageWp way point type]
  * stage length
 
-Many of the list element like race, day, stage is a shortcut to reach the race-, day-, stage window. So you don't need to go the [EditorStageGO stage window] through the [EditorMainRaM race manager tab] -> race -> day -> stage.
+Many of the list element like race, day, stage is a shortcut to reach the race-, day-, stage window. So you don't need to go the [EditorStageGo stage window] through the [EditorMainRam race manager tab] -> race -> day -> stage.
 
 ====Action Table====
 Action table contains the actions, that you can do during the stage editing: add/remove stuffs.
