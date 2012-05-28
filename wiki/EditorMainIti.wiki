@@ -1,0 +1,20 @@
+#summary Editor - Main window - Itinerary tab
+
+=Content=
+
+ * [#Introduction Introduction]
+ * [#Description Description]
+
+= Introduction =
+
+The most important part of the navigation system is the road book. You can place road book elements (called itinerary point) along the stage.
+
+http://rallyraid.googlecode.com/svn/images/wiki/editor_main_iti.png
+
+=Description=
+
+|| *total distance* || (at the top of the tab) total distance that is determined by the summary of the local distances of each element. It is in meters. ||
+|| *Local dist.* || the distance from the previous itinerary point, it is very important, be punctual. It is in meters. ||
+|| *Description* || you can add some extra information to each road book entry: CAP, dangerous level. ||
+|| *Itiner image* || this will be the _tulip_ image. Mostly describes the direction. ||
+|| *Itiner image 2* || will be the part of the description. Some extra visual information. ||
