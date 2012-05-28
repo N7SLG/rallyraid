@@ -1,0 +1,35 @@
+#summary Editor - Main window - Race manager tab
+
+=Content=
+
+ * [#Introduction Introduction]
+ * [#Description Description]
+  * [#Road_Stage_Table Road Stage Table]
+  * [#Visual_Road_Table Visual Road Table]
+  * [#Road_Types_Table Road Types Table]
+
+= Introduction =
+
+Race manager contains information about road types, and currently visible roads.
+
+http://rallyraid.googlecode.com/svn/images/wiki/editor_main_rom.png
+
+=Description=
+
+==Road Stage Table==
+
+==Visual Road Table==
+
+Displaying all part of a long road make a big performance hit. So i only display the parts of the roads, which are next to the player. How? As i chopped the [Terminology#Earth Earth] into [Terminology#Earth_Tile tiles], i also chopping the roads at stage loading along these [Terminology#Earth_Tile tiles]. I call the part of the road which is on a tile _road chunk_. This table contains information about the _road chunks_:
+ * road name
+ * the number of the start point of the chunk
+ * the number of the end point of the chunk
+
+==Road Types Table==
+The list of the available road types. If you select a road type from the list, then its texture will be displayed in the image above this table.
+
+There is a special type _null`_`road_, which is used in case where you don't need the visible stuf only the property of the roads:
+ * makes object density zero, so there won't be placed objects along the road
+ * makes ground texture a bit different
+
+More information can be found on the [EditorStageRoads road tab page].
