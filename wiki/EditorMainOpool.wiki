@@ -30,7 +30,7 @@ If you select an object you can see its texture(s) in the preview.
 ==Object Type List==
 The available objects that you can use in a stage. And you can see some prameters of the object:
  * name
- * [Terminilogy#Object category]
- * [Terminilogy#Object num (dense information)]
+ * [Terminology#Object category]
+ * [Terminology#Object num (dense information)]
  * the number of the objects of a type that are currently in use (visible)
  * how many object found in the object cache (maybe visible, maybe not)
