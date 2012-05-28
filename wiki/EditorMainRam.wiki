@@ -1,0 +1,7 @@
+#summary Editor - Main window - Race manager tab
+
+= Introduction =
+
+Race manager contains the list of the available [Terminology#Race races]. And you can create new [Terminology#Race race]:
+
+http://rallyraid.googlecode.com/svn/images/wiki/editor_main_ram_cut.png
