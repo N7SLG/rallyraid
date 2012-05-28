@@ -5,7 +5,12 @@
  * [#Description Description]
   * [#Buttons Buttons]
   * [#Tabs Tabs]
-  * [#Render_Helpers Render Helpers]
+  * [#Tab_Content Tab Content]
+   * [#Render_Helpers Render Helpers]
+   * [#Render_All_Roads Render All Roads]
+   * [#Tables Tables]
+    * [#Selection_Table Selection Table]
+    * [#Action_Table Action Table]
 
 = Introduction =
 
@@ -45,3 +50,26 @@ If it is checked, then it is use special draw elements to indicate the stage ele
 
 ===Render All Roads===
 If it is checked render helpers of all road points of all [Terminology#Road roads] will be rendered. Otherwise only the currently selected will be rendered.
+
+===Tables===
+
+There are two tables on the selection tab:
+ * selection table
+ * action table
+
+====Selection Table====
+Selection table contains the currently selected:
+ * object type
+ * [Terminology#Race race]
+ * [Terminology#Day day]
+ * [Terminology#Stage stage]
+ * [Terminology#road road]
+ * [EditorMainRoM road type]
+ * [EditorMainIti itinerary images]
+ * [EditorStageWP way point type]
+ * stage length
+
+Many of the list element like race, day, stage is a shortcut to reach the race-, day-, stage window. So you don't need to go the [EditorStageGO stage window] through the [EditorMainRaM race manager tab] -> race -> day -> stage.
+
+====Action Table====
+Action table contains the actions, that you can do during the stage editing: add/remove stuffs.
