@@ -70,6 +70,7 @@ Selection table contains the currently selected:
  * stage length
 
 Many of the list element like race, day, stage is a shortcut to reach the race-, day-, stage window. So you don't need to go the [EditorStageGo stage window] through the [EditorMainRam race manager tab] -> race -> day -> stage.
+_Stage length_ is calculated from the distances of the AI points.
 
 ====Action Table====
 Action table contains the actions, that you can do during the stage editing: add/remove stuffs.
