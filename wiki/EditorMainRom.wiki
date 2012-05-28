@@ -17,6 +17,7 @@ http://rallyraid.googlecode.com/svn/images/wiki/editor_main_rom.png
 =Description=
 
 ==Road Stage Table==
+N/A
 
 ==Visual Road Table==
 
